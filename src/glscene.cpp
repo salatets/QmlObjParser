@@ -2,7 +2,19 @@
 
 #include <QtQuick/qquickwindow.h>
 #include <QtCore/QRunnable>
+#include <QtMath>
 #include "shaders.h"
+
+float max(const QVector3D& vec){
+    float max = vec.x();
+
+    if(vec.y() > max)
+        max = vec.y();
+    if(vec.z() > max)
+        max = vec.z();
+
+    return max;
+}
 
 GLScene::GLScene() : m_pitch(0)
   , m_yaw(0)
@@ -162,8 +174,8 @@ void GLSceneRenderer::paint()
     QVector3D viewPos(0.0f, 0.0f, 0.0f);
 
     QMatrix4x4 mat;
-    //mat.scale(2);
-    //mat.translate(0,0,10);
+    mat.scale(1/(max(m_model.getSize())/1.5)); // TODO fix clip bug
+    mat.translate(- m_model.getCenter());
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,0,1), m_roll));
