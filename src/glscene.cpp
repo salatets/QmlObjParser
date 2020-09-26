@@ -53,6 +53,16 @@ void GLScene::setRoll(qreal roll)
         window()->update();
 }
 
+void GLScene::setPos(qreal pos)
+{
+    if (pos == m_pos)
+        return;
+    m_pos= pos;
+    emit posChanged();
+    if (window())
+        window()->update();
+}
+
 void GLScene::handleWindowChanged(QQuickWindow *win)
 {
     if (win) {
@@ -101,6 +111,7 @@ void GLScene::sync()
     m_renderer->setPitch(m_pitch);
     m_renderer->setYaw(m_yaw);
     m_renderer->setRoll(m_roll);
+    m_renderer->setPos(m_pos);
     m_renderer->setWindow(window());
 }
 Mesh classC;
@@ -176,7 +187,7 @@ void GLSceneRenderer::paint()
 
     m_program->setUniformValue("lightColor", QVector3D(1.0f, 0.0f, 1.0f));
     m_program->setUniformValue("objectColor", QVector3D(1.0f, 0.5f, 0.31f));
-    m_program->setUniformValue("lightPos", QVector3D(0.5f, .3f, -.3f));
+    m_program->setUniformValue("lightPos", QVector3D(sin(m_pos), 0.3f, cos(m_pos)));
     m_program->setUniformValue("viewPos", QVector3D(0.0f, 0.0f, 0.0f));
 
     glDrawArrays(GL_TRIANGLES, 0, classC.getVertices().size());

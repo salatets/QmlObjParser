@@ -17,6 +17,7 @@ public:
     void setPitch(qreal pitch){m_pitch = pitch;}
     void setYaw(qreal yaw){m_yaw = yaw;}
     void setRoll(qreal roll){m_roll = roll;}
+    void setPos(qreal pos){m_pos = pos;}
     void setViewportSize(const QSize &size) { m_viewportSize = size; }
     void setWindow(QQuickWindow *window) { m_window = window; }
 
@@ -25,14 +26,16 @@ public slots:
     void paint();
 
 private:
-    QSize m_viewportSize;
     qreal m_pitch;
     qreal m_yaw;
     qreal m_roll;
+    qreal m_pos;
+    QSize m_viewportSize;
     QOpenGLShaderProgram *m_program;
     QQuickWindow *m_window;
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo;
+    QOpenGLBuffer nbo;
 };
 
 
@@ -42,6 +45,7 @@ class GLScene: public QQuickItem
     Q_PROPERTY(qreal pitch READ pitch WRITE setPitch NOTIFY pitchChanged)
     Q_PROPERTY(qreal yaw READ yaw WRITE setYaw NOTIFY yawChanged)
     Q_PROPERTY(qreal roll READ roll WRITE setRoll NOTIFY rollChanged)
+    Q_PROPERTY(qreal pos READ pos WRITE setPos NOTIFY posChanged)
     QML_ELEMENT
 
 public:
@@ -50,14 +54,17 @@ public:
     qreal pitch() const { return m_pitch; }
     qreal yaw() const { return m_yaw; }
     qreal roll() const { return m_roll; }
+    qreal pos() const { return m_pos; }
     void setPitch(qreal pitch);
     void setYaw(qreal yaw);
     void setRoll(qreal roll);
+    void setPos(qreal pos);
 
 signals:
     void pitchChanged();
     void yawChanged();
     void rollChanged();
+    void posChanged();
 
 
 public slots:
@@ -73,6 +80,7 @@ private:
     qreal m_pitch;
     qreal m_yaw;
     qreal m_roll;
+    qreal m_pos;
     GLSceneRenderer *m_renderer;
 };
 

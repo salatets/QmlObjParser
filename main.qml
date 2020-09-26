@@ -12,33 +12,29 @@ Item {
         id: glbox
     }
 
-    Rectangle {
-        id:rect
+
+
+    Rectangle{
+        id:rect_controls
         color: Qt.rgba(1, 1, 1, 0.7)
         radius: 10
         border.width: 1
         border.color: "white"
         opacity: 0.5
-        anchors.fill: rotate
+        anchors.fill: controls_layout
         anchors.margins: -10
 
         MouseArea {
-               id: mouseArea
                anchors.fill: parent
                anchors.margins: -10
                hoverEnabled: true
-               onHoveredChanged: {
-                    if(mouseArea.containsMouse)
-                        animateOpacityUP.start()
-                   else
-                        animateOpacityDOWN.start()
-               }
-
+               onEntered: animateOpacityUP.start()
+               onExited: animateOpacityDOWN.start()
            }
 
         NumberAnimation {
                 id: animateOpacityUP
-                target: rect
+                target: rect_controls
                 properties: "opacity"
                 from: 0.5
                 to: 1.0
@@ -48,7 +44,7 @@ Item {
 
         NumberAnimation {
                 id: animateOpacityDOWN
-                target: rect
+                target: rect_controls
                 properties: "opacity"
                 from: 1.0
                 to: 0.5
@@ -58,39 +54,99 @@ Item {
     }
 
     ColumnLayout{
-        id: rotate
+        id: controls_layout
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.bottom: parent.bottom
-        anchors.margins: 20
-        opacity: rect.opacity
 
-        Slider{
-            from: 0
-            to: 359
-            Layout.fillWidth: true
-            onMoved:
-            {
-                glbox.pitch = value;
-            }
+        opacity: rect_controls.opacity
+        anchors.margins: 20
+        RowLayout{
+                Label {
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: 60
+                    text: "pitch"
+                    font.pixelSize: 30
+                }
+
+                Slider{
+                    from: 0
+                    to: 360
+                    Layout.fillWidth: true
+                    onMoved:
+                    {
+                        glbox.pitch = value;
+                    }
+
+                }
         }
-        Slider{
-            from: 0
-            to: 359
-            Layout.fillWidth: true
-            onMoved:
-            {
-                glbox.yaw = value;
-            }
+
+        RowLayout{
+                Label {
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: 60
+                    text: "yaw"
+                    font.pixelSize: 30
+                }
+
+                Slider{
+                    from: 0
+                    to: 360
+                    Layout.fillWidth: true
+                    onMoved:
+                    {
+                        glbox.yaw = value;
+                    }
+
+                }
         }
-        Slider{
-            from: 0
-            to: 359
-            Layout.fillWidth: true
-            onMoved:
-            {
-                glbox.roll = value;
-            }
+        RowLayout{
+                Label {
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: 60
+                    text: "roll"
+                    font.pixelSize: 30
+                }
+
+                Slider{
+                    from: 0
+                    to: 360
+                    Layout.fillWidth: true
+                    onMoved:
+                    {
+                        glbox.roll = value;
+                    }
+
+                }
+        }
+        RowLayout{
+                Label {
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: 60
+                    text: "light"
+                    font.pixelSize: 30
+                }
+                Slider{
+                    from: 0
+                    to: 6.283
+                    value: 3.14
+                    Layout.fillWidth: true
+                    onMoved:
+                    {
+                        glbox.pos = value;
+                    }
+                }
+
+        }
+    }
+
+    FileDialog {
+        id: fileDialog
+        title: "Please choose a .obj file"
+        folder: shortcuts.home
+        onAccepted: {
+            glbox.path = fileDialog.fileUrl
+            Qt.quit()
         }
     }
 }
