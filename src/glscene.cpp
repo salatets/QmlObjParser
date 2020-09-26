@@ -2,6 +2,7 @@
 
 #include <QtQuick/qquickwindow.h>
 #include <QtCore/QRunnable>
+#include "shaders.h"
 
 GLScene::GLScene() : m_pitch(0)
   , m_yaw(0)
@@ -97,7 +98,6 @@ void GLSceneRenderer::init()
         QSGRendererInterface *rif = m_window->rendererInterface();
         Q_ASSERT(rif->graphicsApi() == QSGRendererInterface::OpenGL || rif->graphicsApi() == QSGRendererInterface::OpenGLRhi);
 
-
         static float vertices[] = {
                     -0.5f, -0.5f, -0.5f,
                     0.5f, -0.5f, -0.5f,
@@ -150,23 +150,8 @@ void GLSceneRenderer::init()
         vao.bind();
 
         m_program = new QOpenGLShaderProgram();
-        success = m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Vertex,
-                                                      "#version 420\n"
-                                                      "uniform mat4 model;\n"
-                                                      "in vec3 position;\n"
-                                                      " void main() {\n"
-                                                       // does not alter the verticies at all
-                                                      "     gl_Position = model*vec4(position, 1);\n"
-                                                      "}\n"
-                                                                   );
-        success &= m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Fragment,
-                                                      "#version 420\n"
-                                                      "out vec3 finalColor;\n"
-                                                      "void main() {\n"
-                                                      //set every drawn pixel to bmp image pixel
-                                                      "finalColor=vec3(0.5,0.6,0.0);\n"
-                                                      "}"
-                                                               );
+        success = m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, vertex);
+        success &= m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, fragment);
 
         Q_ASSERT(success);
 
