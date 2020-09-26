@@ -160,18 +160,11 @@ void GLSceneRenderer::paint()
     m_window->beginExternalCommands();
 
     m_program->bind();
-
-    //m_program->enableAttributeArray(0);
     vao.bind();
-
-    //m_program->setAttributeArray(0, GL_FLOAT, values, 2);
-    //m_program->setUniformValue("t", (float) m_t);
 
     glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
 
     glEnable(GL_DEPTH_TEST);
-
-    QVector3D viewPos(0.0f, 0.0f, 0.0f);
 
     QMatrix4x4 mat;
     mat.scale(1/(max(m_model.getSize())/1.5)); // TODO fix clip bug
@@ -181,16 +174,10 @@ void GLSceneRenderer::paint()
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,0,1), m_roll));
     m_program->setUniformValue("model",mat);
 
-
-
-    QMatrix4x4 view;
-    view.translate(viewPos);
-    m_program->setUniformValue("view",view);
-
     m_program->setUniformValue("lightColor", QVector3D(1.0f, 0.0f, 1.0f));
     m_program->setUniformValue("objectColor", QVector3D(1.0f, 0.5f, 0.31f));
     m_program->setUniformValue("lightPos", QVector3D(0.5f, .3f, -.3f));
-    m_program->setUniformValue("viewPos", viewPos);
+    m_program->setUniformValue("viewPos", QVector3D(0.0f, 0.0f, 0.0f));
 
     glDrawArrays(GL_TRIANGLES, 0, classC.getVertices().size());
 
