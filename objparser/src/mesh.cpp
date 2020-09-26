@@ -1,8 +1,5 @@
 #include "mesh.h"
 
-
-
-
 char Mesh::checkFaceFormat(std::basic_istream<char>& strm){
     int initPos = strm.tellg();
     int index = 0;
@@ -52,6 +49,7 @@ char Mesh::checkFaceFormat(std::basic_istream<char>& strm){
     return format;
 }
 
+// v parse only 3 val
 // todo multithread??
 bool Mesh::parseOBJ(const std::string& path){
     std::ifstream fstrm;
