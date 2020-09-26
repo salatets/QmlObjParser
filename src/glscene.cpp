@@ -91,12 +91,15 @@ void GLScene::sync()
     m_renderer->setRoll(m_roll);
     m_renderer->setWindow(window());
 }
-
+Mesh classC;
 void GLSceneRenderer::init()
 {
     if (!m_program) {
         QSGRendererInterface *rif = m_window->rendererInterface();
         Q_ASSERT(rif->graphicsApi() == QSGRendererInterface::OpenGL || rif->graphicsApi() == QSGRendererInterface::OpenGLRhi);
+
+
+        classC.parseOBJ("monkey.obj");
 
         static float vertices[] = {
                     -0.5f, -0.5f, -0.5f,
@@ -166,12 +169,12 @@ void GLSceneRenderer::init()
         vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
         success = vbo.bind();
         Q_ASSERT(success);
-        vbo.allocate(&vertices, sizeof(vertices));
+        vbo.allocate(&classC.getVertices().data()[0], classC.getVertices().size() * sizeof(QVector3D));
         //vbo.allocate(&meshVertTexNorm.data()->vertCord[0], meshVertTexNorm.size()*(sizeof(QVector3D)+sizeof(QVector2D)+sizeof(QVector3D)));
-
         m_program->setAttributeBuffer("position", GL_FLOAT, 0,3);
         //m_program->setAttributeBuffer("vPosition", 3, GL_FLOAT, sizeof(QVector3D)+sizeof(QVector2D)+sizeof(QVector3D));
         m_program->enableAttributeArray("position");
+        vbo.release();
         vao.release();
         m_program->release();
     }
@@ -209,7 +212,7 @@ void GLSceneRenderer::paint()
     //glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 
 
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDrawArrays(GL_TRIANGLES, 0, classC.getVertices().size());
     //m_program->disableAttributeArray(0);
     vao.release();
     m_program->release();
