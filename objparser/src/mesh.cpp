@@ -81,6 +81,7 @@ bool Mesh::parseOBJ(const std::string& path){
     //parse file
     while (fstrm.peek() != -1){
         fstrm >> token;
+
         if(token == "v"){
             float x = 0,y= 0,z = 0;
             fstrm>>x>>y>>z;
@@ -110,10 +111,10 @@ bool Mesh::parseOBJ(const std::string& path){
                     vertexIndeces.push_back(index);
                     fstrm.get();
                     fstrm >> index;
-                    normalIndeces.push_back(index);
+                    textureIndeces.push_back(index);
                     fstrm.get();
                     fstrm >> index;
-                    textureIndeces.push_back(index);
+                    normalIndeces.push_back(index);
                 }
                 break;
             case 'b':
