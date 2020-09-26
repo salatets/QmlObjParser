@@ -101,51 +101,6 @@ void GLSceneRenderer::init()
 
         classC.parseOBJ("monkey.obj");
 
-        static float vertices[] = {
-                    -0.5f, -0.5f, -0.5f,
-                    0.5f, -0.5f, -0.5f,
-                    0.5f,  0.5f, -0.5f,
-                    0.5f,  0.5f, -0.5f,
-                   -0.5f,  0.5f, -0.5f,
-                   -0.5f, -0.5f, -0.5f,
-
-                   -0.5f, -0.5f,  0.5f,
-                    0.5f, -0.5f,  0.5f,
-                    0.5f,  0.5f,  0.5f,
-                    0.5f,  0.5f,  0.5f,
-                   -0.5f,  0.5f,  0.5f,
-                   -0.5f, -0.5f,  0.5f,
-
-                   -0.5f,  0.5f,  0.5f,
-                   -0.5f,  0.5f, -0.5f,
-                   -0.5f, -0.5f, -0.5f,
-                   -0.5f, -0.5f, -0.5f,
-                   -0.5f, -0.5f,  0.5f,
-                   -0.5f,  0.5f,  0.5f,
-
-                    0.5f,  0.5f,  0.5f,
-                    0.5f,  0.5f, -0.5f,
-                    0.5f, -0.5f, -0.5f,
-                    0.5f, -0.5f, -0.5f,
-                    0.5f, -0.5f,  0.5f,
-                    0.5f,  0.5f,  0.5f,
-
-                   -0.5f, -0.5f, -0.5f,
-                    0.5f, -0.5f, -0.5f,
-                    0.5f, -0.5f,  0.5f,
-                    0.5f, -0.5f,  0.5f,
-                   -0.5f, -0.5f,  0.5f,
-                   -0.5f, -0.5f, -0.5f,
-
-                   -0.5f,  0.5f, -0.5f,
-                    0.5f,  0.5f, -0.5f,
-                    0.5f,  0.5f,  0.5f,
-                    0.5f,  0.5f,  0.5f,
-                   -0.5f,  0.5f,  0.5f,
-                   -0.5f,  0.5f, -0.5f, };
-
-
-
         initializeOpenGLFunctions();
 
         bool success = vao.create();
@@ -155,7 +110,6 @@ void GLSceneRenderer::init()
         m_program = new QOpenGLShaderProgram();
         success = m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, vertex);
         success &= m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, fragment);
-
         Q_ASSERT(success);
 
         success = m_program->link();
@@ -165,16 +119,25 @@ void GLSceneRenderer::init()
         vbo = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
         success = vbo.create();
         Q_ASSERT(success);
-
         vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
         success = vbo.bind();
         Q_ASSERT(success);
         vbo.allocate(&classC.getVertices().data()[0], classC.getVertices().size() * sizeof(QVector3D));
-        //vbo.allocate(&meshVertTexNorm.data()->vertCord[0], meshVertTexNorm.size()*(sizeof(QVector3D)+sizeof(QVector2D)+sizeof(QVector3D)));
         m_program->setAttributeBuffer("position", GL_FLOAT, 0,3);
-        //m_program->setAttributeBuffer("vPosition", 3, GL_FLOAT, sizeof(QVector3D)+sizeof(QVector2D)+sizeof(QVector3D));
         m_program->enableAttributeArray("position");
         vbo.release();
+
+        nbo = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+        success = nbo.create();
+        Q_ASSERT(success);
+        nbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
+        success = nbo.bind();
+        Q_ASSERT(success);
+        nbo.allocate(&classC.getNormals().data()[0], classC.getNormals().size() * sizeof(QVector3D));
+        m_program->setAttributeBuffer("normal", GL_FLOAT, 0,3);
+        m_program->enableAttributeArray("normal");
+        nbo.release();
+
         vao.release();
         m_program->release();
     }
@@ -196,24 +159,29 @@ void GLSceneRenderer::paint()
 
     glEnable(GL_DEPTH_TEST);
 
+    QVector3D viewPos(0.0f, 0.0f, 0.0f);
+
     QMatrix4x4 mat;
-    mat.setToIdentity();
     //mat.scale(2);
     //mat.translate(0,0,10);
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,0,1), m_roll));
-
-    m_program->setUniformValueArray("model",&mat,1);
-
+    m_program->setUniformValue("model",mat);
 
 
 
-    //glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    QMatrix4x4 view;
+    view.translate(viewPos);
+    m_program->setUniformValue("view",view);
 
+    m_program->setUniformValue("lightColor", QVector3D(1.0f, 0.0f, 1.0f));
+    m_program->setUniformValue("objectColor", QVector3D(1.0f, 0.5f, 0.31f));
+    m_program->setUniformValue("lightPos", QVector3D(0.5f, .3f, -.3f));
+    m_program->setUniformValue("viewPos", viewPos);
 
     glDrawArrays(GL_TRIANGLES, 0, classC.getVertices().size());
-    //m_program->disableAttributeArray(0);
+
     vao.release();
     m_program->release();
 
