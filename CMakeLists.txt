@@ -13,16 +13,23 @@ set(CMAKE_AUTORCC ON)
 
 set(SOURCES
     main.cpp
+    src/glscene.cpp
     qml.qrc
 )
+#add headers with moc
+set(HEADERS
+    include/glscene.h
+    )
 
 #---------------
 # build commands
 #---------------
 
 add_executable(${PROJECT_NAME}
-     ${SOURCES}
+     ${SOURCES} ${HEADERS}
 )
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 find_package(Qt5 COMPONENTS Core Gui Quick REQUIRED)
 
