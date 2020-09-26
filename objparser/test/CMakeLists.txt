@@ -49,7 +49,7 @@ add_test(
 find_package(Qt5 COMPONENTS Core Gui REQUIRED)
 
 target_link_libraries(${TEST_MAIN}
-  PRIVATE Qt5::Core Qt5::Gui )
+  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui )
 
 
 foreach(data ${TEST_DATA})

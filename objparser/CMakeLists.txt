@@ -18,25 +18,20 @@ set(LIBRARY_NAME objparser)
 # build commands
 #---------------
 
-add_library(${LIBRARY_NAME} STATIC src/mesh.cpp)
+add_library(${LIBRARY_NAME} STATIC ${SOURCES})
 
 target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 find_package(Qt5 COMPONENTS Core Gui REQUIRED)
 
-target_link_libraries(objparser
-  PRIVATE Qt5::Core Qt5::Gui )
+target_link_libraries(${LIBRARY_NAME}
+  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui )
 
 set(${LIBRARY_NAME} PROPERTY
     CMAKE_CXX_STANDARD 11
     CMAKE_CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS NO
     )
-
-# for qt library
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
 
 #------
 # test fuctionality
