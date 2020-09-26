@@ -1,17 +1,47 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.14)
 
 project(objparser LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+option(MYLIB_TESTING "enable tests" ON)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+#-------------
+# Locate files
+#-------------
 
+set(SOURCES
+    src/mesh.cpp
+)
+
+set(LIBRARY_NAME objparser)
+
+#---------------
+# build commands
+#---------------
+
+add_library(${LIBRARY_NAME} STATIC src/mesh.cpp)
+
+target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
+find_package(Qt5 COMPONENTS Core Gui REQUIRED)
+
+target_link_libraries(objparser
+  PRIVATE Qt5::Core Qt5::Gui )
+
+set(${LIBRARY_NAME} PROPERTY
+    CMAKE_CXX_STANDARD 11
+    CMAKE_CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS NO
+    )
+
+# for qt library
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-option(MYLIB_TESTING "enable tests" ON)
+#------
+# test fuctionality
+#------
+
 get_directory_property(IS_SUBPROJECT PARENT_DIRECTORY)
 
 if(NOT MYLIB_TESTING)
@@ -19,18 +49,8 @@ if(NOT MYLIB_TESTING)
 elseif(IS_SUBPROJECT)
     message(STATUS "Tests is off for submodule")
 else()
-    enable_testing()
-    include(GoogleTest)
+    include(CTest)
+    add_definitions(-DENABLE_DOCTEST_IN_LIBRARY)
     add_subdirectory(test)
 endif()
-
-
-find_package(Qt5 COMPONENTS Core Gui REQUIRED)
-
-add_executable(objparser main.cpp src/mesh.cpp include/mesh.h)
-
-target_include_directories(objparser PUBLIC include)
-
-target_link_libraries(objparser
-  PRIVATE Qt5::Core Qt5::Gui )
 
