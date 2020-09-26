@@ -173,8 +173,6 @@ bool Mesh::parseOBJ(const std::string& path){
     for(std::vector<int>::size_type i = 0; i < vertexIndeces.size(); ++i){
         // Get the indices of its attributes
         unsigned int vertexIndex = vertexIndeces[i];
-        // Get the attributes thanks to the index
-        //QVector3D vertex = raw_vertexs[ vertexIndex-1 ];
         // Put the attributes in buffers
         vertices.emplace_back(raw_vertexs[ vertexIndex-1 ]);
 
@@ -182,24 +180,20 @@ bool Mesh::parseOBJ(const std::string& path){
             case 'a':
             {
                 unsigned int normalIndex = normalIndeces[i];
-                //QVector3D normal = raw_normals[ normalIndex-1 ];
                 normals.emplace_back(raw_normals[ normalIndex-1 ]);
 
                 unsigned int uvIndex = textureIndeces[i];
-                //QVector2D texture = raw_textures[ uvIndex-1 ];
                 textures.emplace_back(raw_textures[ uvIndex-1 ]);
                 break;
             }
             case 'b':
             {
                 unsigned int normalIndex = normalIndeces[i];
-                //QVector3D normal = raw_normals[ normalIndex-1 ];
                 normals.emplace_back(raw_normals[ normalIndex-1 ]);
                 break;
             }
             case 'c':{
                 unsigned int uvIndex = textureIndeces[i];
-                //QVector2D texture = raw_textures[ uvIndex-1 ];
                 textures.emplace_back(raw_textures[ uvIndex-1 ]);
                 break;
             }
