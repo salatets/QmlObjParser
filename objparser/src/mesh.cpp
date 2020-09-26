@@ -1,15 +1,19 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
 #include "mesh.h"
 
 char Mesh::checkFaceFormat(std::basic_istream<char>& strm){
     int initPos = strm.tellg();
     int index = 0;
-    char format = 'n';
+    char format = 'u';
     std::string expr;
     strm >> expr;
     std::istringstream stream(expr);
     stream >> index;
     if(index == 0){
-        format = 'n';
+        format = 'u';
     }
     else{
 
@@ -41,7 +45,7 @@ char Mesh::checkFaceFormat(std::basic_istream<char>& strm){
         }
 
         if(stream.peek() != -1){
-            format = 'n';
+            format = 'u';
         }
     }
 
@@ -66,7 +70,6 @@ bool Mesh::parseOBJ(const std::string& path){
     // b: v//n
     // c: v/t
     // d: v
-    // n: error
     // u: undefined
     format ='u';
     std::string token;
@@ -77,14 +80,38 @@ bool Mesh::parseOBJ(const std::string& path){
     std::vector<unsigned int> vertexIndeces;
     std::vector<unsigned int> normalIndeces;
     std::vector<unsigned int> textureIndeces;
+    // for center and size
+    QVector3D min(std::numeric_limits<float>::max(),
+                  std::numeric_limits<float>::max(),
+                  std::numeric_limits<float>::max());
+    QVector3D max(std::numeric_limits<float>::lowest(),
+                  std::numeric_limits<float>::lowest(),
+                  std::numeric_limits<float>::lowest());
 
     //parse file
     while (fstrm.peek() != -1){
         fstrm >> token;
 
+
+
         if(token == "v"){
             float x = 0,y= 0,z = 0;
             fstrm>>x>>y>>z;
+
+            if(x > max.x())
+                max.setX(x);
+            if(y > max.y())
+                max.setY(y);
+            if(z > max.z())
+                max.setZ(z);
+
+            if(x < min.x())
+                min.setX(x);
+            if(y < min.y())
+                min.setY(y);
+            if(z < min.z())
+                min.setZ(z);
+
             raw_vertexs.emplace_back(x,y,z);
         }else if(token == "vn"){
             float x = 0,y = 0,z = 0;
@@ -97,7 +124,7 @@ bool Mesh::parseOBJ(const std::string& path){
         }else if (token == "f"){
             if(format == 'u'){
                 format = checkFaceFormat(fstrm);
-                if (format == 'n'){
+                if (format == 'u'){
                     fstrm.close();
                     std::cerr << "could't parse faces\n";
                     return false;
@@ -200,6 +227,9 @@ bool Mesh::parseOBJ(const std::string& path){
         }
 
     }
+
+    this->size = max-min;
+    this->center = min + this->size/2;
 
     return true;
 }
