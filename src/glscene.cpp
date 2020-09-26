@@ -114,7 +114,8 @@ void GLScene::sync()
     m_renderer->setPos(m_pos);
     m_renderer->setWindow(window());
 }
-Mesh classC;
+
+
 void GLSceneRenderer::init()
 {
     if (!m_program) {
@@ -122,7 +123,7 @@ void GLSceneRenderer::init()
         Q_ASSERT(rif->graphicsApi() == QSGRendererInterface::OpenGL || rif->graphicsApi() == QSGRendererInterface::OpenGLRhi);
 
 
-        classC.parseOBJ("monkey.obj");
+        m_model.parseOBJ("dahl.obj");
 
         initializeOpenGLFunctions();
 
@@ -145,7 +146,7 @@ void GLSceneRenderer::init()
         vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
         success = vbo.bind();
         Q_ASSERT(success);
-        vbo.allocate(&classC.getVertices().data()[0], classC.getVertices().size() * sizeof(QVector3D));
+        vbo.allocate(&m_model.getVertices().data()[0], m_model.getVertices().size() * sizeof(QVector3D));
         m_program->setAttributeBuffer("position", GL_FLOAT, 0,3);
         m_program->enableAttributeArray("position");
         vbo.release();
@@ -156,7 +157,7 @@ void GLSceneRenderer::init()
         nbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
         success = nbo.bind();
         Q_ASSERT(success);
-        nbo.allocate(&classC.getNormals().data()[0], classC.getNormals().size() * sizeof(QVector3D));
+        nbo.allocate(&m_model.getNormals().data()[0], m_model.getNormals().size() * sizeof(QVector3D));
         m_program->setAttributeBuffer("normal", GL_FLOAT, 0,3);
         m_program->enableAttributeArray("normal");
         nbo.release();
@@ -190,7 +191,7 @@ void GLSceneRenderer::paint()
     m_program->setUniformValue("lightPos", QVector3D(sin(m_pos), 0.3f, cos(m_pos)));
     m_program->setUniformValue("viewPos", QVector3D(0.0f, 0.0f, 0.0f));
 
-    glDrawArrays(GL_TRIANGLES, 0, classC.getVertices().size());
+    glDrawArrays(GL_TRIANGLES, 0, m_model.getVertices().size());
 
     vao.release();
     m_program->release();

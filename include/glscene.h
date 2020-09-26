@@ -26,6 +26,7 @@ public slots:
     void paint();
 
 private:
+    Mesh m_model;
     qreal m_pitch;
     qreal m_yaw;
     qreal m_roll;
