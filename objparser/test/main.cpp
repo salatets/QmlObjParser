@@ -32,15 +32,15 @@ TEST_CASE("checkWrongFace"){
 
     format = Mesh::checkFaceFormat(stream);
     stream >> el2;
-    CHECK(format == 'n');
+    CHECK(format == 'u');
 
     format = Mesh::checkFaceFormat(stream);
     stream >> el2;
-    CHECK(format == 'n');
+    CHECK(format == 'u');
 
     format = Mesh::checkFaceFormat(stream);
     stream >> el2;
-    CHECK(format == 'n');
+    CHECK(format == 'u');
 
 
 }
@@ -52,15 +52,45 @@ TEST_CASE("checkWrongFace2"){
 
     format = Mesh::checkFaceFormat(stream);
     stream >> el2;
-    CHECK(format == 'n');
+    CHECK(format == 'u');
 
     format = Mesh::checkFaceFormat(stream);
     stream >> el2;
-    CHECK(format == 'n');
+    CHECK(format == 'u');
 
     format = Mesh::checkFaceFormat(stream);
     stream >> el2;
-    CHECK(format == 'n');
+    CHECK(format == 'u');
+}
+
+TEST_CASE("checkParseObjInvariant"){
+    Mesh test;
+    REQUIRE(test.parseOBJ("cube.obj") ==  true);
+    CHECK(test.getFormat() ==  'a');
+
+    SUBCASE("existing file"){
+        Mesh test1 = test;
+        REQUIRE(test.parseOBJ("cube.mtl") ==  false);
+
+        CHECK(test.getVertices() == test1.getVertices());
+        CHECK(test.getNormals() == test1.getNormals());
+        CHECK(test.getTextures() == test1.getTextures());
+        CHECK(test.getFormat() == test1.getFormat());
+        CHECK(test.getSize() == test1.getSize());
+        CHECK(test.getCenter() == test1.getCenter());
+    }
+
+    SUBCASE("not existing file"){
+        Mesh test1 = test;
+        REQUIRE(test.parseOBJ("cube.php") ==  false);
+
+        CHECK(test.getVertices() == test1.getVertices());
+        CHECK(test.getNormals() == test1.getNormals());
+        CHECK(test.getTextures() == test1.getTextures());
+        CHECK(test.getFormat() == test1.getFormat());
+        CHECK(test.getSize() == test1.getSize());
+        CHECK(test.getCenter() == test1.getCenter());
+    }
 }
 
 TEST_CASE("checkCube"){
