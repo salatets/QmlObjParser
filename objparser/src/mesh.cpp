@@ -71,7 +71,7 @@ bool Mesh::parseOBJ(const std::string& path){
     // c: v/t
     // d: v
     // u: undefined
-    format ='u';
+    char format ='u';
     std::string token;
     std::vector<QVector3D> raw_vertexs;
     std::vector<QVector3D> raw_normals;
@@ -87,6 +87,8 @@ bool Mesh::parseOBJ(const std::string& path){
     QVector3D max(std::numeric_limits<float>::lowest(),
                   std::numeric_limits<float>::lowest(),
                   std::numeric_limits<float>::lowest());
+
+
 
     //parse file
     while (fstrm.peek() != -1){
@@ -176,6 +178,15 @@ bool Mesh::parseOBJ(const std::string& path){
         fstrm.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
     fstrm.close();
+
+    if(vertexIndeces.size() == 0)
+        return false;
+
+    vertices.clear();
+    normals.clear();
+    textures.clear();
+
+    this->format = format;
 
     vertices.reserve(vertexIndeces.size());
     switch(format){
