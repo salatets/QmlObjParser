@@ -20,6 +20,7 @@ public:
     void setYaw(qreal yaw){m_yaw = yaw;}
     void setRoll(qreal roll){m_roll = roll;}
     void setPos(qreal pos){m_pos = pos;}
+    void setPath(QUrl path);
     void setViewportSize(const QSize &size) { m_viewportSize = size; }
     void setWindow(QQuickWindow *window) { m_window = window; }
 
@@ -36,6 +37,8 @@ private:
     qreal m_yaw;
     qreal m_roll;
     qreal m_pos;
+    std::string m_path;
+    QUrl old_url;
 
     QSize m_viewportSize;
     QOpenGLShaderProgram *m_program;
@@ -53,6 +56,7 @@ class GLScene: public QQuickItem
     Q_PROPERTY(qreal yaw READ yaw WRITE setYaw NOTIFY yawChanged)
     Q_PROPERTY(qreal roll READ roll WRITE setRoll NOTIFY rollChanged)
     Q_PROPERTY(qreal pos READ pos WRITE setPos NOTIFY posChanged)
+    Q_PROPERTY(QUrl path READ path WRITE setPath NOTIFY pathChanged)
     QML_ELEMENT
 
 public:
@@ -62,16 +66,19 @@ public:
     qreal yaw() const { return m_yaw; }
     qreal roll() const { return m_roll; }
     qreal pos() const { return m_pos; }
+    QUrl path() const { return m_path; }
     void setPitch(qreal pitch);
     void setYaw(qreal yaw);
     void setRoll(qreal roll);
     void setPos(qreal pos);
+    void setPath(QUrl path);
 
 signals:
     void pitchChanged();
     void yawChanged();
     void rollChanged();
     void posChanged();
+    void pathChanged();
 
 
 public slots:
@@ -84,6 +91,7 @@ private slots:
 private:
     void releaseResources() override;
 
+    QUrl m_path;
     qreal m_pitch;
     qreal m_yaw;
     qreal m_roll;

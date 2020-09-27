@@ -63,6 +63,45 @@ void GLScene::setPos(qreal pos)
         window()->update();
 }
 
+void GLScene::setPath(QUrl path)
+{
+    if (path == m_path)
+        return;
+    m_path= path;
+    emit pathChanged();
+}
+
+void GLSceneRenderer::setPath(QUrl path)
+{
+    if(path == old_url)
+        return;
+
+    if(path.isRelative()){
+        QString temp = path.toString();
+        m_path = temp.toUtf8().constData();
+    }else{
+        int trunc_len = path.scheme().length() + 1;
+        QString temp = path.toString();
+        int i = 0;
+
+        for(; i < 3; i++)
+            if(temp[trunc_len] != '/')
+                break;
+
+        if(i > 1)
+            trunc_len +=2;
+
+
+        m_path = temp.toUtf8().constData();
+        m_path = m_path.substr(trunc_len);
+    }
+    if(m_model.parseOBJ(m_path)){
+        init_buffers();
+        old_url = path;
+        m_window->update();
+    }
+}
+
 void GLScene::handleWindowChanged(QQuickWindow *win)
 {
     if (win) {
@@ -112,6 +151,7 @@ void GLScene::sync()
     m_renderer->setYaw(m_yaw);
     m_renderer->setRoll(m_roll);
     m_renderer->setPos(m_pos);
+    m_renderer->setPath(m_path);
     m_renderer->setWindow(window());
 }
 
