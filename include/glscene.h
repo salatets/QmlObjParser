@@ -1,10 +1,12 @@
 #ifndef GLSCENE_H
 #define GLSCENE_H
+
 #include <QtQuick/QQuickItem>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLFunctions>
 #include <QtGui/QOpenGLBuffer>
 #include <QtGui/QOpenGLVertexArrayObject>
+
 #include "mesh.h"
 
 class GLSceneRenderer : public QObject, protected QOpenGLFunctions
@@ -26,11 +28,15 @@ public slots:
     void paint();
 
 private:
+    void init_program();
+    void init_buffers();
+
     Mesh m_model;
     qreal m_pitch;
     qreal m_yaw;
     qreal m_roll;
     qreal m_pos;
+
     QSize m_viewportSize;
     QOpenGLShaderProgram *m_program;
     QQuickWindow *m_window;

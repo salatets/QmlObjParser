@@ -1,8 +1,8 @@
-#include "glscene.h"
-
 #include <QtQuick/qquickwindow.h>
 #include <QtCore/QRunnable>
 #include <QtMath>
+
+#include "glscene.h"
 #include "shaders.h"
 
 float max(const QVector3D& vec){
@@ -115,6 +115,46 @@ void GLScene::sync()
     m_renderer->setWindow(window());
 }
 
+// TODO add different format buffers
+
+void GLSceneRenderer::init_program(){
+    m_program = new QOpenGLShaderProgram();
+    bool success = m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, vertex);
+    success &= m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, fragment);
+    Q_ASSERT(success);
+
+    success = m_program->link();
+    Q_ASSERT(success);
+}
+
+void init_buffer(QOpenGLBuffer &bo, QOpenGLShaderProgram* program, const char * attribute , const void *data, int count){
+    if (!bo.isCreated()){
+        bo = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+        bool success = bo.create();
+        Q_ASSERT(success);
+        bo.setUsagePattern(QOpenGLBuffer::StaticDraw);
+
+
+    }
+
+    bool success = bo.bind();
+    Q_ASSERT(success);
+    bo.allocate(data, count);
+    program->setAttributeBuffer(attribute, GL_FLOAT, 0,3);
+    program->enableAttributeArray(attribute);
+
+    bo.release();
+}
+
+void GLSceneRenderer::init_buffers(){
+    vao.bind();
+
+    init_buffer(vbo, m_program,"position", &m_model.getVertices().data()[0], m_model.getVertices().size() * sizeof(QVector3D));
+
+    init_buffer(nbo, m_program,"normal", &m_model.getNormals().data()[0], m_model.getNormals().size() * sizeof(QVector3D));
+
+    vao.release();
+}
 
 void GLSceneRenderer::init()
 {
@@ -122,53 +162,25 @@ void GLSceneRenderer::init()
         QSGRendererInterface *rif = m_window->rendererInterface();
         Q_ASSERT(rif->graphicsApi() == QSGRendererInterface::OpenGL || rif->graphicsApi() == QSGRendererInterface::OpenGLRhi);
 
-
-        m_model.parseOBJ("dahl.obj");
-
         initializeOpenGLFunctions();
+
+        init_program();
 
         bool success = vao.create();
         Q_ASSERT(success);
-        vao.bind();
 
-        m_program = new QOpenGLShaderProgram();
-        success = m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, vertex);
-        success &= m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, fragment);
-        Q_ASSERT(success);
+        if (m_model.getFormat() == 'u')
+            return;
 
-        success = m_program->link();
-        Q_ASSERT(success);
-        m_program->bind();
-
-        vbo = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-        success = vbo.create();
-        Q_ASSERT(success);
-        vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-        success = vbo.bind();
-        Q_ASSERT(success);
-        vbo.allocate(&m_model.getVertices().data()[0], m_model.getVertices().size() * sizeof(QVector3D));
-        m_program->setAttributeBuffer("position", GL_FLOAT, 0,3);
-        m_program->enableAttributeArray("position");
-        vbo.release();
-
-        nbo = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-        success = nbo.create();
-        Q_ASSERT(success);
-        nbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-        success = nbo.bind();
-        Q_ASSERT(success);
-        nbo.allocate(&m_model.getNormals().data()[0], m_model.getNormals().size() * sizeof(QVector3D));
-        m_program->setAttributeBuffer("normal", GL_FLOAT, 0,3);
-        m_program->enableAttributeArray("normal");
-        nbo.release();
-
-        vao.release();
-        m_program->release();
+        init_buffers();
     }
 }
 
 void GLSceneRenderer::paint()
 {
+    if(m_model.getFormat() == 'u')
+        return;
+
     m_window->beginExternalCommands();
 
     m_program->bind();
@@ -179,7 +191,7 @@ void GLSceneRenderer::paint()
     glEnable(GL_DEPTH_TEST);
 
     QMatrix4x4 mat;
-    mat.scale(1/(max(m_model.getSize())/1.5)); // TODO fix clip bug
+    mat.scale(1/(max(m_model.getSize()))); // TODO fix clip bug
     mat.translate(- m_model.getCenter());
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
