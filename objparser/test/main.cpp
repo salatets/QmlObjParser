@@ -68,9 +68,34 @@ TEST_CASE("checkParseObjInvariant"){
     REQUIRE(test.parseOBJ("cube.obj") ==  true);
     CHECK(test.getFormat() ==  'a');
 
-    SUBCASE("existing file"){
+
+    SUBCASE("existing same file"){
         Mesh test1 = test;
-        REQUIRE(test.parseOBJ("cube.mtl") ==  false);
+        REQUIRE(test.parseOBJ("cube.obj") ==  true);
+
+        CHECK(test.getVertices() == test1.getVertices());
+        CHECK(test.getNormals() == test1.getNormals());
+        CHECK(test.getTextures() == test1.getTextures());
+        CHECK(test.getFormat() == test1.getFormat());
+        CHECK(test.getSize() == test1.getSize());
+        CHECK(test.getCenter() == test1.getCenter());
+    }
+
+    SUBCASE("existing different file"){
+        Mesh test1 = test;
+        REQUIRE(test.parseOBJ("monkey.obj") ==  true);
+
+        CHECK(test.getVertices() != test1.getVertices());
+        CHECK(test.getNormals() != test1.getNormals());
+        CHECK(test.getTextures() != test1.getTextures());
+        CHECK(test.getFormat() != test1.getFormat());
+        CHECK(test.getSize() != test1.getSize());
+        CHECK(test.getCenter() != test1.getCenter());
+    }
+
+    SUBCASE("existing incorrect file"){
+        Mesh test1 = test;
+        REQUIRE(test1.parseOBJ("cube.mtl") ==  false);
 
         CHECK(test.getVertices() == test1.getVertices());
         CHECK(test.getNormals() == test1.getNormals());
@@ -91,6 +116,8 @@ TEST_CASE("checkParseObjInvariant"){
         CHECK(test.getSize() == test1.getSize());
         CHECK(test.getCenter() == test1.getCenter());
     }
+
+
 }
 
 TEST_CASE("checkCube"){
