@@ -179,7 +179,7 @@ bool Mesh::parseOBJ(const std::string& path){
     }
     fstrm.close();
 
-    if(vertexIndeces.size() == 0)
+    if(format == 'u' || vertexIndeces.size() == 0)
         return false;
 
     vertices.clear();
