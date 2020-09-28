@@ -53,14 +53,16 @@ char Mesh::checkFaceFormat(std::basic_istream<char>& strm){
     return format;
 }
 
+
+
+
 // v parse only 3 val
 // todo multithread??
 bool Mesh::parseOBJ(const std::string& path){
-    std::ifstream fstrm;
-    fstrm.open(path);
+    std::ifstream fstrm(path);
 
     if (!fstrm){
-        std::cerr << path << " could not be opened\n";
+        std::cerr << "obj " << path << " could not be opened\n";
         return false;
     }
 
@@ -242,5 +244,121 @@ bool Mesh::parseOBJ(const std::string& path){
     this->size = max-min;
     this->center = min + this->size/2;
 
+    return true;
+}
+
+bool Mesh::parseMTL(const std::string& path, std::list<Mtl>& materials){
+    std::ifstream fstrm(path);
+
+    if (!fstrm){
+        std::cerr << "mtl " << path << " could not be opened\n";
+        return false;
+    }
+
+    std::string token;
+    bool added_new = false;
+
+    while (fstrm.peek() != -1){
+        fstrm >> token;
+
+        if(token == "newmtl"){
+            materials.push_back(Mtl());
+            added_new = true;
+            fstrm >> token;
+            materials.back().name = token;
+        }else if(added_new){
+            if(token == "Ka"){
+                float x,y,z;
+                fstrm >> x >> y >>z;
+                materials.back().ambient = QVector3D(x,y,z);
+            }else if(token == "Kd"){
+                float x,y,z;
+                fstrm >> x >> y >>z;
+                materials.back().diffuse = QVector3D(x,y,z);
+            }else if(token == "Ks"){
+                float x,y,z;
+                fstrm >> x >> y >>z;
+                materials.back().specular = QVector3D(x,y,z);
+            }else if(token == "illum"){
+                int x;
+                fstrm >> x;
+                if(x > 0 && x < 3)
+                    materials.back().illum_mode = illum(x);
+                else
+                    materials.back().illum_mode = illum();
+            }else if(token == "map_Kd"){
+                fstrm >> token;
+                materials.back().diffuse_map_path = token;
+            }
+        }
+
+        fstrm.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+
+    return true;
+}
+
+
+std::int32_t readInt32(const std::vector<std::uint8_t>& buffer, int index)
+{
+    return (std::int32_t )(
+                ((std::uint8_t)buffer[index + 3] << 24) |
+                ((std::uint8_t)buffer[index + 2] << 16) |
+                ((std::uint8_t)buffer[index + 1] << 8) |
+                ((std::uint8_t)buffer[index]));
+}
+
+std::uint32_t readUint32(const std::vector<std::uint8_t>& buffer, int index)
+{
+    return (std::uint32_t )(
+                ((std::uint8_t)buffer[index + 3] << 24) |
+                ((std::uint8_t)buffer[index + 2] << 16) |
+                ((std::uint8_t)buffer[index + 1] << 8) |
+                ((std::uint8_t)buffer[index]));
+}
+
+std::uint16_t readUint16(const std::vector<std::uint8_t>& buffer, int index)
+{
+    return (std::uint16_t )(
+             ((std::uint8_t)buffer[index + 1] << 8) |
+             ((std::uint8_t)buffer[index]));
+}
+
+constexpr std::size_t HEADER_SIZE = 54;
+
+bool Mesh::parseBMP(const std::string& path){
+    std::ifstream hFile(path, std::ios::binary);
+    if (!hFile.is_open()){
+        std::cerr << "image " << path << " could not be opened\n";
+        return false;
+    }
+
+    std::vector<std::uint8_t> FileInfo(HEADER_SIZE);
+    hFile.read(reinterpret_cast<char*>(FileInfo.data()), HEADER_SIZE);
+
+    if(FileInfo[0] != 'B' && FileInfo[1] != 'M')
+    {
+        hFile.close();
+        std::cerr << path << "Invalid File Format. Bitmap Required\n";
+        return false;
+    }
+
+    if (FileInfo[28] != 24 && FileInfo[28] != 32)
+    {
+        hFile.close();
+        std::cerr << path << "Invalid File Format. 24 or 32 bit Image Required\n";
+        return false;
+    }
+
+    texture.bitsPerPixel = FileInfo[28];
+    texture.width = readInt32(FileInfo,18);
+    texture.height = readInt32(FileInfo,22);
+    std::uint32_t PixelsOffset = readInt32(FileInfo,10);
+    std::uint32_t size = ((texture.width * texture.bitsPerPixel + 31) / 32) * 4 * texture.height;
+    texture.pixels.resize(size);
+
+    hFile.seekg (PixelsOffset, std::ios::beg);
+    hFile.read(reinterpret_cast<char*>(texture.pixels.data()), size);
+    hFile.close();
     return true;
 }
