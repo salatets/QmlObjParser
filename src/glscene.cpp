@@ -71,6 +71,8 @@ void GLScene::setPath(QUrl path)
     emit pathChanged();
 }
 
+GLuint texture = 0;
+
 void GLSceneRenderer::setPath(QUrl path)
 {
     if(path == old_url)
@@ -97,6 +99,22 @@ void GLSceneRenderer::setPath(QUrl path)
     }
     if(m_model.parseOBJ(m_path)){
         init_buffers();
+
+
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D,texture);
+        Texture text = m_model.getTexture();
+
+        glTexImage2D(GL_TEXTURE_2D, 0, text.bitsPerPixel == 32 ? GL_RGBA : GL_RGB,
+                     text.width, text.height, 0, text.bitsPerPixel == 32 ? GL_BGRA : GL_BGR,
+                     GL_UNSIGNED_BYTE, text.pixels.data());
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
         old_url = path;
         m_window->update();
     }
@@ -167,7 +185,7 @@ void GLSceneRenderer::init_program(){
     Q_ASSERT(success);
 }
 
-void init_buffer(QOpenGLBuffer &bo, QOpenGLShaderProgram* program, const char * attribute , const void *data, int count){
+void init_buffer(QOpenGLBuffer &bo, QOpenGLShaderProgram* program, const char * attribute , const void *data, int count,int stride){
     if (!bo.isCreated()){
         bo = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
         bool success = bo.create();
@@ -180,7 +198,7 @@ void init_buffer(QOpenGLBuffer &bo, QOpenGLShaderProgram* program, const char * 
     bool success = bo.bind();
     Q_ASSERT(success);
     bo.allocate(data, count);
-    program->setAttributeBuffer(attribute, GL_FLOAT, 0,3);
+    program->setAttributeBuffer(attribute, GL_FLOAT, 0, stride);
     program->enableAttributeArray(attribute);
 
     bo.release();
@@ -189,9 +207,11 @@ void init_buffer(QOpenGLBuffer &bo, QOpenGLShaderProgram* program, const char * 
 void GLSceneRenderer::init_buffers(){
     vao.bind();
 
-    init_buffer(vbo, m_program,"position", &m_model.getVertices().data()[0], m_model.getVertices().size() * sizeof(QVector3D));
+    init_buffer(vbo, m_program,"position", &m_model.getVertices().data()[0], m_model.getVertices().size() * sizeof(QVector3D),3);
 
-    init_buffer(nbo, m_program,"normal", &m_model.getNormals().data()[0], m_model.getNormals().size() * sizeof(QVector3D));
+    init_buffer(nbo, m_program,"normal", &m_model.getNormals().data()[0], m_model.getNormals().size() * sizeof(QVector3D),3);
+
+    init_buffer(tbo, m_program,"texCoords", &m_model.getTextures().data()[0], m_model.getTextures().size() * sizeof(QVector2D),2);
 
     vao.release();
 }
@@ -215,7 +235,7 @@ void GLSceneRenderer::init()
         init_buffers();
     }
 }
-
+// FIXME light shader render after light pos move
 void GLSceneRenderer::paint()
 {
     if(m_model.getFormat() == 'u')
@@ -233,6 +253,7 @@ void GLSceneRenderer::paint()
     QMatrix4x4 mat;
     mat.scale(1/(max(m_model.getSize()))); // TODO fix clip bug
     mat.translate(- m_model.getCenter());
+    // TODO yaw bug
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,0,1), m_roll));
@@ -242,6 +263,15 @@ void GLSceneRenderer::paint()
     m_program->setUniformValue("objectColor", QVector3D(1.0f, 0.5f, 0.31f));
     m_program->setUniformValue("lightPos", QVector3D(sin(m_pos), 0.3f, cos(m_pos)));
     m_program->setUniformValue("viewPos", QVector3D(0.0f, 0.0f, 0.0f));
+
+    m_program->setUniformValue("material.shininess", 64.0f);
+
+    m_program->setUniformValue("material.specular",m_model.getSpecular());
+
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
 
     glDrawArrays(GL_TRIANGLES, 0, m_model.getVertices().size());
 

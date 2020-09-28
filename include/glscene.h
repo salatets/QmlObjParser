@@ -46,6 +46,7 @@ private:
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo;
     QOpenGLBuffer nbo;
+    QOpenGLBuffer tbo;
 };
 
 
