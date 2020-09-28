@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm>
 
 #include "mesh.h"
 
@@ -90,13 +91,12 @@ bool Mesh::parseOBJ(const std::string& path){
                   std::numeric_limits<float>::lowest(),
                   std::numeric_limits<float>::lowest());
 
+    std::list<Mtl> mesh_materials;
 
 
     //parse file
     while (fstrm.peek() != -1){
         fstrm >> token;
-
-
 
         if(token == "v"){
             float x = 0,y= 0,z = 0;
@@ -174,6 +174,26 @@ bool Mesh::parseOBJ(const std::string& path){
                 }
                 break;
             }
+        }else if(token == "usemtl"){
+            std::string material_name;
+            fstrm >> material_name;
+
+            auto result = std::find_if(mesh_materials.begin(), mesh_materials.end(),
+                                    [&material_name](const Mtl& mat) {return mat.name == material_name;}
+            );
+            // TODO add pwd var or?
+            // TODO add false check
+            parseBMP(path.substr(0, path.rfind('/') + 1) + (*result).diffuse_map_path);
+
+        }else if(token == "mtllib"){
+            std::string filename;
+            fstrm >> filename;
+
+             if(!parseMTL(path.substr(0, path.rfind('/') + 1) + filename, mesh_materials)){
+                fstrm.close();
+                std::cerr << "could't parse mtl\n";
+                return false;
+             }
         }
 
 
@@ -189,6 +209,10 @@ bool Mesh::parseOBJ(const std::string& path){
     textures.clear();
 
     this->format = format;
+
+    ambient = mesh_materials.back().ambient;
+    diffuse = mesh_materials.back().diffuse;
+    specular = mesh_materials.back().specular;
 
     vertices.reserve(vertexIndeces.size());
     switch(format){
