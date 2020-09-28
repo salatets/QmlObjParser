@@ -215,3 +215,19 @@ TEST_CASE("checkDahl"){
     CHECK(test.getTextures().size() == 0);
     CHECK(test.getNormals().size() == test.getVertices().size());
 }
+
+TEST_CASE("check 24 bit image parse"){
+    Mesh test;
+    REQUIRE(test.parseBMP("bgr.bmp") ==  true);
+    REQUIRE(test.getTexture().bitsPerPixel == 24);
+    REQUIRE(test.getTexture().width == 16);
+    REQUIRE(test.getTexture().height == 16);
+}
+
+TEST_CASE("check 32 bit image parse"){
+    Mesh test;
+    REQUIRE(test.parseBMP("bgra.bmp") ==  true);
+    REQUIRE(test.getTexture().bitsPerPixel == 32);
+    REQUIRE(test.getTexture().width == 16);
+    REQUIRE(test.getTexture().height == 16);
+}
