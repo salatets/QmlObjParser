@@ -192,20 +192,12 @@ TEST_CASE("checkCube"){
     }
 }
 
-TEST_CASE("checkCude"){
-    Mesh test;
-    REQUIRE(test.parseOBJ("cude.obj") ==  true);
-    CHECK(test.getFormat() ==  'd');
-    CHECK(test.getTextures().size() == 0);
-    CHECK(test.getNormals().size() == 0);
-}
-
 TEST_CASE("checkMonkey"){
     Mesh test;
     REQUIRE(test.parseOBJ("monkey.obj") ==  true);
-    CHECK(test.getFormat() ==  'd');
+    CHECK(test.getFormat() ==  'b');
     CHECK(test.getTextures().size() == 0);
-    CHECK(test.getNormals().size() == 0);
+    CHECK(test.getNormals().size() == test.getVertices().size());
 }
 
 TEST_CASE("checkDahl"){
