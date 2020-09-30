@@ -3,7 +3,15 @@
 #include <sstream>
 #include <algorithm>
 
-#include "mesh.h"
+#include "Mesh.h"
+
+/* Structure of parse wavefront .obj
+ * mtllib headers
+ * verticles data (v,vn,vt)
+ * next parse mesh node
+ * usemtl declaration
+ * face data
+ */
 
 char Mesh::checkFaceFormat(std::basic_istream<char>& strm){
     int initPos = strm.tellg();
@@ -78,11 +86,14 @@ bool Mesh::parseOBJ(const std::string& path){
     std::string token;
     std::vector<QVector3D> raw_vertexs;
     std::vector<QVector3D> raw_normals;
-    std::vector<QVector2D> raw_textures;
+    std::vector<QVector2D> raw_uvs;
     // indeces is not negative
     std::vector<unsigned int> vertexIndeces;
     std::vector<unsigned int> normalIndeces;
     std::vector<unsigned int> textureIndeces;
+    // textures ids
+    std::vector<unsigned int> textureIds;
+
     // for center and size
     QVector3D min(std::numeric_limits<float>::max(),
                   std::numeric_limits<float>::max(),
@@ -124,7 +135,7 @@ bool Mesh::parseOBJ(const std::string& path){
         }else if (token == "vt"){
             float x = 0,y = 0;
             fstrm>>x>>y;
-            raw_textures.emplace_back(x,y);
+            raw_uvs.emplace_back(x,y);
         }else if (token == "f"){
             if(format == 'u'){
                 format = checkFaceFormat(fstrm);
@@ -183,7 +194,14 @@ bool Mesh::parseOBJ(const std::string& path){
             );
             // TODO add pwd var or?
             // TODO add false check
-            parseBMP(path.substr(0, path.rfind('/') + 1) + (*result).diffuse_map_path);
+            //parseBMP(path.substr(0, path.rfind('/') + 1) + (*result).diffuse_map_path);
+
+            Texture* diffuse = parseBMP(path.substr(0, path.rfind('/') + 1) + (*result).diffuse_map_path);
+            if(diffuse == nullptr)
+                throw std::invalid_argument("not implement default texture");
+            else{
+                textureIds.push_back(LoadTexture(diffuse));
+            }
 
         }else if(token == "mtllib"){
             std::string filename;
@@ -206,7 +224,7 @@ bool Mesh::parseOBJ(const std::string& path){
 
     vertices.clear();
     normals.clear();
-    textures.clear();
+    uvs.clear();
 
     this->format = format;
 
@@ -219,7 +237,7 @@ bool Mesh::parseOBJ(const std::string& path){
         case 'a':
         {
             normals.reserve(normalIndeces.size());
-            textures.reserve(textureIndeces.size());
+            uvs.reserve(textureIndeces.size());
             break;
         }
         case 'b':
@@ -228,7 +246,7 @@ bool Mesh::parseOBJ(const std::string& path){
             break;
         }
         case 'c':{
-            textures.reserve(textureIndeces.size());
+            uvs.reserve(textureIndeces.size());
             break;
         }
     }
@@ -247,7 +265,7 @@ bool Mesh::parseOBJ(const std::string& path){
                 normals.emplace_back(raw_normals[ normalIndex-1 ]);
 
                 unsigned int uvIndex = textureIndeces[i];
-                textures.emplace_back(raw_textures[ uvIndex-1 ]);
+                uvs.emplace_back(raw_uvs[ uvIndex-1 ]);
                 break;
             }
             case 'b':
@@ -258,7 +276,7 @@ bool Mesh::parseOBJ(const std::string& path){
             }
             case 'c':{
                 unsigned int uvIndex = textureIndeces[i];
-                textures.emplace_back(raw_textures[ uvIndex-1 ]);
+                uvs.emplace_back(raw_uvs[ uvIndex-1 ]);
                 break;
             }
         }
@@ -323,66 +341,4 @@ bool Mesh::parseMTL(const std::string& path, std::list<Mtl>& materials){
 }
 
 
-std::int32_t readInt32(const std::vector<std::uint8_t>& buffer, int index)
-{
-    return (std::int32_t )(
-                ((std::uint8_t)buffer[index + 3] << 24) |
-                ((std::uint8_t)buffer[index + 2] << 16) |
-                ((std::uint8_t)buffer[index + 1] << 8) |
-                ((std::uint8_t)buffer[index]));
-}
 
-std::uint32_t readUint32(const std::vector<std::uint8_t>& buffer, int index)
-{
-    return (std::uint32_t )(
-                ((std::uint8_t)buffer[index + 3] << 24) |
-                ((std::uint8_t)buffer[index + 2] << 16) |
-                ((std::uint8_t)buffer[index + 1] << 8) |
-                ((std::uint8_t)buffer[index]));
-}
-
-std::uint16_t readUint16(const std::vector<std::uint8_t>& buffer, int index)
-{
-    return (std::uint16_t )(
-             ((std::uint8_t)buffer[index + 1] << 8) |
-             ((std::uint8_t)buffer[index]));
-}
-
-constexpr std::size_t HEADER_SIZE = 54;
-
-bool Mesh::parseBMP(const std::string& path){
-    std::ifstream hFile(path, std::ios::binary);
-    if (!hFile.is_open()){
-        std::cerr << "image " << path << " could not be opened\n";
-        return false;
-    }
-
-    std::vector<std::uint8_t> FileInfo(HEADER_SIZE);
-    hFile.read(reinterpret_cast<char*>(FileInfo.data()), HEADER_SIZE);
-
-    if(FileInfo[0] != 'B' && FileInfo[1] != 'M')
-    {
-        hFile.close();
-        std::cerr << path << "Invalid File Format. Bitmap Required\n";
-        return false;
-    }
-
-    if (FileInfo[28] != 24 && FileInfo[28] != 32)
-    {
-        hFile.close();
-        std::cerr << path << "Invalid File Format. 24 or 32 bit Image Required\n";
-        return false;
-    }
-
-    texture.bitsPerPixel = FileInfo[28];
-    texture.width = readInt32(FileInfo,18);
-    texture.height = readInt32(FileInfo,22);
-    std::uint32_t PixelsOffset = readInt32(FileInfo,10);
-    std::uint32_t size = ((texture.width * texture.bitsPerPixel + 31) / 32) * 4 * texture.height;
-    texture.pixels.resize(size);
-
-    hFile.seekg (PixelsOffset, std::ios::beg);
-    hFile.read(reinterpret_cast<char*>(texture.pixels.data()), size);
-    hFile.close();
-    return true;
-}

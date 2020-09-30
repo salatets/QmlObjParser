@@ -9,7 +9,8 @@ option(MYLIB_TESTING "enable tests" ON)
 #-------------
 
 set(SOURCES
-    src/mesh.cpp
+    src/Mesh.cpp
+    src/MeshNode.cpp
 )
 
 set(LIBRARY_NAME objparser)
