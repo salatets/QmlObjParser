@@ -11,6 +11,7 @@ option(MYLIB_TESTING "enable tests" ON)
 set(SOURCES
     src/Mesh.cpp
     src/MeshNode.cpp
+    src/ImageLoader.cpp
 )
 
 set(LIBRARY_NAME objparser)

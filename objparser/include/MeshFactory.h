@@ -1,7 +1,8 @@
 #ifndef MESHFACTORY_H
 #define MESHFACTORY_H
+
 #include <MeshNode.h>
-#include <ImageLoader.h>
+#include <iostream>
 
 class MeshFactory{
 public:
@@ -24,6 +25,8 @@ public:
          case 'd':
              break;
          }
+
+         std::cerr << "return pure MeshNode";
 
         return MeshNode();
      }

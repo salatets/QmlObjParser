@@ -50,7 +50,7 @@ void MeshNodeVNT::initBuffers(QOpenGLShaderProgram& shader){
 
 
  // run with binded shader
-void MeshNodeVNT::Draw(QOpenGLShaderProgram& shader){
+void MeshNodeVNT::draw(QOpenGLShaderProgram& shader){
      m_funcs->glActiveTexture(GL_TEXTURE0);
      m_funcs->glBindTexture(GL_TEXTURE_2D, textureId);
 

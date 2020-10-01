@@ -2,8 +2,9 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <MeshFactory.h>
 
+#include <MeshFactory.h>
+#include <ImageLoader.h>
 #include <Mesh.h>
 
 
@@ -365,5 +366,16 @@ bool Mesh::parseMTL(const std::string& path, std::list<Mtl>& materials){
     return true;
 }
 
+void  Mesh::init_buffers(QOpenGLShaderProgram& shader){
+    for(auto&& mesh : meshes){
+        mesh.initBuffers(shader);
+    }
+}
+
+void Mesh::draw(QOpenGLShaderProgram &shader){
+    for(auto&& mesh : meshes){
+        mesh.draw(shader);
+    }
+}
 
 

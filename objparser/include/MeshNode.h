@@ -11,9 +11,12 @@
 
 #include <common.h>
 
+// TODO what is going if initBuffer one shader draw other
 class MeshNode
 {
-    void Draw();
+public:
+    void draw(QOpenGLShaderProgram& shader){};
+    void initBuffers(QOpenGLShaderProgram& shader){};
 };
 
 struct DataVNT{
@@ -33,7 +36,7 @@ public:
 
     void initBuffers(QOpenGLShaderProgram& shader);
 
-    void Draw(QOpenGLShaderProgram& shader);
+    void draw(QOpenGLShaderProgram& shader);
 
 private:
     unsigned int textureId;

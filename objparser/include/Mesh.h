@@ -2,7 +2,6 @@
 #define MESH_H
 #include <QOpenGLContext>
 #include <QOpenGLFunctions_4_3_Core>
-#include <ImageLoader.h>
 
 #include <MeshNode.h>
 #include <common.h>
@@ -11,6 +10,9 @@ class Mesh
 {
 public:
     Mesh(QOpenGLContext* m_context) : center(0,0,0),size(0,0,0) {
+        if(m_context == nullptr)
+            return;
+
         m_funcs = m_context->versionFunctions<QOpenGLFunctions_4_3_Core>();
 
           if (!m_funcs) {
@@ -31,7 +33,8 @@ public:
 
     static bool parseMTL(const std::string& path, std::list<Mtl>& materials);
 
-    void draw();
+    void init_buffers(QOpenGLShaderProgram& shader);
+    void draw(QOpenGLShaderProgram& shader);
 
 private:
     QOpenGLFunctions_4_3_Core* m_funcs;
