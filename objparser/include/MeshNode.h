@@ -7,24 +7,9 @@
 #include <QtGui/QOpenGLFunctions>
 #include <QtGui/QOpenGLBuffer>
 #include <QtGui/QOpenGLVertexArrayObject>
+#include <QOpenGLFunctions_4_3_Core>
 
 #include <common.h>
-
-enum illum{
-    AMBIENT_ON = 1,
-    HIGHTLIGHT_ON = 2
-};
-
-struct Mtl{
-    std::string name;
-    QVector3D ambient;
-    QVector3D diffuse;
-    QVector3D specular;
-    illum illum_mode;
-    std::string diffuse_map_path;
-    Mtl() : name(""), ambient(0,0,0), diffuse(0,0,0), specular(0,0,0),
-        illum_mode(AMBIENT_ON), diffuse_map_path("") {};
-};
 
 class MeshNode
 {
@@ -39,25 +24,25 @@ struct DataVNT{
 
 class MeshNodeVNT : public MeshNode {
 public:
-    MeshNodeVNT(unsigned int textureId, QOpenGLShaderProgram* shader,
+    MeshNodeVNT(QOpenGLFunctions_4_3_Core* funcs, unsigned int textureId,
                 const std::vector<QVector3D>& vertexs,
                 const std::vector<QVector3D>& normals,
                 const std::vector<QVector2D>& uvs);
 
     ~MeshNodeVNT();
 
-    void setShader(QOpenGLShaderProgram* shader) {this->shader = shader;}
+    void initBuffers(QOpenGLShaderProgram& shader);
 
-    void Draw();
+    void Draw(QOpenGLShaderProgram& shader);
 
 private:
     unsigned int textureId;
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo;
-    QOpenGLShaderProgram* shader;
+    QOpenGLFunctions_4_3_Core* m_funcs;
 
     Texture* diffuse;
-    DataVNT* vertex_data;
+    std::vector<DataVNT> vertex_data;
 
 };
 

@@ -1,9 +1,11 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <MeshFactory.h>
 
-#include "Mesh.h"
+#include <Mesh.h>
+
 
 /* Structure of parse wavefront .obj
  * mtllib headers
@@ -63,7 +65,17 @@ char Mesh::checkFaceFormat(std::basic_istream<char>& strm){
 }
 
 
+struct Indeces{
+    std::vector<unsigned int> vertex;
+    std::vector<unsigned int> normal;
+    std::vector<unsigned int> uv;
+};
 
+struct Vertices{
+    std::vector<QVector3D> vertices;
+    std::vector<QVector3D> normals;
+    std::vector<QVector2D> uvs;
+};
 
 // v parse only 3 val
 // todo multithread??
@@ -82,17 +94,21 @@ bool Mesh::parseOBJ(const std::string& path){
     // c: v/t
     // d: v
     // u: undefined
-    char format ='u';
     std::string token;
     std::vector<QVector3D> raw_vertexs;
     std::vector<QVector3D> raw_normals;
     std::vector<QVector2D> raw_uvs;
-    // indeces is not negative
-    std::vector<unsigned int> vertexIndeces;
-    std::vector<unsigned int> normalIndeces;
-    std::vector<unsigned int> textureIndeces;
-    // textures ids
-    std::vector<unsigned int> textureIds;
+
+    // TODO forward list
+    // TODO one struct list
+    // meshes
+    std::list<unsigned int> textureIds;
+    std::list<Mtl> mesh_materials;
+    std::list<Indeces> indeces;
+    std::list<Vertices> vertices;
+    std::list<char> formats;
+
+    std::list<MeshNode> meshes;
 
     // for center and size
     QVector3D min(std::numeric_limits<float>::max(),
@@ -102,7 +118,7 @@ bool Mesh::parseOBJ(const std::string& path){
                   std::numeric_limits<float>::lowest(),
                   std::numeric_limits<float>::lowest());
 
-    std::list<Mtl> mesh_materials;
+
 
 
     //parse file
@@ -137,51 +153,51 @@ bool Mesh::parseOBJ(const std::string& path){
             fstrm>>x>>y;
             raw_uvs.emplace_back(x,y);
         }else if (token == "f"){
-            if(format == 'u'){
-                format = checkFaceFormat(fstrm);
-                if (format == 'u'){
+            if(formats.back() == 'u'){
+                formats.back() = checkFaceFormat(fstrm);
+                if (formats.back() == 'u'){
                     fstrm.close();
                     std::cerr << "could't parse faces\n";
                     return false;
                 }
             }
             int index = 0;
-            switch(format){
+            switch(formats.back()){
             case 'a':
                 for(int i =0; i< 3; ++i){
                     fstrm >> index;
-                    vertexIndeces.push_back(index);
+                    indeces.back().vertex.push_back(index);
                     fstrm.get();
                     fstrm >> index;
-                    textureIndeces.push_back(index);
+                    indeces.back().uv.push_back(index);
                     fstrm.get();
                     fstrm >> index;
-                    normalIndeces.push_back(index);
+                    indeces.back().normal.push_back(index);
                 }
                 break;
             case 'b':
                 for(int i =0; i< 3; ++i){
                     fstrm >> index;
-                    vertexIndeces.push_back(index);
+                    indeces.back().vertex.push_back(index);
                     fstrm.get();
                     fstrm.get();
                     fstrm >> index;
-                    normalIndeces.push_back(index);
+                    indeces.back().normal.push_back(index);
                 }
                 break;
             case 'c':
                 for(int i =0; i< 3; ++i){
                     fstrm >> index;
-                    vertexIndeces.push_back(index);
+                    indeces.back().vertex.push_back(index);
                     fstrm.get();
                     fstrm >> index;
-                    textureIndeces.push_back(index);
+                    indeces.back().uv.push_back(index);
                 }
                 break;
             case 'd':
                 for(int i =0; i< 3; ++i){
                     fstrm >> index;
-                    vertexIndeces.push_back(index);
+                    indeces.back().vertex.push_back(index);
                 }
                 break;
             }
@@ -190,18 +206,23 @@ bool Mesh::parseOBJ(const std::string& path){
             fstrm >> material_name;
 
             auto result = std::find_if(mesh_materials.begin(), mesh_materials.end(),
-                                    [&material_name](const Mtl& mat) {return mat.name == material_name;}
-            );
-            // TODO add pwd var or?
-            // TODO add false check
-            //parseBMP(path.substr(0, path.rfind('/') + 1) + (*result).diffuse_map_path);
+                                    [&material_name](const Mtl& mat) {return mat.name == material_name;});
 
+            if(result == mesh_materials.end()){
+                std::cerr << "material not found\n";
+                return false;
+            }
+
+            // TODO add pwd var or?
             Texture* diffuse = parseBMP(path.substr(0, path.rfind('/') + 1) + (*result).diffuse_map_path);
             if(diffuse == nullptr)
                 throw std::invalid_argument("not implement default texture");
             else{
                 textureIds.push_back(LoadTexture(diffuse));
             }
+
+            formats.emplace_back('u');
+            indeces.emplace_back(Indeces());
 
         }else if(token == "mtllib"){
             std::string filename;
@@ -219,72 +240,76 @@ bool Mesh::parseOBJ(const std::string& path){
     }
     fstrm.close();
 
-    if(format == 'u' || vertexIndeces.size() == 0)
+    if(formats.size() != indeces.size()){
+        std::cerr << "why is not correct size\n";
         return false;
-
-    vertices.clear();
-    normals.clear();
-    uvs.clear();
-
-    this->format = format;
-
-    ambient = mesh_materials.back().ambient;
-    diffuse = mesh_materials.back().diffuse;
-    specular = mesh_materials.back().specular;
-
-    vertices.reserve(vertexIndeces.size());
-    switch(format){
-        case 'a':
-        {
-            normals.reserve(normalIndeces.size());
-            uvs.reserve(textureIndeces.size());
-            break;
-        }
-        case 'b':
-        {
-            normals.reserve(normalIndeces.size());
-            break;
-        }
-        case 'c':{
-            uvs.reserve(textureIndeces.size());
-            break;
-        }
     }
 
-    //transform data
-    for(std::vector<int>::size_type i = 0; i < vertexIndeces.size(); ++i){
-        // Get the indices of its attributes
-        unsigned int vertexIndex = vertexIndeces[i];
-        // Put the attributes in buffers
-        vertices.emplace_back(raw_vertexs[ vertexIndex-1 ]);
+    // TODO refactor
+    auto formatsIter = formats.begin();
+    auto indecesIter = indeces.begin();
+    auto verticesIter = vertices.begin();
+    auto textureIter = textureIds.begin();
+    auto materialIter = mesh_materials.begin();
 
-        switch(format){
-            case 'a':
-            {
-                unsigned int normalIndex = normalIndeces[i];
-                normals.emplace_back(raw_normals[ normalIndex-1 ]);
+    while(formatsIter != formats.end()){
 
-                unsigned int uvIndex = textureIndeces[i];
-                uvs.emplace_back(raw_uvs[ uvIndex-1 ]);
-                break;
+        if(*formatsIter == 'u' || (*indecesIter).vertex.empty())
+            return false;
+
+        vertices.emplace_back(Vertices());
+
+        //transform data
+        for(std::vector<int>::size_type j = 0; j < (*indecesIter).vertex.size(); ++j){
+            // Get the indices of its attributes
+            unsigned int vertexIndex =(*indecesIter).vertex[j];
+            // Put the attributes in buffers
+            (*verticesIter).vertices.push_back(raw_vertexs[ vertexIndex-1 ]);
+
+            switch(*formatsIter){
+                case 'a':
+                {
+                    unsigned int normalIndex = (*indecesIter).normal[j];
+                    (*verticesIter).normals.push_back(raw_normals[ normalIndex-1 ]);
+
+                    unsigned int uvIndex = (*indecesIter).uv[j];
+                    (*verticesIter).uvs.push_back(raw_uvs[ uvIndex-1 ]);
+                    break;
+                }
+                case 'b':
+                {
+                    unsigned int normalIndex = (*indecesIter).normal[j];
+                    (*verticesIter).normals.push_back(raw_normals[ normalIndex-1 ]);
+                    break;
+                }
+                case 'c':{
+                    unsigned int uvIndex = (*indecesIter).uv[j];
+                    (*verticesIter).uvs.push_back(raw_uvs[ uvIndex-1 ]);
+                    break;
+                }
             }
-            case 'b':
-            {
-                unsigned int normalIndex = normalIndeces[i];
-                normals.emplace_back(raw_normals[ normalIndex-1 ]);
-                break;
-            }
-            case 'c':{
-                unsigned int uvIndex = textureIndeces[i];
-                uvs.emplace_back(raw_uvs[ uvIndex-1 ]);
-                break;
-            }
+
         }
+
+        meshes.push_back(MeshFactory::MakeMesh(m_funcs,
+                               *materialIter,
+                               *textureIter,
+                               *formatsIter,
+                               (*verticesIter).vertices,
+                               (*verticesIter).normals,
+                               (*verticesIter).uvs));
+
+        ++formatsIter;
+        ++indecesIter;
+        ++verticesIter;
+        ++textureIter;
+        ++materialIter;
 
     }
 
     this->size = max-min;
     this->center = min + this->size/2;
+    this->meshes = meshes;
 
     return true;
 }
@@ -304,7 +329,7 @@ bool Mesh::parseMTL(const std::string& path, std::list<Mtl>& materials){
         fstrm >> token;
 
         if(token == "newmtl"){
-            materials.push_back(Mtl());
+            materials.emplace_back(Mtl());
             added_new = true;
             fstrm >> token;
             materials.back().name = token;

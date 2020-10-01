@@ -1,33 +1,16 @@
 #ifndef MESH_H
 #define MESH_H
-#include <QVector2D>
-#include <QVector3D>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions_4_3_Core>
 #include <ImageLoader.h>
 
-
-enum illum{
-    AMBIENT_ON = 1,
-    HIGHTLIGHT_ON = 2
-};
-
-struct Mtl{
-    std::string name;
-    QVector3D ambient;
-    QVector3D diffuse;
-    QVector3D specular;
-    illum illum_mode;
-    std::string diffuse_map_path;
-    Mtl() : name(""), ambient(0,0,0), diffuse(0,0,0), specular(0,0,0),
-        illum_mode(AMBIENT_ON), diffuse_map_path("") {};
-};
-
+#include <MeshNode.h>
+#include <common.h>
 
 class Mesh
 {
 public:
-    Mesh(QOpenGLContext* m_context) : vertices(), uvs(), normals(), format('u'), center(0,0,0),size(0,0,0) {
+    Mesh(QOpenGLContext* m_context) : center(0,0,0),size(0,0,0) {
         m_funcs = m_context->versionFunctions<QOpenGLFunctions_4_3_Core>();
 
           if (!m_funcs) {
@@ -41,18 +24,14 @@ public:
     static char checkFaceFormat(std::basic_istream<char>& strm);
 
     bool parseOBJ(const std::string& path);
-    char getFormat() const {return format;}
     const QVector3D& getCenter() const {return center;}
     const QVector3D& getSize() const {return size;}
-    const std::vector<QVector3D>& getVertices() const {return vertices;}
-    const std::vector<QVector2D>& getUvs() const {return uvs;}
-    const std::vector<QVector3D>& getNormals() const {return normals;}
 
-    //bool parseBMP(const std::string& path);
 
-    bool parseMTL(const std::string& path, std::list<Mtl>& materials);
 
-    const QVector3D& getSpecular() const {return specular;}
+    static bool parseMTL(const std::string& path, std::list<Mtl>& materials);
+
+    void draw();
 
 private:
     QOpenGLFunctions_4_3_Core* m_funcs;
@@ -67,10 +46,9 @@ private:
             else
                 return -1;
             break;
+            }
         }
-            return -1;
-
-        }
+        return -1;
     }
 
     unsigned int LoadTexture(Texture* texture){
@@ -89,15 +67,8 @@ private:
         return textureID;
     }
 
-    QVector3D ambient;
-    QVector3D diffuse;
-    QVector3D specular;
+    std::list<MeshNode> meshes;
 
-    std::vector<QVector3D> vertices;
-    std::vector<QVector2D> uvs;
-    std::vector<QVector3D> normals;
-
-    char format;
     QVector3D center;
     QVector3D size;
 };

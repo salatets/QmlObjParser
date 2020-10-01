@@ -5,8 +5,8 @@
 
 class MeshFactory{
 public:
-    MeshNode* MakeMesh(const Mtl& material, QOpenGLShaderProgram* shader,
-                       const std::vector<unsigned int>& textureIds,
+    static MeshNode MakeMesh(QOpenGLFunctions_4_3_Core* funcs, const Mtl& material,
+                       const unsigned int& textureIds,
                        const char& format,
                        const std::vector<QVector3D>& vertexs,
                        const std::vector<QVector3D>& normals,
@@ -14,7 +14,7 @@ public:
 
          switch(format){
          case 'a':{
-             return new MeshNodeVNT(textureIds[0], shader, vertexs, normals, uvs);
+             return MeshNodeVNT(funcs, textureIds, vertexs, normals, uvs);
              break;
          }
          case 'b':
@@ -25,7 +25,7 @@ public:
              break;
          }
 
-        return nullptr;
+        return MeshNode();
      }
 };
 
