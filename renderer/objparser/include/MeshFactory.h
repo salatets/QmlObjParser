@@ -6,8 +6,7 @@
 
 class MeshFactory{
 public:
-    static MeshNode MakeMesh(QOpenGLFunctions_4_3_Core* funcs, const Mtl& material,
-                       const unsigned int& textureIds,
+    static MeshNode MakeMesh(const Mtl& material,
                        const char& format,
                        const std::vector<QVector3D>& vertexs,
                        const std::vector<QVector3D>& normals,
@@ -15,7 +14,7 @@ public:
 
          switch(format){
          case 'a':{
-             return MeshNodeVNT(funcs, textureIds, vertexs, normals, uvs);
+             return MeshNodeVNT(material, vertexs, normals, uvs);
              break;
          }
          case 'b':

@@ -211,7 +211,7 @@ void GLSceneRenderer::init_buffers(){
 
     init_buffer(nbo, m_program,"normal", &m_model.getNormals().data()[0], m_model.getNormals().size() * sizeof(QVector3D),3);
 
-    init_buffer(tbo, m_program,"texCoords", &m_model.getTextures().data()[0], m_model.getTextures().size() * sizeof(QVector2D),2);
+    init_buffer(tbo, m_program,"texCoords", &m_model.getUvs().data()[0], m_model.getUvs().size() * sizeof(QVector2D),2);
 
     vao.release();
 }
@@ -220,6 +220,7 @@ void GLSceneRenderer::init()
 {
     if (!m_program) {
         QSGRendererInterface *rif = m_window->rendererInterface();
+        m_window->openglContext();
         Q_ASSERT(rif->graphicsApi() == QSGRendererInterface::OpenGL || rif->graphicsApi() == QSGRendererInterface::OpenGLRhi);
 
         initializeOpenGLFunctions();

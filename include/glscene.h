@@ -7,7 +7,7 @@
 #include <QtGui/QOpenGLBuffer>
 #include <QtGui/QOpenGLVertexArrayObject>
 
-#include "mesh.h"
+#include "Mesh.h"
 
 class GLSceneRenderer : public QObject, protected QOpenGLFunctions
 {

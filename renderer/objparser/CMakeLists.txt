@@ -12,26 +12,27 @@ set(SOURCES
     src/Mesh.cpp
     src/MeshNode.cpp
     src/ImageLoader.cpp
+    src/ObjParser.cpp
 )
 
-set(LIBRARY_NAME objparser)
+set(LIBS_FOR_TEST ${PROJECT_NAME})
 
 #---------------
 # build commands
 #---------------
 
-add_library(${LIBRARY_NAME} STATIC ${SOURCES})
+add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
-target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 find_package(Qt5 COMPONENTS Core Gui REQUIRED)
 
-target_link_libraries(${LIBRARY_NAME}
+target_link_libraries(${PROJECT_NAME}
   PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui )
 
-set(${LIBRARY_NAME} PROPERTY
-    CMAKE_CXX_STANDARD 11
-    CMAKE_CXX_STANDARD_REQUIRED ON
+set(${PROJECT_NAME} PROPERTY
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS NO
     )
 
