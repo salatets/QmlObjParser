@@ -15,7 +15,8 @@ public:
     const QVector3D& getCenter() const {return center;}
     const QVector3D& getSize() const {return size;}
     size_t getNodesSize() const {return meshes.size();}
-    auto getNodesIterator() const {return meshes.cbegin();}
+    auto getNodesBegin() const {return meshes.cbegin();}
+    auto getNodesEnd() const {return meshes.cend();}
 
     template<typename Iterator>
     void setNodes(QVector3D model_center, QVector3D model_size, Iterator p, Iterator q, size_t meshes_size){

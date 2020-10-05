@@ -208,17 +208,20 @@ Mesh parseOBJ(const std::string& path){
                 }
             }
             int index = 0;
-            switch(raw_mesh.back().format){
+            switch(raw_mesh.back().format){ // get() skip slash
             case 'a':
                 for(int i =0; i< 3; ++i){
                     fstrm >> index;
                     raw_mesh.back().index.vertices.push_back(index);
+                    //std::cerr << "v " << index << ' ';
                     fstrm.get();
                     fstrm >> index;
                     raw_mesh.back().index.UVs.push_back(index);
+                    //std::cerr << "t " << index << ' ';
                     fstrm.get();
                     fstrm >> index;
                     raw_mesh.back().index.normals.push_back(index);
+                    //std::cerr << "n " << index << '\n';
                 }
                 break;
             case 'b':

@@ -14,7 +14,7 @@ public:
 
          switch(format){
          case 'a':{
-             return MeshNodeVNT(material, vertexs, normals, uvs);
+             return MeshNode(material, vertexs, normals, uvs);
              break;
          }
          case 'b':
