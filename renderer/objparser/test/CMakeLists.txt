@@ -20,6 +20,7 @@ set(TEST_DATA
     test_data/monkey.mtl
     test_data/cube.obj
     test_data/cube.mtl
+    test_data/cube.bmp
     test_data/bgr.bmp
     test_data/bgra.bmp
 )
