@@ -11,12 +11,18 @@
 
 #include <common.h>
 
-// TODO what is going if initBuffer one shader draw other
+// TODO unify material
 class MeshNode
 {
 public:
-    void draw(QOpenGLShaderProgram& shader){};
-    void initBuffers(QOpenGLShaderProgram& shader){};
+    MeshNode() : type('u'){};
+
+    const char& getType(){return type;}
+    const float* const getData();
+    const Mtl& getMaterial();
+
+protected:
+    const char type;
 };
 
 struct DataVNT{
@@ -27,24 +33,16 @@ struct DataVNT{
 
 class MeshNodeVNT : public MeshNode {
 public:
-    MeshNodeVNT(QOpenGLFunctions_4_3_Core* funcs, unsigned int textureId,
+    MeshNodeVNT(const Mtl& material,
                 const std::vector<QVector3D>& vertexs,
                 const std::vector<QVector3D>& normals,
                 const std::vector<QVector2D>& uvs);
 
-    ~MeshNodeVNT();
-
-    void initBuffers(QOpenGLShaderProgram& shader);
-
-    void draw(QOpenGLShaderProgram& shader);
+    const float* const getData();
+    const Mtl& getMaterial();
 
 private:
-    unsigned int textureId;
-    QOpenGLVertexArrayObject vao;
-    QOpenGLBuffer vbo;
-    QOpenGLFunctions_4_3_Core* m_funcs;
-
-    Texture* diffuse;
+    Mtl material;
     std::vector<DataVNT> vertex_data;
 
 };
