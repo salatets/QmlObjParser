@@ -285,7 +285,7 @@ Mesh parseOBJ(const std::string& path){
 
     while(meshIter != raw_mesh.end()){
 
-        if((*meshIter).format == 'u' || (*meshIter).vertex.vertices.empty())
+        if((*meshIter).format == 'u' || (*meshIter).index.vertices.empty())
             return Mesh();
 
         //vertices.emplace_back(Vertices());
