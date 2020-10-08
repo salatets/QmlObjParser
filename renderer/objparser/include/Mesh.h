@@ -4,6 +4,7 @@
 #include <MeshNode.h>
 #include <common.h>
 
+// todo add iterator impl
 class Mesh
 {
 public:

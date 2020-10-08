@@ -11,13 +11,8 @@
 
 #include <common.h>
 
-struct DataVNT{
-    QVector3D vertex;
-    QVector2D uv;
-    QVector3D normal;
-};
-
 // TODO unify material
+// vertex / normal / texture
 class MeshNode
 {
 public:
@@ -31,11 +26,17 @@ public:
     const char& getType() const {return type;}
     const float* const getData() const { return vertex_data;};
     const Mtl& getMaterial() const { return material;};
+    size_t getSize() const {return size;}
+
+    ~MeshNode(){
+        free(vertex_data);
+    }
 
 protected:
     char type;
     Mtl material;
     float* vertex_data;
+    size_t size;
 };
 
 #endif // MESHNODE_H

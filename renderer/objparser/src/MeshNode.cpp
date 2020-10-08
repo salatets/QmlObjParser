@@ -7,12 +7,27 @@ MeshNode::MeshNode(const Mtl& material,
          const std::vector<QVector3D>& normals,
          const std::vector<QVector2D>& uvs) : type('a'), material(material){
 
-    DataVNT* data = static_cast<DataVNT *>(malloc(vertexs.size() * sizeof(DataVNT)));
+    float* data = static_cast<float *>(malloc(vertexs.size() * 8 * sizeof(float)));
+    this->size = vertexs.size();
 
-    for(size_t i = 0; i < vertexs.size(); ++i){
-        data[i].vertex = vertexs[i];
-        data[i].normal = normals[i];
-        data[i].uv = uvs[i];
+    // TODO memcpy
+    for(size_t i = 0; i < this->size; ++i){
+        data[i * 3] = vertexs[i].x();
+        data[i* 3 + 1] = vertexs[i].y();
+        data[i* 3 + 2] = vertexs[i].z();
+
+        data[(this->size + i) * 3] = normals[i].x();
+        data[(this->size + i) * 3 + 1] = normals[i].y();
+        data[(this->size + i) * 3 + 2] = normals[i].z();
+
+        data[(this->size * 6) + i * 2] = uvs[i].x();
+        data[(this->size * 6) + i * 2 + 1] = uvs[i].y();
     }
-    vertex_data = reinterpret_cast<float*>(data);
+
+//    for(size_t i = 0; i < this->size; ++i){
+//        data[i].vertex = vertexs[i];
+//        data[i].normal = normals[i];
+//        data[i].uv = uvs[i];
+//    }
+    vertex_data = data;
 };
