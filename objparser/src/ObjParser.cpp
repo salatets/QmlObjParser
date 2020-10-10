@@ -325,7 +325,7 @@ Mesh parseOBJ(const std::string& path){
 
         }
 
-        meshes.push_back(MeshFactory::MakeMesh(
+        meshes.emplace_back(MeshFactory::MakeMesh(
                                (*meshIter).material,
                                (*meshIter).format,
                                (*meshIter).vertex.vertices,

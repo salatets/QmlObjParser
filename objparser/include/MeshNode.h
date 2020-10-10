@@ -11,6 +11,11 @@
 
 #include <common.h>
 
+enum meshType{
+    VNT,
+    UNDEFINED,
+};
+
 // TODO unify material
 // vertex / normal / texture
 class MeshNode
@@ -23,20 +28,49 @@ public:
              const std::vector<QVector3D>& normals,
              const std::vector<QVector2D>& uvs); // a
 
-    const char& getType() const {return type;}
+    const meshType& getType() const {return type;}
     const float* const getData() const { return vertex_data;};
     const Mtl& getMaterial() const { return material;};
     size_t getSize() const {return size;}
 
-    ~MeshNode(){
-        free(vertex_data);
+    MeshNode ( const MeshNode & other){
+        material = other.material;
+        size = other.size;
+        type = other.type;
+
+        if(other.vertex_data == nullptr){
+            vertex_data = nullptr;
+            return;
+        }
+
+        size_t vertex_size = size * getTypeSize();
+        vertex_data = new float[vertex_size];
+
+        for(size_t i = 0; i < vertex_size; ++i){
+            vertex_data[i] = other.vertex_data[i];
+        }
     }
 
-protected:
-    char type;
+    MeshNode ( MeshNode && other){
+        material = other.material;
+        size = other.size;
+        type = other.type;
+        vertex_data = other.vertex_data;
+        other.vertex_data = nullptr;
+    }
+
+    ~MeshNode(){
+        //FIXME double free
+        delete[] vertex_data;
+    }
+
+private:
+    size_t getTypeSize() const;
+
+    meshType type;
     Mtl material;
-    float* vertex_data;
     size_t size;
+    float* vertex_data;
 };
 
 #endif // MESHNODE_H

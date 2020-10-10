@@ -3,15 +3,20 @@
 #include <ImageLoader.h>
 #include "doctest.h"
 
-bool eqArray(const float* array1,const float* array2, size_t size){
+bool eqArray(const float* array1,const float* array2, size_t chunk, size_t size){
     bool eq = true;
 
-    for(size_t i = 0; i < size; ++i){
-        eq &= (array1[i] == array2[i]);
-        if(!eq){
-            std::cerr << "orig: " << array1[i] << " new: " << array2[i]  << " " << i << "\n";
-            return eq;
-        }
+    for(size_t i = 0; i < chunk; ++i){
+        eq &= (array1[i * 3] == array1[i * 3]);
+        eq &= (array1[i * 3 + 1] == array1[i * 3 + 1]);
+        eq &= (array1[i * 3 + 2] == array1[i * 3 + 2]);
+
+        eq &= (array1[(size + i) * 3] == array1[(size + i) * 3]);
+        eq &= (array1[(size + i) * 3 + 1] == array1[(size + i) * 3 + 1]);
+        eq &= (array1[(size + i) * 3 + 2] == array1[(size + i) * 3 + 2]);
+
+        eq &= (array1[size * 6 + i * 2] == array1[size * 6 + i * 2]);
+        eq &= (array1[size * 6 + i * 2 + 1] == array1[size * 6 + i * 2 + 1]);
     }
 
     return eq;
@@ -24,11 +29,14 @@ TEST_CASE("load cube.obj"){
     MeshNode mesh = *test.getNodesBegin();
 
     SUBCASE("test mesh"){
-        CHECK(mesh.getType() == 'a');
-        float arr[24] = {-1,1,-1, 0.875,0.5, 0,1,0,
-                         1,1,1, 0.625,0.75, 0,1,0,
-                         1,1,-1, 0.625,0.5, 0,1,0};
-        CHECK(eqArray(mesh.getData(), arr, 24) == true);
+        CHECK(mesh.getType() == meshType::VNT);
+        float arr[24] = {
+            -1,1,-1, 1,1,1, 1,1,-1, // vert
+            0,1,0, 0,1,0, 0,1,0, // norm
+            0.875,0.5, 0.625,0.75, 0.625,0.5 // uv
+        };
+
+        CHECK(eqArray(mesh.getData(), arr, 3, mesh.getSize()) == true);
     }
 
 
