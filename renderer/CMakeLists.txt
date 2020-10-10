@@ -14,6 +14,7 @@ set(CMAKE_AUTORCC ON)
 set(SOURCES
     src/Renderer.cpp
     src/MeshLoader.cpp
+    src/FloatingHorizon.cpp
 )
 
 #---------------
