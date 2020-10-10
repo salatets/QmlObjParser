@@ -38,10 +38,11 @@ find_package(Qt5 COMPONENTS Core Gui Quick REQUIRED)
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(${PROJECT_NAME}
-  PRIVATE renderer
+  PRIVATE renderer objparser
   Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Quick)
 
 add_subdirectory(renderer)
+add_subdirectory(objparser)
 
 set(${LIBRARY_NAME} PROPERTY
     CMAKE_CXX_STANDARD 11

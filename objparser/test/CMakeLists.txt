@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 project(ParseTest LANGUAGES CXX)
 
 add_library(doctest INTERFACE)
-target_include_directories(doctest INTERFACE ${CMAKE_SOURCE_DIR}/../extern/doctest/doctest)
+target_include_directories(doctest INTERFACE ${CMAKE_SOURCE_DIR}/extern/doctest/doctest)
 
 #-------------
 # Locate files
