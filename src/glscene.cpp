@@ -1,7 +1,6 @@
 #include <QtQuick/qquickwindow.h>
 #include <QtCore/QRunnable>
 #include <QtMath>
-#include <iostream>
 
 #include <glscene.h>
 #include<ObjParser.h>
@@ -50,7 +49,6 @@ void GLScene::mousePressEvent(QMouseEvent* event)
         m_start = event->pos(); // MAYBE {{}};
 
         event->accept();
-        //qDebug() << "press " << event->pos();
     }
 
 void GLScene::mouseMoveEvent(QMouseEvent* event)
@@ -58,7 +56,6 @@ void GLScene::mouseMoveEvent(QMouseEvent* event)
         m_current = event->pos();
 
         event->accept();
-        //qDebug() << event->pos();
 
         if (window())
             window()->update();
@@ -76,7 +73,6 @@ void GLScene::mouseReleaseEvent(QMouseEvent* event)
        roundTo(m_prev, 360);
 
        event->accept();
-       //qDebug() << "release " << event->pos();
 
        if (window())
            window()->update();
@@ -134,21 +130,6 @@ void GLSceneRenderer::setPath(QUrl path)
         fh.setMesh(m_model);
         fh.init_buffers(m_program);
 
-
-//        glGenTextures(1, &texture);
-//        glBindTexture(GL_TEXTURE_2D,texture);
-//        Texture text = m_model.getTexture();
-
-//        glTexImage2D(GL_TEXTURE_2D, 0, text.bitsPerPixel == 32 ? GL_RGBA : GL_RGB,
-//                     text.width, text.height, 0, text.bitsPerPixel == 32 ? GL_BGRA : GL_BGR,
-//                     GL_UNSIGNED_BYTE, text.pixels.data());
-//        glGenerateMipmap(GL_TEXTURE_2D);
-
-//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
         old_url = path;
         m_window->update();
     }
@@ -185,13 +166,11 @@ void GLScene::releaseResources()
     m_renderer = nullptr;
 }
 
-GLSceneRenderer::~GLSceneRenderer()
-{
+GLSceneRenderer::~GLSceneRenderer(){
     delete m_program;
 }
 
-void GLScene::sync()
-{
+void GLScene::sync(){
     if (!m_renderer) {
         m_renderer = new GLSceneRenderer();
         connect(window(), &QQuickWindow::beforeRendering, m_renderer, &GLSceneRenderer::init, Qt::DirectConnection);
@@ -208,8 +187,6 @@ void GLScene::sync()
     m_renderer->setWindow(window());
 }
 
-// TODO add different format buffers
-
 void GLSceneRenderer::init_program(){
     m_program = new QOpenGLShaderProgram();
     bool success = m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, hor_vertex);
@@ -224,8 +201,7 @@ void GLSceneRenderer::init_buffers(){
     fh.init_buffers(m_program);
 }
 
-void GLSceneRenderer::init()
-{
+void GLSceneRenderer::init(){
     if (!m_program) {
         QSGRendererInterface *rif = m_window->rendererInterface();
         Q_ASSERT(rif->graphicsApi() == QSGRendererInterface::OpenGL || rif->graphicsApi() == QSGRendererInterface::OpenGLRhi);
@@ -234,10 +210,7 @@ void GLSceneRenderer::init()
 
         init_program();
 
-//        bool success = vao.create();
-//        Q_ASSERT(success);
-
-        if (m_model.size() == 0)
+        if (m_model.empty())
             return;
 
         init_buffers();
@@ -245,25 +218,20 @@ void GLSceneRenderer::init()
 }
 
 // FIXME light shader render after light pos move
-void GLSceneRenderer::paint()
-{
-    if(m_model.size() == 0)
+void GLSceneRenderer::paint(){
+    if(m_model.empty())
         return;
 
     m_window->beginExternalCommands();
 
-//    m_program->bind();
     QMatrix4x4 mat;
-    mat.scale(1/(max(m_model.getSize()))); // TODO fix clip bug
+    mat.scale(1/(max(m_model.getSize())));
     mat.translate(- m_model.getCenter());
-    // TODO yaw bug
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
 
     // TODO size of points
     fh.paint(m_program,mat,m_viewportSize.width(),m_viewportSize.height());
-
-//    m_program->release();
 
     m_window->resetOpenGLState();
     m_window->endExternalCommands();

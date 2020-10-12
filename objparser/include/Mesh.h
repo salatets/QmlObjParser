@@ -4,7 +4,6 @@
 #include <MeshNode.h>
 #include <common.h>
 
-// todo add iterator impl
 class MeshRoot
 {
 public:
@@ -21,6 +20,7 @@ public:
     auto cbegin() const {return meshes.cbegin();}
     auto cend() const {return meshes.cend();}
     auto front() const {return meshes.front();}
+    bool empty() const {return meshes.empty();}
 
     template<typename Iterator>
     void setNodes(QVector3D model_center, QVector3D model_size, Iterator p, Iterator q, size_t meshes_size){
