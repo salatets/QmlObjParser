@@ -2,7 +2,6 @@
 #define MESHFACTORY_H
 
 #include <MeshNode.h>
-#include <iostream>
 
 class MeshFactory{
 public:
@@ -24,8 +23,6 @@ public:
          case 'd':
              break;
          }
-
-         std::cerr << "return pure MeshNode";
 
         return MeshNode();
      }

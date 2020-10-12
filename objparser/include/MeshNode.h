@@ -60,7 +60,6 @@ public:
     }
 
     ~MeshNode(){
-        //FIXME double free
         delete[] vertex_data;
     }
 

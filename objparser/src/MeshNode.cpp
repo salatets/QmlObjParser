@@ -1,4 +1,5 @@
 #include <MeshNode.h>
+#include <cstring>
 
 MeshNode::MeshNode() : type(UNDEFINED), material(), size(0), vertex_data(nullptr){}
 
@@ -9,23 +10,10 @@ MeshNode::MeshNode(const Mtl& material,
 
     vertex_data = new float[size * getTypeSize()];
 
-    // TODO memcpy
-    //std::cerr << "size " << this->size * getTypeSize() << "\n";
-    for(size_t i = 0; i < this->size; ++i){
-        //std::cerr << "vector " << i*3 << " " << i*3 +1 << " " << i*3+2 << "\n";
-        vertex_data[i * 3] = vertexs[i].x();
-        vertex_data[i* 3 + 1] = vertexs[i].y();
-        vertex_data[i* 3 + 2] = vertexs[i].z();
+    std::memcpy(vertex_data, vertexs.data(), vertexs.size() * 3 * 4);
+    std::memcpy(vertex_data + this->size * 3, vertexs.data(), normals.size() * 3 * 4);
+    std::memcpy(vertex_data + this->size * 6, vertexs.data(), uvs.size() * 2 * 4);
 
-        //std::cerr << "normal " << (this->size + i) * 3 << " " << (this->size + i) * 3 +1 << " " << (this->size + i) * 3+2 << "\n";
-        vertex_data[(this->size + i) * 3] = normals[i].x();
-        vertex_data[(this->size + i) * 3 + 1] = normals[i].y();
-        vertex_data[(this->size + i) * 3 + 2] = normals[i].z();
-
-        //std::cerr << "uv " << (this->size * 6) + i * 2 << " " << (this->size * 6) + i * 2 + 1  << "\n";
-        vertex_data[(this->size * 6) + i * 2] = uvs[i].x();
-        vertex_data[(this->size * 6) + i * 2 + 1] = uvs[i].y();
-    }
 };
 
 size_t MeshNode::getTypeSize() const{
@@ -35,4 +23,6 @@ size_t MeshNode::getTypeSize() const{
         case meshType::UNDEFINED:
             return 0;
     }
+
+    return 0;
 }
