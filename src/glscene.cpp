@@ -1,8 +1,11 @@
 #include <QtQuick/qquickwindow.h>
 #include <QtCore/QRunnable>
 #include <QtMath>
+#include <iostream>
 
-#include "glscene.h"
+#include <glscene.h>
+#include<ObjParser.h>
+
 #include "shaders.h"
 
 float max(const QVector3D& vec){
@@ -97,23 +100,28 @@ void GLSceneRenderer::setPath(QUrl path)
         m_path = temp.toUtf8().constData();
         m_path = m_path.substr(trunc_len);
     }
-    if(m_model.parseOBJ(m_path)){
-        init_buffers();
+
+    m_model = parseOBJ(m_path);
+
+    if(m_model.getNodesSize() != 0){
+
+        fh.setMesh(m_model);
+        fh.init_buffers(m_program);
 
 
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D,texture);
-        Texture text = m_model.getTexture();
+//        glGenTextures(1, &texture);
+//        glBindTexture(GL_TEXTURE_2D,texture);
+//        Texture text = m_model.getTexture();
 
-        glTexImage2D(GL_TEXTURE_2D, 0, text.bitsPerPixel == 32 ? GL_RGBA : GL_RGB,
-                     text.width, text.height, 0, text.bitsPerPixel == 32 ? GL_BGRA : GL_BGR,
-                     GL_UNSIGNED_BYTE, text.pixels.data());
-        glGenerateMipmap(GL_TEXTURE_2D);
+//        glTexImage2D(GL_TEXTURE_2D, 0, text.bitsPerPixel == 32 ? GL_RGBA : GL_RGB,
+//                     text.width, text.height, 0, text.bitsPerPixel == 32 ? GL_BGRA : GL_BGR,
+//                     GL_UNSIGNED_BYTE, text.pixels.data());
+//        glGenerateMipmap(GL_TEXTURE_2D);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+//        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         old_url = path;
         m_window->update();
@@ -126,7 +134,7 @@ void GLScene::handleWindowChanged(QQuickWindow *win)
         connect(win, &QQuickWindow::beforeSynchronizing, this, &GLScene::sync, Qt::DirectConnection);
         connect(win, &QQuickWindow::sceneGraphInvalidated, this, &GLScene::cleanup, Qt::DirectConnection);
 
-        win->setColor(Qt::black);
+        win->setColor(Qt::gray);
     }
 }
 
@@ -177,50 +185,22 @@ void GLScene::sync()
 
 void GLSceneRenderer::init_program(){
     m_program = new QOpenGLShaderProgram();
-    bool success = m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, vertex);
-    success &= m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, fragment);
+    bool success = m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, hor_vertex);
+    success &= m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, hor_fragment);
     Q_ASSERT(success);
 
     success = m_program->link();
     Q_ASSERT(success);
 }
 
-void init_buffer(QOpenGLBuffer &bo, QOpenGLShaderProgram* program, const char * attribute , const void *data, int count,int stride){
-    if (!bo.isCreated()){
-        bo = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-        bool success = bo.create();
-        Q_ASSERT(success);
-        bo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-
-
-    }
-
-    bool success = bo.bind();
-    Q_ASSERT(success);
-    bo.allocate(data, count);
-    program->setAttributeBuffer(attribute, GL_FLOAT, 0, stride);
-    program->enableAttributeArray(attribute);
-
-    bo.release();
-}
-
 void GLSceneRenderer::init_buffers(){
-    vao.bind();
-
-    init_buffer(vbo, m_program,"position", &m_model.getVertices().data()[0], m_model.getVertices().size() * sizeof(QVector3D),3);
-
-    init_buffer(nbo, m_program,"normal", &m_model.getNormals().data()[0], m_model.getNormals().size() * sizeof(QVector3D),3);
-
-    init_buffer(tbo, m_program,"texCoords", &m_model.getUvs().data()[0], m_model.getUvs().size() * sizeof(QVector2D),2);
-
-    vao.release();
+    fh.init_buffers(m_program);
 }
 
 void GLSceneRenderer::init()
 {
     if (!m_program) {
         QSGRendererInterface *rif = m_window->rendererInterface();
-        m_window->openglContext();
         Q_ASSERT(rif->graphicsApi() == QSGRendererInterface::OpenGL || rif->graphicsApi() == QSGRendererInterface::OpenGLRhi);
 
         initializeOpenGLFunctions();
@@ -230,27 +210,22 @@ void GLSceneRenderer::init()
         bool success = vao.create();
         Q_ASSERT(success);
 
-        if (m_model.getFormat() == 'u')
+        if (m_model.getNodesSize() == 0)
             return;
 
         init_buffers();
     }
 }
+
 // FIXME light shader render after light pos move
 void GLSceneRenderer::paint()
 {
-    if(m_model.getFormat() == 'u')
+    if(m_model.getNodesSize() == 0)
         return;
 
     m_window->beginExternalCommands();
 
-    m_program->bind();
-    vao.bind();
-
-    glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
-
-    glEnable(GL_DEPTH_TEST);
-
+//    m_program->bind();
     QMatrix4x4 mat;
     mat.scale(1/(max(m_model.getSize()))); // TODO fix clip bug
     mat.translate(- m_model.getCenter());
@@ -258,29 +233,12 @@ void GLSceneRenderer::paint()
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,0,1), m_roll));
-    m_program->setUniformValue("model",mat);
 
-    m_program->setUniformValue("lightColor", QVector3D(1.0f, 0.0f, 1.0f));
-    m_program->setUniformValue("objectColor", QVector3D(1.0f, 0.5f, 0.31f));
-    m_program->setUniformValue("lightPos", QVector3D(sin(m_pos), 0.3f, cos(m_pos)));
-    m_program->setUniformValue("viewPos", QVector3D(0.0f, 0.0f, 0.0f));
+    // TODO size of points
+    fh.paint(m_program,mat,m_viewportSize.width(),m_viewportSize.height());
 
-    m_program->setUniformValue("material.shininess", 64.0f);
-
-    m_program->setUniformValue("material.specular",m_model.getSpecular());
-
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-
-    glDrawArrays(GL_TRIANGLES, 0, m_model.getVertices().size());
-
-    vao.release();
-    m_program->release();
+//    m_program->release();
 
     m_window->resetOpenGLState();
     m_window->endExternalCommands();
 }
-
-

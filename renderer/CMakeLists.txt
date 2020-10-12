@@ -17,15 +17,21 @@ set(SOURCES
     src/FloatingHorizon.cpp
 )
 
+#add headers with moc
+set(HEADERS
+    include/FloatingHorizon.h
+    )
+
+
 #---------------
 # build commands
 #---------------
 
 add_library(${PROJECT_NAME}
-     ${SOURCES}
+     ${SOURCES} ${HEADERS}
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include ../objparser/include )
 
 find_package(Qt5 COMPONENTS Core Gui Quick REQUIRED)
 
@@ -36,7 +42,7 @@ target_link_libraries(${PROJECT_NAME}
   Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Quick)
 
 set(${LIBRARY_NAME} PROPERTY
-    CMAKE_CXX_STANDARD 11
+    CMAKE_CXX_STANDARD 17
     CMAKE_CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS NO
     )

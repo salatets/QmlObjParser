@@ -55,8 +55,8 @@ set(${LIBRARY_NAME} PROPERTY
 #-----------------------------------
 add_custom_command(
     OUTPUT "${SHADERS}"
-    COMMAND python utils/fileToString.py -i shaders/fragment.glsl shaders/vertex.glsl -o "${SHADERS}"
-    DEPENDS shaders/fragment.glsl shaders/vertex.glsl
+    COMMAND python utils/fileToString.py -i shaders/fragment.glsl shaders/vertex.glsl shaders/hor_vertex.glsl shaders/hor_fragment.glsl -o "${SHADERS}"
+    DEPENDS shaders/fragment.glsl shaders/vertex.glsl shaders/hor_vertex.glsl shaders/hor_fragment.glsl
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
 )
 set_property(SOURCE src/glscene.cpp APPEND PROPERTY OBJECT_DEPENDS "${SHADERS}")

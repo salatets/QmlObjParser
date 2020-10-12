@@ -1,128 +1,105 @@
 #include <FloatingHorizon.h>
 
-FloatingHorizon::FloatingHorizon(Mesh m, QOpenGLContext* m_context){
-    // TODO fix after mesh iterator
+void FloatingHorizon::setMesh(Mesh mesh){
+    vertices.clear();
+    size_t size = (*mesh.getNodesBegin()).getSize();
+    vertices.reserve(size);
 
-    size_t vert_size = 0;
+    auto vertex_data = (*mesh.getNodesBegin()).getData();
 
-    for(auto p = m.getNodesBegin(); p != m.getNodesEnd(); ++p){
-        vert_size += (*p).getSize();
+    for(size_t i = 0; i < size; ++i){
+        vertices.emplace_back(vertex_data[i * 3],vertex_data[i * 3 + 1],vertex_data[i * 3 +2]);
     }
 
-    vertices.reserve(vert_size * 3);
-    this->size = vert_size;
-    size_t indent = 0;
-    // TODO memcpy
-    for(auto p = m.getNodesBegin(); p != m.getNodesEnd(); ++p){
-        for(size_t i = indent, j = 0; i < (indent + (*p).getSize()); ++i){
-            vertices[i * 3] = (*p).getData()[j * 3];
-            vertices[i * 3 + 1] = (*p).getData()[j * 3 + 1];
-            vertices[i * 3 + 2] = (*p).getData()[j * 3 + 2];
-            ++j;
-        }
-        indent += (*p).getSize();
-    }
-
-    if(m_context == nullptr)
-        return;
-
-    m_funcs = m_context->versionFunctions<QOpenGLFunctions_4_3_Core>();
-
-    if (!m_funcs) {
-      qWarning("Could not obtain OpenGL versions object");
-      exit(1);
-    }
-
-    m_funcs->initializeOpenGLFunctions();
 }
 
-void FloatingHorizon::setShader(QOpenGLShaderProgram* shader){
-    this->shader = shader;
-    dirty = true;
-}
-
-void FloatingHorizon::initBuffers(){
-    Q_ASSERT(shader == nullptr);
-
-    bool success = vao.create();
-    Q_ASSERT(success);
+void FloatingHorizon::init_buffers(QOpenGLShaderProgram* program){
+    if(!vao.isCreated()){
+        bool success = vao.create();
+        Q_ASSERT(success);
+    }
 
     vao.bind();
 
-    vbo = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-    success = vbo.create();
-    Q_ASSERT(success);
-    vbo.setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    if (!vbo.isCreated()){
+        vbo = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+        bool success = vbo.create();
+        Q_ASSERT(success);
+        vbo.setUsagePattern(QOpenGLBuffer::StreamDraw);
+    }
 
-    success = vbo.bind();
+    bool success = vbo.bind();
     Q_ASSERT(success);
-    vbo.allocate(&vertices[0], this->size * 6 * sizeof(float)); // x y z r g b
-    shader->setAttributeBuffer("position", GL_FLOAT, 0, 3, 6);
-    shader->enableAttributeArray("position");
-    shader->setAttributeBuffer("color", GL_FLOAT, 3, 3, 6);
-    shader->enableAttributeArray("color");
+    vbo.allocate(nullptr, vertices.size() * sizeof(QVector3D) * 2); // coord color
+    program->setAttributeBuffer("position", GL_FLOAT, 0, 3,6 * sizeof(GLfloat));
+    program->enableAttributeArray("position");
+    program->setAttributeBuffer("color", GL_FLOAT, 3 * sizeof(GLfloat), 3,6 * sizeof(GLfloat));
+    program->enableAttributeArray("color");
 
     vbo.release();
     vao.release();
-
-    dirty = false;
 }
 
-void FloatingHorizon::clearHorizons(int width){
-    lower_horizon.reserve(width);
-    higher_horizon.reserve(width);
-
-    for(int& hor : lower_horizon){
-        hor = std::numeric_limits<float>::max();
-    }
-
-    for(int& hor : higher_horizon){
-        hor = std::numeric_limits<float>::lowest();
-    }
-}
-
-auto FloatingHorizon::getPointsToDraw(QMatrix4x4 proj, QMatrix4x4 view, int width, int height){
+auto FloatingHorizon::getPointsToDraw(QMatrix4x4 proj, int width, int height,int point_size){
     std::vector<std::array<QVector3D,2>> draw_vertices;
-    draw_vertices.reserve(this->size);
+    draw_vertices.reserve(vertices.size());
+
+    std::vector<std::pair<size_t,QVector4D>> proj_vecs;
+
+    for(size_t i = 0; i < vertices.size(); ++i){
+        QVector4D proj_vec = proj * vertices[i].toVector4D();
+
+        proj_vecs.emplace_back(i,proj_vec);
+    }
+
+    std::sort(proj_vecs.begin(), proj_vecs.end(), [](auto a, auto b){return a.second.z() > b.second.z();});
 
     // Transform vertices to screen space
-    for(size_t i = 0; i < this->size; ++i){
-        QVector4D vec( vertices[i * 3], vertices[i * 3 + 1], vertices[i * 3 + 2], 1.0f );
-        std::array<int,2> point;
+    for(size_t i = 0; i < vertices.size(); ++i){
+        int point[2];
 
-        QVector4D proj_vec = proj * view * vec;
-
-        if (abs(vec.w()) > std::numeric_limits<float>::epsilon())
-        {
-            proj_vec.setX(proj_vec.x() / proj_vec.w());
-            proj_vec.setY(proj_vec.y() / proj_vec.w());
-        }
         // MAYBE add another rounding
-        point[0] = width * (proj_vec.x() + 1) / 2;
-        point[1] = height * (proj_vec.y() + 1) /2;
+        point[0] = width * (proj_vecs[i].second.x() + 1) / 2;
+        point[1] = height * (proj_vecs[i].second.y() + 1) /2;
         if (point[0] < 0)
             point[0] = 0;
         else if (point[0] >= width)
             point[0] = width - 1;
 
         // check horizons
-        bool dn = false;
-        if (point[1] > higher_horizon[point[0]])
-        {
-            higher_horizon[point[0]] = point[1];
-            draw_vertices.emplace_back(vec.toVector3DAffine(), 0,255,0);
-            dn = true;
-        }
+        bool hi = false;
+        bool acc = false;
 
-        if (point[1] < lower_horizon[point[0]])
-        {
-            lower_horizon[point[0]] = point[1];
-            if (!dn)
-            {
-                draw_vertices.emplace_back(vec.toVector3DAffine(), 255,0,0);
+        // radius
+        for(int j = point[0] - point_size + 1; j < point[0] + point_size; ++j){
+            if(j < 0 || j > width)
+                continue;
+
+            if(higher_horizon[j] < point[1]){
+                higher_horizon[j] = point[1];
+                acc = true;
+                hi = true;
             }
 
-         }
+            if(lower_horizon[j] > point[1]){
+                lower_horizon[j] = point[1];
+                acc = true;
+            }
+        }
+
+        if (acc){
+            if(hi){
+                draw_vertices.emplace_back(std::array<QVector3D,2>{{
+                                vertices[proj_vecs[i].first], QVector3D(255,0,0)}}
+                                );
+            }else{
+                draw_vertices.emplace_back(std::array<QVector3D,2>{{
+                                vertices[proj_vecs[i].first], QVector3D(0,0,255)}}
+                                );
+            }
+        }
+
+
     }
 
     draw_vertices.shrink_to_fit();
@@ -130,39 +107,48 @@ auto FloatingHorizon::getPointsToDraw(QMatrix4x4 proj, QMatrix4x4 view, int widt
     return draw_vertices;
 }
 
-void writeToVBO(void* vbo_data,const std::vector<std::array<QVector3D,2>>& points, size_t index){
-    static_cast<float *>(vbo_data)[index * 6] = points[index][1].x();
-    static_cast<float *>(vbo_data)[index * 6 + 1] = points[index][1].y();
-    static_cast<float *>(vbo_data)[index * 6 + 2] = points[index][1].z();
-    static_cast<float *>(vbo_data)[index * 6 + 3] = points[index][2].x();
-    static_cast<float *>(vbo_data)[index * 6 + 4] = points[index][2].y();
-    static_cast<float *>(vbo_data)[index * 6 + 5] = points[index][2].z();
-}
+void FloatingHorizon::clearHorizons(int width, int height){
+    lower_horizon.clear();
+    higher_horizon.clear();
 
-void FloatingHorizon::draw(QMatrix4x4 proj, QMatrix4x4 view, int width, int height){
-    if(dirty)
-        return;
+    lower_horizon.reserve(width);
+    higher_horizon.reserve(width);
 
-    clearHorizons(width);
-    auto points = getPointsToDraw(proj,view, width, height);
-
-    shader->bind();
-    vao.bind();
-
-    m_funcs->glViewport(0, 0, width, height);
-
-    m_funcs->glDisable(GL_DEPTH_TEST);
-
-    void* vbo_data = vbo.map(QOpenGLBuffer::WriteOnly);
-
-    for(size_t i = 0; i < points.size(); ++i){
-        writeToVBO(vbo_data, points, i);
+    for(int i = 0; i < width; ++i){
+        lower_horizon.push_back(height);
     }
 
+    for(int i = 0; i < width; ++i){
+        higher_horizon.push_back(0);
+    }
+}
 
-    m_funcs->glDrawArrays(GL_TRIANGLES, 0, points.size());
+// FIXME light shader render after light pos move
+void FloatingHorizon::paint(QOpenGLShaderProgram* program, QMatrix4x4 mat, GLsizei width, GLsizei height)
+{
+    initializeOpenGLFunctions();
+
+    program->bind();
+    vao.bind();
+
+    glViewport(0, 0, width, height);
+
+    //glEnable(GL_DEPTH_TEST);
+    glEnable(GL_PROGRAM_POINT_SIZE);
+
+    program->setUniformValue("model",mat);
+
+    clearHorizons(width, height);
+
+    int size_point = 4;
+    auto vc_draw = getPointsToDraw(mat,width, height, size_point);
+
+    vbo.bind();
+    vbo.write(0,&vc_draw.data()[0],vc_draw.size() * 6 * sizeof(float));
+    vbo.release();
+
+    glDrawArrays(GL_POINTS, 0, vc_draw.size());
 
     vao.release();
-    shader->release();
-
+    program->release();
 }

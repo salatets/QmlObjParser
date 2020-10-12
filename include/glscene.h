@@ -7,7 +7,8 @@
 #include <QtGui/QOpenGLBuffer>
 #include <QtGui/QOpenGLVertexArrayObject>
 
-#include "Mesh.h"
+#include <Mesh.h>
+#include <FloatingHorizon.h>
 
 class GLSceneRenderer : public QObject, protected QOpenGLFunctions
 {
@@ -32,6 +33,8 @@ private:
     void init_program();
     void init_buffers();
 
+
+    FloatingHorizon fh;
     Mesh m_model;
     qreal m_pitch;
     qreal m_yaw;
@@ -40,6 +43,8 @@ private:
     std::string m_path;
     QUrl old_url;
 
+    void clearHorizons(int width, int height);
+    auto getPointsToDraw(QMatrix4x4 proj, int width, int height,int point_size);
     QSize m_viewportSize;
     QOpenGLShaderProgram *m_program;
     QQuickWindow *m_window;
@@ -47,6 +52,8 @@ private:
     QOpenGLBuffer vbo;
     QOpenGLBuffer nbo;
     QOpenGLBuffer tbo;
+    std::vector<int> lower_horizon;
+    std::vector<int> higher_horizon;
 };
 
 

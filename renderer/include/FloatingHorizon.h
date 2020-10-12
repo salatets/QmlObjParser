@@ -1,35 +1,34 @@
 #ifndef FLOATINGHORIZON_H
 #define FLOATINGHORIZON_H
-#include <QOpenGLShaderProgram>
-#include <QOpenGLVertexArrayObject>
+
+#include <QtQuick/QQuickItem>
+#include <QtGui/QOpenGLShaderProgram>
+#include <QtGui/QOpenGLBuffer>
+#include <QtGui/QOpenGLVertexArrayObject>
 
 #include <Mesh.h>
 
-class FloatingHorizon{
+class FloatingHorizon : public QObject, protected QOpenGLFunctions
+{
+    Q_OBJECT
 public:
-    FloatingHorizon(Mesh m, QOpenGLContext* m_context);
+    FloatingHorizon(){};
 
-    void setMesh(Mesh m);
+    void setMesh(Mesh mesh);
 
-    void setShader(QOpenGLShaderProgram* shader);
+    void init_buffers(QOpenGLShaderProgram* program);
+    void paint(QOpenGLShaderProgram* program, QMatrix4x4 mat, GLsizei width, GLsizei height);
 
-    void initBuffers();
-
-    void draw(QMatrix4x4 proj, QMatrix4x4 view, int width, int height);
 private:
-    void clearHorizons(int width);
-    auto getPointsToDraw(QMatrix4x4 proj, QMatrix4x4 view, int width, int height);
+    float max(const QVector3D& vec);
 
-    std::vector<float> vertices;
-    std::vector<int> lower_horizon;
-    std::vector<int> higher_horizon;
-    size_t size;
-    QOpenGLShaderProgram* shader;
-    bool dirty;
-
+    void clearHorizons(int width, int height);
+    auto getPointsToDraw(QMatrix4x4 proj, int width, int height,int point_size);
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo;
-    QOpenGLFunctions_4_3_Core* m_funcs; // TODO not fix version
+    std::vector<int> lower_horizon;
+    std::vector<int> higher_horizon;
+    std::vector<QVector3D> vertices;
 };
 
 #endif // FLOATINGHORIZON_H
