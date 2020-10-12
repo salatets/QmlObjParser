@@ -8,12 +8,10 @@ Item {
     width: 400
     height: 400
 
-
     GLScene {
         id: glbox
+        anchors.fill: parent
     }
-
-
 
     Rectangle{
         id:rect_load
@@ -84,64 +82,7 @@ Item {
 
         opacity: rect_controls.opacity
         anchors.margins: 20
-        RowLayout{
-                Label {
-                    Layout.fillWidth: true
-                    Layout.maximumWidth: 60
-                    text: "pitch"
-                    font.pixelSize: 30
-                }
 
-                Slider{
-                    from: 0
-                    to: 360
-                    Layout.fillWidth: true
-                    onMoved:
-                    {
-                        glbox.pitch = value;
-                    }
-
-                }
-        }
-
-        RowLayout{
-                Label {
-                    Layout.fillWidth: true
-                    Layout.maximumWidth: 60
-                    text: "yaw"
-                    font.pixelSize: 30
-                }
-
-                Slider{
-                    from: 0
-                    to: 360
-                    Layout.fillWidth: true
-                    onMoved:
-                    {
-                        glbox.yaw = value;
-                    }
-
-                }
-        }
-        RowLayout{
-                Label {
-                    Layout.fillWidth: true
-                    Layout.maximumWidth: 60
-                    text: "roll"
-                    font.pixelSize: 30
-                }
-
-                Slider{
-                    from: 0
-                    to: 360
-                    Layout.fillWidth: true
-                    onMoved:
-                    {
-                        glbox.roll = value;
-                    }
-
-                }
-        }
         RowLayout{
                 Label {
                     Layout.fillWidth: true

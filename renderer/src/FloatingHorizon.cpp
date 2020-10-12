@@ -1,6 +1,8 @@
 #include <FloatingHorizon.h>
 
 void FloatingHorizon::setMesh(Mesh mesh){
+    // todo add loading full model
+
     size_t size = (*mesh.getNodesBegin()).getSize();
 
     vertices.clear();

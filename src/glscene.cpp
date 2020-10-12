@@ -19,42 +19,68 @@ float max(const QVector3D& vec){
     return max;
 }
 
-GLScene::GLScene() : m_pitch(0)
-  , m_yaw(0)
-  , m_roll(0)
-  , m_renderer(nullptr){
+GLScene::GLScene() : m_renderer(nullptr){
     connect(this, &QQuickItem::windowChanged, this, &GLScene::handleWindowChanged);
+    setAcceptedMouseButtons(Qt::LeftButton);
+    setFlag(ItemAcceptsInputMethod, true);
 }
 
-void GLScene::setPitch(qreal pitch)
-{
-    if (pitch == m_pitch)
-        return;
-    m_pitch= pitch;
-    emit pitchChanged();
-    if (window())
-        window()->update();
+void roundTo(QPoint& val, int to){
+    if(val.x() > to)
+        val.rx() -= to;
+    if(val.x() < 0)
+        val.rx() += to;
+
+    if(val.y() > to)
+        val.ry() -= to;
+    if(val.y() < 0)
+        val.ry() += to;
 }
 
-void GLScene::setYaw(qreal yaw)
-{
-    if (yaw == m_yaw)
-        return;
-    m_yaw= yaw;
-    emit yawChanged();
-    if (window())
-        window()->update();
+// TODO add not integer angles
+QPoint GLScene::mouseToAngle(){
+     QPoint pos{m_prev + m_start - m_current};
+     roundTo(pos, 360);
+
+     return pos;
 }
 
-void GLScene::setRoll(qreal roll)
-{
-    if (roll == m_roll)
-        return;
-    m_roll= roll;
-    emit rollChanged();
-    if (window())
-        window()->update();
-}
+void GLScene::mousePressEvent(QMouseEvent* event)
+    {
+        m_start = event->pos(); // MAYBE {{}};
+
+        event->accept();
+        //qDebug() << "press " << event->pos();
+    }
+
+void GLScene::mouseMoveEvent(QMouseEvent* event)
+    {
+        m_current = event->pos();
+
+        event->accept();
+        //qDebug() << event->pos();
+
+        if (window())
+            window()->update();
+    }
+
+void GLScene::mouseReleaseEvent(QMouseEvent* event)
+    {
+       m_current = event->pos();
+
+       m_prev += m_start - m_current;
+
+       m_start = {0,0};
+       m_current = {0,0};
+
+       roundTo(m_prev, 360);
+
+       event->accept();
+       //qDebug() << "release " << event->pos();
+
+       if (window())
+           window()->update();
+    }
 
 void GLScene::setPos(qreal pos)
 {
@@ -172,10 +198,11 @@ void GLScene::sync()
         connect(window(), &QQuickWindow::beforeRenderPassRecording, m_renderer, &GLSceneRenderer::paint, Qt::DirectConnection);
     }
 
+    QPoint angles = mouseToAngle();
+
     m_renderer->setViewportSize(window()->size() * window()->devicePixelRatio());
-    m_renderer->setPitch(m_pitch);
-    m_renderer->setYaw(m_yaw);
-    m_renderer->setRoll(m_roll);
+    m_renderer->setPitch(angles.y());
+    m_renderer->setYaw(angles.x());
     m_renderer->setPos(m_pos);
     m_renderer->setPath(m_path);
     m_renderer->setWindow(window());
@@ -207,8 +234,8 @@ void GLSceneRenderer::init()
 
         init_program();
 
-        bool success = vao.create();
-        Q_ASSERT(success);
+//        bool success = vao.create();
+//        Q_ASSERT(success);
 
         if (m_model.getNodesSize() == 0)
             return;
@@ -232,7 +259,6 @@ void GLSceneRenderer::paint()
     // TODO yaw bug
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
-    mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,0,1), m_roll));
 
     // TODO size of points
     fh.paint(m_program,mat,m_viewportSize.width(),m_viewportSize.height());
