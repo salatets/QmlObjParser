@@ -1,16 +1,13 @@
 #include <FloatingHorizon.h>
 
 void FloatingHorizon::setMesh(Mesh mesh){
-    vertices.clear();
     size_t size = (*mesh.getNodesBegin()).getSize();
+
+    vertices.clear();
     vertices.reserve(size);
 
-    auto vertex_data = (*mesh.getNodesBegin()).getData();
-
-    for(size_t i = 0; i < size; ++i){
-        vertices.emplace_back(vertex_data[i * 3],vertex_data[i * 3 + 1],vertex_data[i * 3 +2]);
-    }
-
+    auto vertex_data = reinterpret_cast<const QVector3D*>((*mesh.getNodesBegin()).getData());
+    vertices.assign(vertex_data, vertex_data + size);
 }
 
 void FloatingHorizon::init_buffers(QOpenGLShaderProgram* program){

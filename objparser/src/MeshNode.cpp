@@ -11,9 +11,8 @@ MeshNode::MeshNode(const Mtl& material,
     vertex_data = new float[size * getTypeSize()];
 
     std::memcpy(vertex_data, vertexs.data(), vertexs.size() * 3 * 4);
-    std::memcpy(vertex_data + this->size * 3, vertexs.data(), normals.size() * 3 * 4);
-    std::memcpy(vertex_data + this->size * 6, vertexs.data(), uvs.size() * 2 * 4);
-
+    std::memcpy(vertex_data + this->size * 3, normals.data(), normals.size() * 3 * 4);
+    std::memcpy(vertex_data + this->size * 6, uvs.data(), uvs.size() * 2 * 4);
 };
 
 size_t MeshNode::getTypeSize() const{

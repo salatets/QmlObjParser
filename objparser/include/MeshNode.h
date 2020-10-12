@@ -29,7 +29,7 @@ public:
              const std::vector<QVector2D>& uvs); // a
 
     const meshType& getType() const {return type;}
-    const float* const getData() const { return vertex_data;};
+    const float* getData() const { return vertex_data;};
     const Mtl& getMaterial() const { return material;};
     size_t getSize() const {return size;}
 
