@@ -1,6 +1,6 @@
 #include <FloatingHorizon.h>
 
-void FloatingHorizon::setMesh(Mesh mesh){
+void FloatingHorizon::setMesh(MeshRoot mesh){
     // todo add loading full model
 
     size_t size = (*mesh.getNodesBegin()).getSize();

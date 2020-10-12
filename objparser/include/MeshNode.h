@@ -21,12 +21,12 @@ enum meshType{
 class MeshNode
 {
 public:
-    MeshNode(); // u
+    MeshNode(); // UNDEFINED
 
     MeshNode(const Mtl& material,
              const std::vector<QVector3D>& vertexs,
              const std::vector<QVector3D>& normals,
-             const std::vector<QVector2D>& uvs); // a
+             const std::vector<QVector2D>& uvs); // VNT
 
     const meshType& getType() const {return type;}
     const float* getData() const { return vertex_data;};

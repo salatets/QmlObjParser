@@ -4,6 +4,6 @@
 
 #include<Mesh.h>
 
-Mesh parseOBJ(const std::string& path);
+MeshRoot parseOBJ(const std::string& path);
 
 #endif // OBJPARSER_H

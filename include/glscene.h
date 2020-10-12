@@ -31,7 +31,7 @@ private:
 
     FloatingHorizon fh;
 
-    Mesh m_model;
+    MeshRoot m_model;
     qreal m_pitch;
     qreal m_yaw;
     qreal m_pos;

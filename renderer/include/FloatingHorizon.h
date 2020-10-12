@@ -14,7 +14,7 @@ class FloatingHorizon : public QObject, protected QOpenGLFunctions
 public:
     FloatingHorizon(){};
 
-    void setMesh(Mesh mesh);
+    void setMesh(MeshRoot mesh);
 
     void init_buffers(QOpenGLShaderProgram* program);
     void paint(QOpenGLShaderProgram* program, QMatrix4x4 mat, GLsizei width, GLsizei height);

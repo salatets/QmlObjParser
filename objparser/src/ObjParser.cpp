@@ -150,11 +150,11 @@ struct rawMesh{
 
 // v parse only 3 val
 // todo multithread??
-Mesh parseOBJ(const std::string& path){
+MeshRoot parseOBJ(const std::string& path){
     std::ifstream fstrm(path);
     if (!fstrm){
         std::cerr << "obj " << path << " could not be opened\n";
-        return Mesh();
+        return MeshRoot();
     }
 
     Vertices raw_data;
@@ -204,7 +204,7 @@ Mesh parseOBJ(const std::string& path){
                 if (raw_mesh.back().format == 'u'){
                     fstrm.close();
                     std::cerr << "could't parse faces\n";
-                    return Mesh();
+                    return MeshRoot();
                 }
             }
             int index = 0;
@@ -259,7 +259,7 @@ Mesh parseOBJ(const std::string& path){
 
             if(result == mesh_materials.end()){
                 std::cerr << "material not found\n";
-                return Mesh();
+                return MeshRoot();
             }
 
             raw_mesh.emplace_back(rawMesh());
@@ -274,7 +274,7 @@ Mesh parseOBJ(const std::string& path){
              if(!parseMTL(pwd + filename, mesh_materials)){
                 fstrm.close();
                 std::cerr << "could't parse mtl\n";
-                return Mesh();
+                return MeshRoot();
              }
         }
 
@@ -289,7 +289,7 @@ Mesh parseOBJ(const std::string& path){
     while(meshIter != raw_mesh.end()){
 
         if((*meshIter).format == 'u' || (*meshIter).index.vertices.empty())
-            return Mesh();
+            return MeshRoot();
 
         //vertices.emplace_back(Vertices());
 
@@ -336,7 +336,7 @@ Mesh parseOBJ(const std::string& path){
 
     QVector3D size = max-min;
 
-    return Mesh(min + size/2, size,meshes.begin(),meshes.end());
+    return MeshRoot(min + size/2, size,meshes.begin(),meshes.end());
 }
 
 

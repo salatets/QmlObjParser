@@ -5,12 +5,12 @@
 #include <common.h>
 
 // todo add iterator impl
-class Mesh
+class MeshRoot
 {
 public:
-    Mesh() : center(0,0,0),size(0,0,0) {};
+    MeshRoot() : center(0,0,0),size(0,0,0) {};
     template<typename Iterator>
-    Mesh(QVector3D center, QVector3D size,
+    MeshRoot(QVector3D center, QVector3D size,
          Iterator p, Iterator q) : meshes(p,q), center(center),size(size) {};
 
     const QVector3D& getCenter() const {return center;}
