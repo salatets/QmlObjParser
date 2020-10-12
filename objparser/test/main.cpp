@@ -7,16 +7,20 @@ bool eqArray(const float* array1,const float* array2, size_t chunk, size_t size)
     bool eq = true;
 
     for(size_t i = 0; i < chunk; ++i){
-        eq &= (array1[i * 3] == array1[i * 3]);
-        eq &= (array1[i * 3 + 1] == array1[i * 3 + 1]);
-        eq &= (array1[i * 3 + 2] == array1[i * 3 + 2]);
+        eq &= (array1[i * 3] == array2[i * 3]);
+        eq &= (array1[i * 3 + 1] == array2[i * 3 + 1]);
+        eq &= (array1[i * 3 + 2] == array2[i * 3 + 2]);
 
-        eq &= (array1[(size + i) * 3] == array1[(size + i) * 3]);
-        eq &= (array1[(size + i) * 3 + 1] == array1[(size + i) * 3 + 1]);
-        eq &= (array1[(size + i) * 3 + 2] == array1[(size + i) * 3 + 2]);
+        eq &= (array1[(size + i) * 3] == array2[(chunk + i) * 3]);
+        eq &= (array1[(size + i) * 3 + 1] == array2[(chunk + i) * 3 + 1]);
+        eq &= (array1[(size + i) * 3 + 2] == array2[(chunk + i) * 3 + 2]);
 
-        eq &= (array1[size * 6 + i * 2] == array1[size * 6 + i * 2]);
-        eq &= (array1[size * 6 + i * 2 + 1] == array1[size * 6 + i * 2 + 1]);
+        eq &= (array1[size * 6 + i * 2] == array2[chunk * 6 + i * 2]);
+        eq &= (array1[size * 6 + i * 2 + 1] == array2[chunk * 6 + i * 2 + 1]);
+
+        if(!eq){
+            std::cerr << i << "/n";
+        }
     }
 
     return eq;
