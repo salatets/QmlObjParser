@@ -129,7 +129,7 @@ void GLSceneRenderer::setPath(QUrl path)
 
     m_model = parseOBJ(m_path);
 
-    if(m_model.getNodesSize() != 0){
+    if(m_model.size() != 0){
 
         fh.setMesh(m_model);
         fh.init_buffers(m_program);
@@ -237,7 +237,7 @@ void GLSceneRenderer::init()
 //        bool success = vao.create();
 //        Q_ASSERT(success);
 
-        if (m_model.getNodesSize() == 0)
+        if (m_model.size() == 0)
             return;
 
         init_buffers();
@@ -247,7 +247,7 @@ void GLSceneRenderer::init()
 // FIXME light shader render after light pos move
 void GLSceneRenderer::paint()
 {
-    if(m_model.getNodesSize() == 0)
+    if(m_model.size() == 0)
         return;
 
     m_window->beginExternalCommands();

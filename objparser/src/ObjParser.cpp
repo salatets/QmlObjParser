@@ -338,5 +338,3 @@ MeshRoot parseOBJ(const std::string& path){
 
     return MeshRoot(min + size/2, size,meshes.begin(),meshes.end());
 }
-
-
