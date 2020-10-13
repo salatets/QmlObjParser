@@ -2,7 +2,6 @@
 #include <ImageLoader.h>
 
 MeshNodeLoader::~MeshNodeLoader(){
-    qDebug() << "deleted " << textureId;
     glDeleteTextures(1, &textureId);
     vbo.destroy();
     vao.destroy();
@@ -38,8 +37,8 @@ void MeshNodeLoader::init_buffers(QOpenGLShaderProgram *program){
     program->enableAttributeArray("position");
     program->setAttributeBuffer("normal", GL_FLOAT, m_mesh.getSize() * 3  * sizeof(GLfloat), 3, 3 * sizeof(GLfloat));
     program->enableAttributeArray("normal");
-    program->setAttributeBuffer("uv", GL_FLOAT, m_mesh.getSize() * 6  * sizeof(GLfloat), 2, 2 * sizeof(GLfloat));
-    program->enableAttributeArray("uv");
+    program->setAttributeBuffer("texCoords", GL_FLOAT, m_mesh.getSize() * 6  * sizeof(GLfloat), 2, 2 * sizeof(GLfloat));
+    program->enableAttributeArray("texCoords");
 
     vbo.release();
     vao.release();
@@ -47,13 +46,12 @@ void MeshNodeLoader::init_buffers(QOpenGLShaderProgram *program){
     Texture* diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
 
     if(diffuse == nullptr){
-        // TODO replace with delete[]
         return;
     }
 
     LoadTexture(diffuse);
 
-    free(diffuse);
+    free(diffuse); // TODO replace with delete[]
 }
 
 void MeshNodeLoader::paint(QOpenGLShaderProgram* program){
@@ -70,6 +68,7 @@ void MeshNodeLoader::paint(QOpenGLShaderProgram* program){
     glDrawArrays(GL_TRIANGLES, 0, m_mesh.getSize());
 
     vao.release();
+    glActiveTexture(GL_TEXTURE0);
 
 }
 
@@ -120,10 +119,13 @@ int giveGLType(ImageType type, std::uint16_t bitsPerPixel){
 void MeshNodeLoader::LoadTexture(Texture* texture){
     initializeOpenGLFunctions();
     glGenTextures(1, &textureId);
-    qDebug() << "loaded " << textureId;
 
-    glBindTexture(GL_TEXTURE_2D, textureId);  //MAYBE crash
-    glTexImage2D(GL_TEXTURE_2D, 0, texture->bitsPerPixel == 32 ? GL_RGBA : GL_RGB, texture->width, texture->height, 0, giveGLType(texture->type,texture->bitsPerPixel), GL_UNSIGNED_BYTE, texture->pixels.data());
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glTexImage2D(GL_TEXTURE_2D, 0,
+                 texture->bitsPerPixel == 32 ? GL_RGBA : GL_RGB,
+                 texture->width, texture->height,
+                 0, giveGLType(texture->type,texture->bitsPerPixel),
+                 GL_UNSIGNED_BYTE, texture->pixels.data());
     glGenerateMipmap(GL_TEXTURE_2D);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
