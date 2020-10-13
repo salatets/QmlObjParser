@@ -1,26 +1,106 @@
 #include "MeshLoader.h"
+#include <ImageLoader.h>
 
-MeshLoader::MeshLoader()
-{
+MeshNodeLoader::~MeshNodeLoader(){
+    qDebug() << "deleted " << textureId;
+    glDeleteTextures(1, &textureId);
+    vbo.destroy();
+    vao.destroy();
+}
+
+MeshLoader::~MeshLoader(){
+    for(size_t i = 0; i < loaders_size; ++i){
+        delete loaders[i];
+    }
+
+    delete[] loaders;
+}
+
+void MeshNodeLoader::init_buffers(QOpenGLShaderProgram *program){
+    if(!vao.isCreated()){
+        bool success = vao.create();
+        Q_ASSERT(success);
+    }
+
+    vao.bind();
+
+    if (!vbo.isCreated()){
+        vbo = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
+        bool success = vbo.create();
+        Q_ASSERT(success);
+        vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    }
+
+    bool success = vbo.bind();
+    Q_ASSERT(success);
+    vbo.allocate(m_mesh.getData(), m_mesh.getSize() * sizeof(float) * 8);
+    program->setAttributeBuffer("position", GL_FLOAT, 0, 3, 3 * sizeof(GLfloat));
+    program->enableAttributeArray("position");
+    program->setAttributeBuffer("normal", GL_FLOAT, m_mesh.getSize() * 3  * sizeof(GLfloat), 3, 3 * sizeof(GLfloat));
+    program->enableAttributeArray("normal");
+    program->setAttributeBuffer("uv", GL_FLOAT, m_mesh.getSize() * 6  * sizeof(GLfloat), 2, 2 * sizeof(GLfloat));
+    program->enableAttributeArray("uv");
+
+    vbo.release();
+    vao.release();
+
+    Texture* diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
+
+    if(diffuse == nullptr){
+        // TODO replace with delete[]
+        return;
+    }
+
+    LoadTexture(diffuse);
+
+    free(diffuse);
+}
+
+void MeshNodeLoader::paint(QOpenGLShaderProgram* program){
+    initializeOpenGLFunctions();
+
+    vao.bind();
+
+    glEnable(GL_DEPTH_TEST);
+    program->setUniformValue("material.specular", m_mesh.getMaterial().specular);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+
+    glDrawArrays(GL_TRIANGLES, 0, m_mesh.getSize());
+
+    vao.release();
 
 }
 
+void MeshLoader::init_buffers(QOpenGLShaderProgram* program){
+    for(size_t i = 0; i < loaders_size; ++i){
+        loaders[i]->init_buffers(program);
+    }
+}
 
-Mesh(QOpenGLContext* m_context) : center(0,0,0),size(0,0,0) {
-    if(m_context == nullptr)
-        return;
+void MeshLoader::paint(QOpenGLShaderProgram* program){
+    for(size_t i = 0; i < loaders_size; ++i){
+        loaders[i]->paint(program);
+    }
+}
 
-    m_funcs = m_context->versionFunctions<QOpenGLFunctions_4_3_Core>();
+void MeshLoader::setMesh(MeshRoot mesh, std::string path){
+    if(loaders_size != 0 && loaders != nullptr){
+        for(size_t i = 0; i < loaders_size; ++i)
+            delete loaders[i];
+        delete[] loaders;
+    }
 
-      if (!m_funcs) {
-        qWarning("Could not obtain OpenGL versions object");
-        exit(1);
-      }
+    loaders_size = mesh.size();
+    loaders = new MeshNodeLoader*[mesh.size()]; // TODO placement new
 
-      m_funcs->initializeOpenGLFunctions();
-};
-
-QOpenGLFunctions_4_3_Core* m_funcs;
+    auto p = mesh.cbegin();
+    for(size_t i = 0; i < loaders_size; ++i){
+        loaders[i] = new MeshNodeLoader(*p,path);
+        ++p;
+    }
+}
 
 int giveGLType(ImageType type, std::uint16_t bitsPerPixel){
     switch (type) {
@@ -37,64 +117,17 @@ int giveGLType(ImageType type, std::uint16_t bitsPerPixel){
     return -1;
 }
 
-unsigned int LoadTexture(Texture* texture){
-    GLuint textureID;
-    m_funcs->glGenTextures(1, &textureID);
+void MeshNodeLoader::LoadTexture(Texture* texture){
+    initializeOpenGLFunctions();
+    glGenTextures(1, &textureId);
+    qDebug() << "loaded " << textureId;
 
-    m_funcs->glBindTexture(GL_TEXTURE_2D, textureID);  //MAYBE crash
-    m_funcs->glTexImage2D(GL_TEXTURE_2D, 0, texture->bitsPerPixel == 32 ? GL_RGBA : GL_RGB, texture->width, texture->height, 0, giveGLType(texture->type,texture->bitsPerPixel), GL_UNSIGNED_BYTE, texture->pixels.data());
-    m_funcs->glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureId);  //MAYBE crash
+    glTexImage2D(GL_TEXTURE_2D, 0, texture->bitsPerPixel == 32 ? GL_RGBA : GL_RGB, texture->width, texture->height, 0, giveGLType(texture->type,texture->bitsPerPixel), GL_UNSIGNED_BYTE, texture->pixels.data());
+    glGenerateMipmap(GL_TEXTURE_2D);
 
-    m_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    m_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    m_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    m_funcs->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    free(texture);
-    return textureID;
-}
-
-
-MeshNodeVNT::~MeshNodeVNT(){
-    delete diffuse;
-
-    vbo.destroy();
-    vao.destroy();
-}
-
-void MeshNodeVNT::initBuffers(QOpenGLShaderProgram& shader){
-    bool success = vao.create();
-    Q_ASSERT(success);
-
-    vao.bind();
-
-    vbo = QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-    success = vbo.create();
-    Q_ASSERT(success);
-    vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-
-    success = vbo.bind();
-    Q_ASSERT(success);
-    vbo.allocate(vertex_data.data(), vertex_data.size() * sizeof(DataVNT));
-    shader.setAttributeBuffer("position", GL_FLOAT, 0, offsetof(DataVNT, vertex));
-    shader.enableAttributeArray("position");
-    shader.setAttributeBuffer("normal", GL_FLOAT, 0, offsetof(DataVNT, normal));
-    shader.enableAttributeArray("normal");
-    shader.setAttributeBuffer("texCoords", GL_FLOAT, 0, offsetof(DataVNT, uv));
-    shader.enableAttributeArray("texCoords");
-
-    vbo.release();
-    vao.release();
-}
-
-void  Mesh::init_buffers(QOpenGLShaderProgram& shader){
-    for(auto&& mesh : meshes){
-        mesh.initBuffers(shader);
-    }
-}
-
-void Mesh::draw(QOpenGLShaderProgram &shader){
-    for(auto&& mesh : meshes){
-        mesh.draw(shader);
-    }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }

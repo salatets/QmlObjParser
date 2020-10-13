@@ -123,19 +123,13 @@ void FloatingHorizon::clearHorizons(int width, int height){
 }
 
 // FIXME light shader render after light pos move
-void FloatingHorizon::paint(QOpenGLShaderProgram* program, QMatrix4x4 mat, GLsizei width, GLsizei height)
+void FloatingHorizon::paint(QMatrix4x4 mat, GLsizei width, GLsizei height)
 {
     initializeOpenGLFunctions();
 
-    program->bind();
     vao.bind();
 
-    glViewport(0, 0, width, height);
-
-    //glEnable(GL_DEPTH_TEST);
     glEnable(GL_PROGRAM_POINT_SIZE);
-
-    program->setUniformValue("model",mat);
 
     clearHorizons(width, height);
 
@@ -149,5 +143,4 @@ void FloatingHorizon::paint(QOpenGLShaderProgram* program, QMatrix4x4 mat, GLsiz
     glDrawArrays(GL_POINTS, 0, vc_draw.size());
 
     vao.release();
-    program->release();
 }

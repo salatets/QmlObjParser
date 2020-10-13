@@ -96,16 +96,12 @@ void GLScene::setPath(QUrl path)
     emit pathChanged();
 }
 
-GLuint texture = 0;
-
-void GLSceneRenderer::setPath(QUrl path)
-{
-    if(path == old_url)
-        return;
+std::string convertPath(const QUrl& path){
+    std::string res;
 
     if(path.isRelative()){
         QString temp = path.toString();
-        m_path = temp.toUtf8().constData();
+        res = temp.toUtf8().constData();
     }else{
         int trunc_len = path.scheme().length() + 1;
         QString temp = path.toString();
@@ -118,17 +114,42 @@ void GLSceneRenderer::setPath(QUrl path)
         if(i > 1)
             trunc_len +=2;
 
-
-        m_path = temp.toUtf8().constData();
-        m_path = m_path.substr(trunc_len);
+        res = temp.toUtf8().constData();
+        res = res.substr(trunc_len);
     }
+
+    return res;
+}
+
+// TODO add move semantic
+inline std::string getPWD(const std::string& path){
+    return path.substr(0, path.rfind('/') + 1);
+}
+
+void GLSceneRenderer::setPath(QUrl path)
+{
+    if(path == old_url)
+        return;
+
+    m_path = convertPath(path);
 
     m_model = parseOBJ(m_path);
 
-    if(m_model.size() != 0){
+    if(!m_model.empty()){
 
-        fh.setMesh(m_model);
-        fh.init_buffers(m_program);
+        switch (type) {
+        case FH_Model:
+            fh.setMesh(m_model);
+            fh.init_buffers(m_program);
+            break;
+        case Scene:
+            // SCENE
+            break;
+        case Model:
+            ml.setMesh(m_model, getPWD(m_path));
+            ml.init_buffers(m_program);
+            break;
+        }
 
         old_url = path;
         m_window->update();
@@ -188,9 +209,30 @@ void GLScene::sync(){
 }
 
 void GLSceneRenderer::init_program(){
-    m_program = new QOpenGLShaderProgram();
-    bool success = m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, hor_vertex);
-    success &= m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, hor_fragment);
+    if(m_program == nullptr)
+        m_program = new QOpenGLShaderProgram();
+    if(m_program->isLinked())
+        m_program->removeAllShaders();
+
+    char* ver;
+    char* frag;
+
+    switch (type) {
+    case FH_Model:
+        ver = hor_vertex;
+        frag = hor_fragment;
+        break;
+    case Scene:
+        // SCENE
+        break;
+    case Model:
+        ver = vertex;
+        frag = fragment;
+        break;
+    }
+
+    bool success = m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, ver);
+    success &= m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, frag);
     Q_ASSERT(success);
 
     success = m_program->link();
@@ -198,7 +240,19 @@ void GLSceneRenderer::init_program(){
 }
 
 void GLSceneRenderer::init_buffers(){
-    fh.init_buffers(m_program);
+    switch (type) {
+    case FH_Model:
+        fh.init_buffers(m_program);
+        break;
+    case Scene:
+        // SCENE
+        break;
+    case Model:
+        ml.init_buffers(m_program);
+        break;
+    }
+
+
 }
 
 void GLSceneRenderer::init(){
@@ -218,21 +272,43 @@ void GLSceneRenderer::init(){
 }
 
 // FIXME light shader render after light pos move
+// TODO add center point view
 void GLSceneRenderer::paint(){
     if(m_model.empty())
         return;
 
     m_window->beginExternalCommands();
+    m_program->bind();
+
+    glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
 
     QMatrix4x4 mat;
     mat.scale(1/(max(m_model.getSize())));
     mat.translate(- m_model.getCenter());
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
+    m_program->setUniformValue("model",mat);
+    m_program->setUniformValue("lightColor", QVector3D(1.0f, 0.0f, 1.0f));
+    m_program->setUniformValue("objectColor", QVector3D(1.0f, 0.5f, 0.31f));
+    m_program->setUniformValue("lightPos", QVector3D(sin(m_pos), 0.3f, cos(m_pos)));
+    m_program->setUniformValue("viewPos", QVector3D(0.0f, 0.0f, 0.0f));
 
-    // TODO size of points
-    fh.paint(m_program,mat,m_viewportSize.width(),m_viewportSize.height());
+    m_program->setUniformValue("material.shininess", 64.0f);
 
+    switch (type) {
+    case FH_Model:
+        // TODO size of points
+        fh.paint(mat, m_viewportSize.width(), m_viewportSize.height());
+        break;
+    case Scene:
+        // SCENE
+        break;
+    case Model:
+        ml.paint(m_program);
+        break;
+    }
+
+    m_program->release();
     m_window->resetOpenGLState();
     m_window->endExternalCommands();
 }

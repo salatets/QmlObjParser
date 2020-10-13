@@ -33,23 +33,47 @@ public:
     const Mtl& getMaterial() const { return material;};
     size_t getSize() const {return size;}
 
-    MeshNode ( const MeshNode & other){
+    MeshNode(const MeshNode& other){
         material = other.material;
         size = other.size;
         type = other.type;
 
         if(other.vertex_data == nullptr){
             vertex_data = nullptr;
-            return;
-        }
+        }else{
+            size_t vertex_size = size * getTypeSize();
+            vertex_data = new float[vertex_size];
 
-        size_t vertex_size = size * getTypeSize();
-        vertex_data = new float[vertex_size];
-
-        for(size_t i = 0; i < vertex_size; ++i){
-            vertex_data[i] = other.vertex_data[i];
+            for(size_t i = 0; i < vertex_size; ++i){
+                vertex_data[i] = other.vertex_data[i];
+            }
         }
     }
+
+    const MeshNode& operator=(const MeshNode& other){
+        if(this == &other)
+            return *this;
+
+        material = other.material;
+        size = other.size;
+        type = other.type;
+
+        if(other.vertex_data == nullptr){
+            delete[] vertex_data;
+            vertex_data = nullptr;
+        }else{
+            delete[] vertex_data; // add check for same size
+            size_t vertex_size = size * getTypeSize();
+            vertex_data = new float[vertex_size];
+
+            for(size_t i = 0; i < vertex_size; ++i){
+                vertex_data[i] = other.vertex_data[i];
+            }
+        }
+        return *this;
+    }
+
+    // TODO add move operator=()
 
     MeshNode ( MeshNode && other){
         material = other.material;

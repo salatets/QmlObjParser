@@ -125,7 +125,7 @@ char checkFaceFormat(std::basic_istream<char>& strm){
 }
 
 // TODO add move semantic
-std::string getPWD(const std::string& path){
+inline std::string getPWD(const std::string& path){
     return path.substr(0, path.rfind('/') + 1);
 }
 

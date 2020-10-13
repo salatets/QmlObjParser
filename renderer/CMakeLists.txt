@@ -20,6 +20,7 @@ set(SOURCES
 #add headers with moc
 set(HEADERS
     include/FloatingHorizon.h
+    include/MeshLoader.h
     )
 
 

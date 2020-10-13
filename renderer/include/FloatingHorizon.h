@@ -17,10 +17,9 @@ public:
     void setMesh(MeshRoot mesh);
 
     void init_buffers(QOpenGLShaderProgram* program);
-    void paint(QOpenGLShaderProgram* program, QMatrix4x4 mat, GLsizei width, GLsizei height);
+    void paint(QMatrix4x4 mat, GLsizei width, GLsizei height);
 
 private:
-    float max(const QVector3D& vec);
 
     void clearHorizons(int width, int height);
     auto getPointsToDraw(QMatrix4x4 proj, int width, int height,int point_size);

@@ -6,18 +6,26 @@
 
 #include <Mesh.h>
 #include <FloatingHorizon.h>
+#include <MeshLoader.h>
+
+enum Renderer{
+    FH_Model,
+    Scene,
+    Model
+};
 
 class GLSceneRenderer : public QObject, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    GLSceneRenderer() : m_program(nullptr){};
+    GLSceneRenderer() : m_program(nullptr), type(Model){};
     ~GLSceneRenderer();
 
     void setPitch(qreal pitch){m_pitch = pitch;}
     void setYaw(qreal yaw){m_yaw = yaw;}
     void setPos(qreal pos){m_pos = pos;}
     void setPath(QUrl path);
+
     void setViewportSize(const QSize &size) { m_viewportSize = size; }
     void setWindow(QQuickWindow *window) { m_window = window; }
 
@@ -29,7 +37,10 @@ private:
     void init_program();
     void init_buffers();
 
+    Renderer type;
     FloatingHorizon fh;
+    MeshLoader ml;
+
 
     MeshRoot m_model;
     qreal m_pitch;
