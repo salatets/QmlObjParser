@@ -7,6 +7,7 @@
 #include <QtGui/QOpenGLVertexArrayObject>
 
 #include <Mesh.h>
+#include <ImageLoader.h>
 
 // only realization for VNT
 class MeshNodeLoader: public QObject, protected QOpenGLFunctions{
@@ -25,7 +26,7 @@ public:
     void paint(QOpenGLShaderProgram* program);
 
 private:
-    void LoadTexture(Texture* texture);
+    void LoadTexture(Texture texture);
 
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo;

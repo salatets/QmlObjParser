@@ -27,11 +27,15 @@ std::uint16_t readUint16(const std::vector<std::uint8_t>& buffer, int index)
              ((std::uint8_t)buffer[index]));
 }
 
-Texture* parseBMP(const std::string& path){
+Texture parseBMP(const std::string& path){
     std::ifstream hFile(path, std::ios::binary);
+
+    Texture texture;
+    texture.type = ImageType::Undefined;
+
     if (!hFile.is_open()){
         std::cerr << "image " << path << " could not be opened\n";
-        return nullptr;
+        return texture;
     }
 
     std::vector<std::uint8_t> FileInfo(BMP_HEADER_SIZE);
@@ -41,27 +45,26 @@ Texture* parseBMP(const std::string& path){
     {
         hFile.close();
         std::cerr << path << "Invalid File Format. Bitmap Required\n";
-        return nullptr;
+        return texture;
     }
 
     if (FileInfo[28] != 24 && FileInfo[28] != 32)
     {
         hFile.close();
         std::cerr << path << "Invalid File Format. 24 or 32 bit Image Required\n";
-        return nullptr;
+        return texture;
     }
 
-    Texture* texture = new Texture();
-
-    texture->bitsPerPixel = FileInfo[28];
-    texture->width = readInt32(FileInfo,18);
-    texture->height = readInt32(FileInfo,22);
+    texture.type = ImageType::BMP;
+    texture.bitsPerPixel = FileInfo[28];
+    texture.width = readInt32(FileInfo,18);
+    texture.height = readInt32(FileInfo,22);
     std::uint32_t PixelsOffset = readInt32(FileInfo,10);
-    std::uint32_t size = ((texture->width * texture->bitsPerPixel + 31) / 32) * 4 * texture->height;
-    texture->pixels.resize(size);
+    std::uint32_t size = ((texture.width * texture.bitsPerPixel + 31) / 32) * 4 * texture.height;
+    texture.pixels.resize(size);
 
     hFile.seekg (PixelsOffset, std::ios::beg);
-    hFile.read(reinterpret_cast<char*>(texture->pixels.data()), size);
+    hFile.read(reinterpret_cast<char*>(texture.pixels.data()), size);
     hFile.close();
     return texture;
 }

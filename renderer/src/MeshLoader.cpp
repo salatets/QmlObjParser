@@ -1,5 +1,4 @@
 #include "MeshLoader.h"
-#include <ImageLoader.h>
 
 MeshNodeLoader::~MeshNodeLoader(){
     glDeleteTextures(1, &textureId);
@@ -43,15 +42,13 @@ void MeshNodeLoader::init_buffers(QOpenGLShaderProgram *program){
     vbo.release();
     vao.release();
 
-    Texture* diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
+    Texture diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
 
-    if(diffuse == nullptr){
+    if(diffuse.type == ImageType::Undefined){
         return;
     }
 
     LoadTexture(diffuse);
-
-    free(diffuse); // TODO replace with delete[]
 }
 
 void MeshNodeLoader::paint(QOpenGLShaderProgram* program){
@@ -101,7 +98,7 @@ void MeshLoader::setMesh(MeshRoot mesh, std::string path){
     }
 }
 
-int giveGLType(ImageType type, std::uint16_t bitsPerPixel){
+unsigned int giveGLType(ImageType type, std::uint16_t bitsPerPixel){
     switch (type) {
     case BMP:{
         if(bitsPerPixel == 24)
@@ -110,22 +107,23 @@ int giveGLType(ImageType type, std::uint16_t bitsPerPixel){
             return GL_BGRA;
         else
             return -1;
-        break;
         }
+    case Undefined:
+        return 0;
     }
     return -1;
 }
 
-void MeshNodeLoader::LoadTexture(Texture* texture){
+void MeshNodeLoader::LoadTexture(Texture texture){
     initializeOpenGLFunctions();
     glGenTextures(1, &textureId);
 
     glBindTexture(GL_TEXTURE_2D, textureId);
     glTexImage2D(GL_TEXTURE_2D, 0,
-                 texture->bitsPerPixel == 32 ? GL_RGBA : GL_RGB,
-                 texture->width, texture->height,
-                 0, giveGLType(texture->type,texture->bitsPerPixel),
-                 GL_UNSIGNED_BYTE, texture->pixels.data());
+                 texture.bitsPerPixel == 32 ? GL_RGBA : GL_RGB,
+                 texture.width, texture.height,
+                 0, giveGLType(texture.type,texture.bitsPerPixel),
+                 GL_UNSIGNED_BYTE, texture.pixels.data());
     glGenerateMipmap(GL_TEXTURE_2D);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
