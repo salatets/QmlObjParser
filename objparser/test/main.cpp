@@ -27,10 +27,10 @@ bool eqArray(const float* array1,const float* array2, size_t chunk, size_t size)
 }
 
 TEST_CASE("load cube.obj"){
-    Mesh test = parseOBJ("cube.obj");
-    REQUIRE(test.getNodesSize() == 1);
+    MeshRoot test = parseOBJ("cube.obj");
+    REQUIRE(test.size() == 1);
 
-    MeshNode mesh = *test.getNodesBegin();
+    MeshNode mesh = *test.cbegin();
 
     SUBCASE("test mesh"){
         CHECK(mesh.getType() == meshType::VNT);
