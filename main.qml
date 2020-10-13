@@ -84,6 +84,8 @@ Item {
         anchors.margins: 20
 
         RowLayout{
+
+
                 Label {
                     Layout.fillWidth: true
                     Layout.maximumWidth: 60
@@ -93,7 +95,7 @@ Item {
                 Slider{
                     from: 0
                     to: 6.283
-                    value: 3.14
+                    value: 3.14 // TODO add sync with model
                     Layout.fillWidth: true
                     onMoved:
                     {

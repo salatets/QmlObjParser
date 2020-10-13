@@ -18,7 +18,7 @@ float max(const QVector3D& vec){
     return max;
 }
 
-GLScene::GLScene() : m_renderer(nullptr){
+GLScene::GLScene() : m_pos(3.14), m_renderer(nullptr){
     connect(this, &QQuickItem::windowChanged, this, &GLScene::handleWindowChanged);
     setAcceptedMouseButtons(Qt::LeftButton);
     setFlag(ItemAcceptsInputMethod, true);
@@ -271,7 +271,6 @@ void GLSceneRenderer::init(){
     }
 }
 
-// FIXME light shader render after light pos move
 // TODO add center point view
 void GLSceneRenderer::paint(){
     if(m_model.empty())
