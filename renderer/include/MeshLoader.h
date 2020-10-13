@@ -5,6 +5,7 @@
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLBuffer>
 #include <QtGui/QOpenGLVertexArrayObject>
+#include <QOpenGLFunctions>
 
 #include <Mesh.h>
 #include <ImageLoader.h>

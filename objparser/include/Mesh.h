@@ -2,7 +2,6 @@
 #define MESH_H
 
 #include <MeshNode.h>
-#include <common.h>
 
 class MeshRoot
 {

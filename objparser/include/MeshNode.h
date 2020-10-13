@@ -3,11 +3,6 @@
 
 #include <QVector2D>
 #include <QVector3D>
-#include <QtGui/QOpenGLShaderProgram>
-#include <QtGui/QOpenGLFunctions>
-#include <QtGui/QOpenGLBuffer>
-#include <QtGui/QOpenGLVertexArrayObject>
-#include <QOpenGLFunctions_4_3_Core>
 
 enum illum{
     AMBIENT_ON = 1,
