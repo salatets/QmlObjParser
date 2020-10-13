@@ -9,7 +9,22 @@
 #include <QtGui/QOpenGLVertexArrayObject>
 #include <QOpenGLFunctions_4_3_Core>
 
-#include <common.h>
+enum illum{
+    AMBIENT_ON = 1,
+    HIGHTLIGHT_ON = 2
+};
+
+// TODO unify material
+struct Mtl{
+    std::string name;
+    QVector3D ambient;
+    QVector3D diffuse;
+    QVector3D specular;
+    illum illum_mode;
+    std::string diffuse_map_path;
+    Mtl() : name(""), ambient(0,0,0), diffuse(0,0,0), specular(0,0,0),
+        illum_mode(AMBIENT_ON), diffuse_map_path("") {};
+};
 
 enum meshType{
     VNT,
@@ -19,7 +34,7 @@ enum meshType{
     UNDEFINED,
 };
 
-// TODO unify material
+
 // vertex / normal / texture
 class MeshNode
 {
