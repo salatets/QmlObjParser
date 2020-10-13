@@ -283,10 +283,11 @@ void GLSceneRenderer::paint(){
     glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
 
     QMatrix4x4 mat;
-    mat.scale(1/(max(m_model.getSize())));
-    mat.translate(- m_model.getCenter());
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
+    mat.scale(1/(max(m_model.getSize())));
+    mat.translate(- m_model.getCenter());
+
     m_program->setUniformValue("model",mat);
     m_program->setUniformValue("lightColor", QVector3D(1.0f, 0.0f, 1.0f));
     m_program->setUniformValue("objectColor", QVector3D(1.0f, 0.5f, 0.31f));
