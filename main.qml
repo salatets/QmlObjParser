@@ -4,36 +4,39 @@ import QtQuick.Controls 2.12
 import QtQuick.Dialogs 1.0
 import GLScene 1.0
 
-Item {
+ApplicationWindow {
     width: 400
     height: 400
+    visible: true
+    color: "white"
+
+    menuBar: MenuBar {
+        Menu {
+                    title: qsTr("&File")
+                    Action {
+                        text: qsTr("&Open...")
+                        shortcut: StandardKey.Open
+                        onTriggered: fileDialog.open()
+                    }
+                    MenuSeparator { }
+                    Action {
+                        text: qsTr("&Quit")
+                        shortcut: StandardKey.Quit
+                        onTriggered: Qt.quit()
+                    }
+                }
+                Menu {
+                    title: qsTr("&Labs")
+                    Action { text: qsTr("Lab 1") }
+                    Action { text: qsTr("Lab 2") }
+                    Action { text: qsTr("RGZ") }
+                }
+            }
 
     GLScene {
         id: glbox
         anchors.fill: parent
     }
-
-    Rectangle{
-        id:rect_load
-        color: Qt.rgba(1, 1, 1, 0.7)
-        radius: 10
-        border.width: 1
-        border.color: "white"
-        opacity: 0.5
-        anchors.fill: load_button
-        anchors.margins: -10
-    }
-
-    Button{
-        id: load_button
-        text: "load"
-        onPressed:fileDialog.open()
-        anchors.top: parent.top
-        anchors.left:  parent.left
-        anchors.margins: 10
-
-    }
-
 
     Rectangle{
         id:rect_controls
@@ -112,7 +115,6 @@ Item {
         folder: shortcuts.home
         onAccepted: {
             glbox.path = fileDialog.fileUrl
-            Qt.quit()
         }
     }
 }

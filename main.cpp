@@ -1,10 +1,11 @@
 #include <QGuiApplication>
-#include <QtQuick/QQuickView>
+#include <QQmlApplicationEngine>
 
 #include "glscene.h"
 
 int main(int argc, char *argv[])
 {
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
 
     app.setOrganizationName("ORG");
@@ -12,10 +13,8 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<GLScene>("GLScene", 1, 0, "GLScene");
 
-    QQuickView view;
-    view.setResizeMode(QQuickView::SizeRootObjectToView);
-    view.setSource(QUrl("qrc:///main.qml"));
-    view.show();
+    QQmlApplicationEngine engine;
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     return app.exec();
 }
