@@ -13,6 +13,9 @@
 
 enum meshType{
     VNT,
+    VT,
+    VN,
+    V,
     UNDEFINED,
 };
 
@@ -27,6 +30,17 @@ public:
              const std::vector<QVector3D>& vertexs,
              const std::vector<QVector3D>& normals,
              const std::vector<QVector2D>& uvs); // VNT
+
+    MeshNode(const Mtl& material,
+             const std::vector<QVector3D>& vertexs,
+             const std::vector<QVector3D>& normals); // VN
+
+    MeshNode(const Mtl& material,
+             const std::vector<QVector3D>& vertexs,
+             const std::vector<QVector2D>& uvs); // VT
+
+    MeshNode(const Mtl& material,
+             const std::vector<QVector3D>& vertexs); // V
 
     const meshType& getType() const {return type;}
     const float* getData() const { return vertex_data;};
