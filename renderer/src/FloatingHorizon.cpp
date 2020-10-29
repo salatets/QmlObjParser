@@ -1,4 +1,5 @@
 #include <FloatingHorizon.h>
+#include <array>
 
 void FloatingHorizon::setMesh(MeshRoot mesh){
     // todo add loading full model
