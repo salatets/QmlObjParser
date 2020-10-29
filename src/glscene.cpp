@@ -132,7 +132,6 @@ void GLSceneRenderer::setPath(QUrl path)
         return;
 
     m_path = convertPath(path);
-
     m_model = parseOBJ(m_path);
 
     if(!m_model.empty()){
@@ -150,10 +149,9 @@ void GLSceneRenderer::setPath(QUrl path)
             ml.init_buffers(m_program);
             break;
         }
-
-        old_url = path;
-        m_window->update();
     }
+    old_url = path;
+    m_window->update();
 }
 
 void GLScene::handleWindowChanged(QQuickWindow *win)
