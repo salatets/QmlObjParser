@@ -102,17 +102,16 @@ std::string convertPath(const QUrl& path){
     if(path.isRelative()){
         QString temp = path.toString();
         res = temp.toUtf8().constData();
-    }else{
+    }else{ // format like file:/// or file:/
         int trunc_len = path.scheme().length() + 1;
+        qDebug() << trunc_len;
         QString temp = path.toString();
         int i = 0;
 
-        for(; i < 3; i++)
-            if(temp[trunc_len] != '/')
+        for(; i < 3; i++){
+            if(temp[trunc_len + i] != '/')
                 break;
-
-        if(i > 1)
-            trunc_len +=2;
+        }
 
         res = temp.toUtf8().constData();
         res = res.substr(trunc_len);
@@ -128,6 +127,7 @@ inline std::string getPWD(const std::string& path){
 
 void GLSceneRenderer::setPath(QUrl path)
 {
+    qDebug() << path;
     if(path == old_url)
         return;
 
