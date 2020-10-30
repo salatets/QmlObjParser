@@ -113,7 +113,7 @@ std::string convertPath(const QUrl& path){
         }
 
         res = temp.toUtf8().constData();
-        res = res.substr(trunc_len);
+        res = res.substr(trunc_len + i);
     }
 
     return res;
