@@ -104,7 +104,6 @@ std::string convertPath(const QUrl& path){
         res = temp.toUtf8().constData();
     }else{ // format like file:/// or file:/
         int trunc_len = path.scheme().length() + 1;
-        qDebug() << trunc_len;
         QString temp = path.toString();
         int i = 0;
 
@@ -127,7 +126,6 @@ inline std::string getPWD(const std::string& path){
 
 void GLSceneRenderer::setPath(QUrl path)
 {
-    qDebug() << path;
     if(path == old_url)
         return;
 
