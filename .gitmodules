@@ -1,3 +1,3 @@
-[submodule "renderer/extern/doctest/"]
-	path = renderer/extern/doctest/
+[submodule "objparser/extern/doctest"]
+	path = objparser/extern/doctest
 	url = https://github.com/onqtam/doctest.git
