@@ -75,12 +75,14 @@ QVector3D fillQVector3D(float&& val){
 // c: v/t
 // d: v
 // u: undefined
-char checkFaceFormat(std::basic_istream<char>& strm){
+char checkFaceFormat(std::ifstream& strm){
     int initPos = strm.tellg();
     int index = 0;
     char format = 'u';
     std::string expr;
     strm >> expr;
+    strm.seekg(initPos);
+
     std::istringstream stream(expr);
     stream >> index;
     if(index == 0){
@@ -93,8 +95,8 @@ char checkFaceFormat(std::basic_istream<char>& strm){
             if(stream.peek() == '/'){
                 stream.get();
                 if(stream.peek() != -1){
-                stream >> index;
-                format = 'b';
+                    stream >> index;
+                    format = 'b';
                 }
             }else{
                 if(stream.peek() != -1){
@@ -119,8 +121,6 @@ char checkFaceFormat(std::basic_istream<char>& strm){
             format = 'u';
         }
     }
-
-    strm.seekg(initPos);
     return format;
 }
 
@@ -151,7 +151,7 @@ struct rawMesh{
 // v parse only 3 val
 // todo multithread??
 MeshRoot parseOBJ(const std::string& path){
-    std::ifstream fstrm(path);
+    std::ifstream fstrm(path, std::ios::binary);
     if (!fstrm){
         std::cerr << "obj " << path << " could not be opened\n";
         return MeshRoot();
@@ -199,7 +199,7 @@ MeshRoot parseOBJ(const std::string& path){
             fstrm>>x>>y;
             raw_data.UVs.emplace_back(x,y);
         }else if (token == "f"){
-            if(raw_mesh.back().format == 'u'){
+            if(raw_mesh.back().format == 'u'){ // very strange place, MAYBE init format in raw_mesh init
                 raw_mesh.back().format = checkFaceFormat(fstrm);
                 if (raw_mesh.back().format == 'u'){
                     fstrm.close();
@@ -213,15 +213,12 @@ MeshRoot parseOBJ(const std::string& path){
                 for(int i =0; i< 3; ++i){
                     fstrm >> index;
                     raw_mesh.back().index.vertices.push_back(index);
-                    //std::cerr << "v " << index << ' ';
                     fstrm.get();
                     fstrm >> index;
                     raw_mesh.back().index.UVs.push_back(index);
-                    //std::cerr << "t " << index << ' ';
                     fstrm.get();
                     fstrm >> index;
                     raw_mesh.back().index.normals.push_back(index);
-                    //std::cerr << "n " << index << '\n';
                 }
                 break;
             case 'b':
@@ -265,7 +262,6 @@ MeshRoot parseOBJ(const std::string& path){
             raw_mesh.emplace_back(rawMesh());
             raw_mesh.back().material = *result;
             raw_mesh.back().format = 'u';
-            //raw_mesh.back().index = Indeces();
 
         }else if(token == "mtllib"){
             std::string filename;
@@ -290,8 +286,6 @@ MeshRoot parseOBJ(const std::string& path){
 
         if((*meshIter).format == 'u' || (*meshIter).index.vertices.empty())
             return MeshRoot();
-
-        //vertices.emplace_back(Vertices());
 
         //transform data
         for(std::vector<int>::size_type j = 0; j < (*meshIter).index.vertices.size(); ++j){
