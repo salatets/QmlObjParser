@@ -7,9 +7,9 @@ class MeshFactory{
 public:
     static MeshNode MakeMesh(const Mtl& material,
                        const meshType& format,
-                       const std::vector<QVector3D>& vertexs,
-                       const std::vector<QVector3D>& normals,
-                       const std::vector<QVector2D>& uvs){
+                       const std::vector<Vec3>& vertexs,
+                       const std::vector<Vec3>& normals,
+                       const std::vector<Vec2>& uvs){
 
          switch(format){
          case meshType::VNT:{

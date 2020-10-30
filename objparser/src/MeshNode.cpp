@@ -4,9 +4,9 @@
 MeshNode::MeshNode() : type(UNDEFINED), material(), size(0), vertex_data(nullptr){}
 
 MeshNode::MeshNode(const Mtl& material,
-         const std::vector<QVector3D>& vertexs,
-         const std::vector<QVector3D>& normals,
-         const std::vector<QVector2D>& uvs) : type(VNT), material(material), size(vertexs.size()){
+         const std::vector<Vec3>& vertexs,
+         const std::vector<Vec3>& normals,
+         const std::vector<Vec2>& uvs) : type(VNT), material(material), size(vertexs.size()){
 
     vertex_data = new float[size * getTypeSize()];
 
@@ -16,8 +16,8 @@ MeshNode::MeshNode(const Mtl& material,
 };
 
 MeshNode::MeshNode(const Mtl& material,
-         const std::vector<QVector3D>& vertexs,
-         const std::vector<QVector3D>& normals) : type(VN), material(material), size(vertexs.size()){
+         const std::vector<Vec3>& vertexs,
+         const std::vector<Vec3>& normals) : type(VN), material(material), size(vertexs.size()){
 
     vertex_data = new float[size * getTypeSize()];
 
@@ -26,8 +26,8 @@ MeshNode::MeshNode(const Mtl& material,
 };
 
 MeshNode::MeshNode(const Mtl& material,
-         const std::vector<QVector3D>& vertexs,
-         const std::vector<QVector2D>& uvs) : type(VT), material(material), size(vertexs.size()){
+         const std::vector<Vec3>& vertexs,
+         const std::vector<Vec2>& uvs) : type(VT), material(material), size(vertexs.size()){
 
     vertex_data = new float[size * getTypeSize()];
 
@@ -36,7 +36,7 @@ MeshNode::MeshNode(const Mtl& material,
 };
 
 MeshNode::MeshNode(const Mtl& material,
-         const std::vector<QVector3D>& vertexs) : type(V), material(material), size(vertexs.size()){
+         const std::vector<Vec3>& vertexs) : type(V), material(material), size(vertexs.size()){
 
     vertex_data = new float[size * getTypeSize()];
 

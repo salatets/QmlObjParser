@@ -1,4 +1,5 @@
 #include "MeshLoader.h"
+#include "vecUtils.h"
 
 MeshNodeLoader::~MeshNodeLoader(){
     glDeleteTextures(1, &textureId);
@@ -57,7 +58,7 @@ void MeshNodeLoader::paint(QOpenGLShaderProgram* program){
     vao.bind();
 
     glEnable(GL_DEPTH_TEST);
-    program->setUniformValue("material.specular", m_mesh.getMaterial().specular);
+    program->setUniformValue("material.specular", vec3ToQVector3D( m_mesh.getMaterial().specular));
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureId);

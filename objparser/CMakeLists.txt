@@ -12,6 +12,7 @@ set(SOURCES
     src/MeshNode.cpp
     src/ImageLoader.cpp
     src/ObjParser.cpp
+    src/vec.cpp
 )
 
 set(LIBS_FOR_TEST ${PROJECT_NAME})
@@ -23,11 +24,6 @@ set(LIBS_FOR_TEST ${PROJECT_NAME})
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-
-find_package(Qt5 COMPONENTS Core Gui REQUIRED)
-
-target_link_libraries(${PROJECT_NAME}
-  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui )
 
 set(${PROJECT_NAME} PROPERTY
     CXX_STANDARD 14

@@ -49,10 +49,10 @@ TEST_CASE("load cube.obj"){
 
         CHECK(material.name == "Material.001");
         CHECK(material.diffuse_map_path == "cube.bmp");
-        CHECK(material.ambient == QVector3D(1,1,1));
-        CHECK(material.diffuse == QVector3D(0.8f,0.8f,0.8f));
-        CHECK(material.diffuse == QVector3D(0.8f,0.8f,0.8f));
-        CHECK(material.specular == QVector3D(0.5f,0.5f,0.5f));
+        CHECK(material.ambient == Vec3(1,1,1));
+        CHECK(material.diffuse == Vec3(0.8f,0.8f,0.8f));
+        CHECK(material.diffuse == Vec3(0.8f,0.8f,0.8f));
+        CHECK(material.specular == Vec3(0.5f,0.5f,0.5f));
         CHECK(material.illum_mode == illum::HIGHTLIGHT_ON);
     }
 }

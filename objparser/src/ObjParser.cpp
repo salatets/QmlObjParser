@@ -1,14 +1,17 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <list>
 
 #include <ObjParser.h>
 #include <MeshFactory.h>
 
 /* Structure of parse wavefront .obj
+ -------------------------
  * mtllib headers
  * verticles data (v,vn,vt)
- * next parse mesh node
+ -------------------------
+ next parse mesh node
  * usemtl declaration
  * face data
  */
@@ -36,15 +39,15 @@ bool parseMTL(const std::string& path, std::list<Mtl>& materials){
             if(token == "Ka"){
                 float x,y,z;
                 fstrm >> x >> y >>z;
-                materials.back().ambient = QVector3D(x,y,z);
+                materials.back().ambient = Vec3(x,y,z);
             }else if(token == "Kd"){
                 float x,y,z;
                 fstrm >> x >> y >>z;
-                materials.back().diffuse = QVector3D(x,y,z);
+                materials.back().diffuse = Vec3(x,y,z);
             }else if(token == "Ks"){
                 float x,y,z;
                 fstrm >> x >> y >>z;
-                materials.back().specular = QVector3D(x,y,z);
+                materials.back().specular = Vec3(x,y,z);
             }else if(token == "illum"){
                 int x;
                 fstrm >> x;
@@ -64,19 +67,12 @@ bool parseMTL(const std::string& path, std::list<Mtl>& materials){
     return true;
 }
 
-QVector3D fillQVector3D(float&& val){
-    return QVector3D(val,val,val);
+Vec3 fillVec3(float&& val){
+    return Vec3(val,val,val);
 }
 
-// check format of faces
-// possible formats
-// a: v/t/n
-// b: v//n
-// c: v/t
-// d: v
-// u: undefined
 meshType checkFaceFormat(std::ifstream& strm){
-    int initPos = strm.tellg();
+    std::streamoff initPos = strm.tellg();
     int index = 0;
     meshType format = meshType::UNDEFINED;
     // found first face
@@ -152,9 +148,9 @@ struct Indeces{
 };
 
 struct Vertices{
-    std::vector<QVector3D> vertices;
-    std::vector<QVector3D> normals;
-    std::vector<QVector2D> UVs;
+    std::vector<Vec3> vertices;
+    std::vector<Vec3> normals;
+    std::vector<Vec2> UVs;
 };
 
 struct rawMesh{
@@ -177,8 +173,8 @@ MeshRoot parseOBJ(const std::string& path){
     // TODO forward list
     std::list<Mtl> mesh_materials;
     std::list<rawMesh> raw_mesh;
-    QVector3D min = fillQVector3D(std::numeric_limits<float>::max());
-    QVector3D max = fillQVector3D(std::numeric_limits<float>::lowest());
+    Vec3 min = fillVec3(std::numeric_limits<float>::max());
+    Vec3 max = fillVec3(std::numeric_limits<float>::lowest());
 
     std::string pwd = getPWD(path);
     std::string token;
@@ -191,19 +187,19 @@ MeshRoot parseOBJ(const std::string& path){
             float x = 0,y= 0,z = 0;
             fstrm>>x>>y>>z;
 
-            if(x > max.x())
-                max.setX(x);
-            if(y > max.y())
-                max.setY(y);
-            if(z > max.z())
-                max.setZ(z);
+            if(x > max.x)
+                max.x =x;
+            if(y > max.y)
+                max.y =y;
+            if(z > max.z)
+                max.z = z;
 
-            if(x < min.x())
-                min.setX(x);
-            if(y < min.y())
-                min.setY(y);
-            if(z < min.z())
-                min.setZ(z);
+            if(x < min.x)
+                min.x = x;
+            if(y < min.y)
+                min.y = y;
+            if(z < min.z)
+                min.z = z;
 
             raw_data.vertices.emplace_back(x,y,z);
         }else if(token == "vn"){
@@ -342,7 +338,7 @@ MeshRoot parseOBJ(const std::string& path){
         ++meshIter;
     }
 
-    QVector3D size = max-min;
+    Vec3 size = max - min;
 
     return MeshRoot(min + size/2, size,meshes.begin(),meshes.end());
 }

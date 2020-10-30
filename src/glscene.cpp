@@ -4,6 +4,7 @@
 
 #include <glscene.h>
 #include<ObjParser.h>
+#include <vecUtils.h>
 
 #include "shaders.h"
 
@@ -280,8 +281,8 @@ void GLSceneRenderer::paint(){
     QMatrix4x4 mat;
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
     mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
-    mat.scale(1/(max(m_model.getSize())));
-    mat.translate(- m_model.getCenter());
+    mat.scale(1/(max(vec3ToQVector3D(m_model.getSize()))));
+    mat.translate(- vec3ToQVector3D(m_model.getCenter()));
 
     m_program->setUniformValue("model",mat);
     m_program->setUniformValue("lightColor", QVector3D(1.0f, 0.0f, 1.0f));

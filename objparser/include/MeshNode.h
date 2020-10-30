@@ -1,8 +1,11 @@
 #ifndef MESHNODE_H
 #define MESHNODE_H
 
-#include <QVector2D>
-#include <QVector3D>
+#include <string>
+#include <vector>
+#include "vec.h"
+
+
 
 enum illum{
     AMBIENT_ON = 1,
@@ -12,9 +15,9 @@ enum illum{
 // TODO unify material
 struct Mtl{
     std::string name;
-    QVector3D ambient;
-    QVector3D diffuse;
-    QVector3D specular;
+    Vec3 ambient;
+    Vec3 diffuse;
+    Vec3 specular;
     illum illum_mode;
     std::string diffuse_map_path;
     Mtl() : name(""), ambient(0,0,0), diffuse(0,0,0), specular(0,0,0),
@@ -37,20 +40,20 @@ public:
     MeshNode(); // UNDEFINED
 
     MeshNode(const Mtl& material,
-             const std::vector<QVector3D>& vertexs,
-             const std::vector<QVector3D>& normals,
-             const std::vector<QVector2D>& uvs); // VNT
+             const std::vector<Vec3>& vertexs,
+             const std::vector<Vec3>& normals,
+             const std::vector<Vec2>& uvs); // VNT
 
     MeshNode(const Mtl& material,
-             const std::vector<QVector3D>& vertexs,
-             const std::vector<QVector3D>& normals); // VN
+             const std::vector<Vec3>& vertexs,
+             const std::vector<Vec3>& normals); // VN
 
     MeshNode(const Mtl& material,
-             const std::vector<QVector3D>& vertexs,
-             const std::vector<QVector2D>& uvs); // VT
+             const std::vector<Vec3>& vertexs,
+             const std::vector<Vec2>& uvs); // VT
 
     MeshNode(const Mtl& material,
-             const std::vector<QVector3D>& vertexs); // V
+             const std::vector<Vec3>& vertexs); // V
 
     const meshType& getType() const {return type;}
     const float* getData() const { return vertex_data;};
