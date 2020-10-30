@@ -79,6 +79,22 @@ meshType checkFaceFormat(std::ifstream& strm){
     int initPos = strm.tellg();
     int index = 0;
     meshType format = meshType::UNDEFINED;
+    // found first face
+
+    bool found = false;
+    for (char token; strm.peek() != -1;
+         strm.ignore(std::numeric_limits<std::streamsize>::max(), '\n')){
+
+        strm >> token;
+        if(token == 'f'){
+            found = true;
+            break;
+        }
+    }
+
+    if(found == false)
+        return format;
+
     std::string expr;
     strm >> expr;
     strm.seekg(initPos);
@@ -199,14 +215,6 @@ MeshRoot parseOBJ(const std::string& path){
             fstrm>>x>>y;
             raw_data.UVs.emplace_back(x,y);
         }else if (token == "f"){
-            if(raw_mesh.back().format == meshType::UNDEFINED){ // very strange place, MAYBE init format in raw_mesh init
-                raw_mesh.back().format = checkFaceFormat(fstrm);
-                if (raw_mesh.back().format == meshType::UNDEFINED){
-                    fstrm.close();
-                    std::cerr << "could't parse faces\n";
-                    return MeshRoot();
-                }
-            }
             int index = 0;
             switch(raw_mesh.back().format){ // get() skip slash
             case meshType::VNT:
@@ -261,7 +269,13 @@ MeshRoot parseOBJ(const std::string& path){
 
             raw_mesh.emplace_back(rawMesh());
             raw_mesh.back().material = *result;
-            raw_mesh.back().format = meshType::UNDEFINED;
+            raw_mesh.back().format = checkFaceFormat(fstrm);
+
+            if(raw_mesh.back().format == meshType::UNDEFINED){
+                std::cerr << "type of face not recognized\n";
+                return MeshRoot();
+            }
+
 
         }else if(token == "mtllib"){
             std::string filename;
