@@ -6,23 +6,26 @@
 class MeshFactory{
 public:
     static MeshNode MakeMesh(const Mtl& material,
-                       const char& format,
+                       const meshType& format,
                        const std::vector<QVector3D>& vertexs,
                        const std::vector<QVector3D>& normals,
                        const std::vector<QVector2D>& uvs){
 
          switch(format){
-         case 'a':{
+         case meshType::VNT:{
              return MeshNode(material, vertexs, normals, uvs);
              break;
          }
-         case 'b':
+         case meshType::VN:
              break;
-         case 'c':
+         case meshType::VT:
              break;
-         case 'd':
+         case meshType::V:
              break;
+         case meshType::UNDEFINED:
+             return MeshNode();
          }
+
 
         return MeshNode();
      }

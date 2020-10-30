@@ -75,10 +75,10 @@ QVector3D fillQVector3D(float&& val){
 // c: v/t
 // d: v
 // u: undefined
-char checkFaceFormat(std::ifstream& strm){
+meshType checkFaceFormat(std::ifstream& strm){
     int initPos = strm.tellg();
     int index = 0;
-    char format = 'u';
+    meshType format = meshType::UNDEFINED;
     std::string expr;
     strm >> expr;
     strm.seekg(initPos);
@@ -86,7 +86,7 @@ char checkFaceFormat(std::ifstream& strm){
     std::istringstream stream(expr);
     stream >> index;
     if(index == 0){
-        format = 'u';
+        format = meshType::UNDEFINED;
     }
     else{
 
@@ -96,7 +96,7 @@ char checkFaceFormat(std::ifstream& strm){
                 stream.get();
                 if(stream.peek() != -1){
                     stream >> index;
-                    format = 'b';
+                    format = meshType::VN;
                 }
             }else{
                 if(stream.peek() != -1){
@@ -105,20 +105,20 @@ char checkFaceFormat(std::ifstream& strm){
                         stream.get();
                         if(stream.peek() != -1){
                             stream >> index;
-                            format = 'a';
+                            format = meshType::VNT;
                         }
                     }
                     else{
-                        format = 'c';
+                        format = meshType::VT;
                     }
                 }
             }
         }else{
-            format = 'd';
+            format = meshType::V;
         }
 
         if(stream.peek() != -1){
-            format = 'u';
+            format = meshType::UNDEFINED;
         }
     }
     return format;
@@ -145,7 +145,7 @@ struct rawMesh{
     Mtl material;
     Indeces index;
     Vertices vertex;
-    char format;
+    meshType format;
 };
 
 // v parse only 3 val
@@ -199,9 +199,9 @@ MeshRoot parseOBJ(const std::string& path){
             fstrm>>x>>y;
             raw_data.UVs.emplace_back(x,y);
         }else if (token == "f"){
-            if(raw_mesh.back().format == 'u'){ // very strange place, MAYBE init format in raw_mesh init
+            if(raw_mesh.back().format == meshType::UNDEFINED){ // very strange place, MAYBE init format in raw_mesh init
                 raw_mesh.back().format = checkFaceFormat(fstrm);
-                if (raw_mesh.back().format == 'u'){
+                if (raw_mesh.back().format == meshType::UNDEFINED){
                     fstrm.close();
                     std::cerr << "could't parse faces\n";
                     return MeshRoot();
@@ -209,7 +209,7 @@ MeshRoot parseOBJ(const std::string& path){
             }
             int index = 0;
             switch(raw_mesh.back().format){ // get() skip slash
-            case 'a':
+            case meshType::VNT:
                 for(int i =0; i< 3; ++i){
                     fstrm >> index;
                     raw_mesh.back().index.vertices.push_back(index);
@@ -221,7 +221,7 @@ MeshRoot parseOBJ(const std::string& path){
                     raw_mesh.back().index.normals.push_back(index);
                 }
                 break;
-            case 'b':
+            case meshType::VN:
                 for(int i =0; i< 3; ++i){
                     fstrm >> index;
                     raw_mesh.back().index.vertices.push_back(index);
@@ -231,7 +231,7 @@ MeshRoot parseOBJ(const std::string& path){
                     raw_mesh.back().index.normals.push_back(index);
                 }
                 break;
-            case 'c':
+            case meshType::VT:
                 for(int i =0; i< 3; ++i){
                     fstrm >> index;
                     raw_mesh.back().index.vertices.push_back(index);
@@ -240,7 +240,7 @@ MeshRoot parseOBJ(const std::string& path){
                     raw_mesh.back().index.UVs.push_back(index);
                 }
                 break;
-            case 'd':
+            case meshType::V:
                 for(int i =0; i< 3; ++i){
                     fstrm >> index;
                     raw_mesh.back().index.vertices.push_back(index);
@@ -261,7 +261,7 @@ MeshRoot parseOBJ(const std::string& path){
 
             raw_mesh.emplace_back(rawMesh());
             raw_mesh.back().material = *result;
-            raw_mesh.back().format = 'u';
+            raw_mesh.back().format = meshType::UNDEFINED;
 
         }else if(token == "mtllib"){
             std::string filename;
@@ -284,7 +284,7 @@ MeshRoot parseOBJ(const std::string& path){
 
     while(meshIter != raw_mesh.end()){
 
-        if((*meshIter).format == 'u' || (*meshIter).index.vertices.empty())
+        if((*meshIter).format == meshType::UNDEFINED || (*meshIter).index.vertices.empty())
             return MeshRoot();
 
         //transform data
@@ -295,7 +295,7 @@ MeshRoot parseOBJ(const std::string& path){
             (*meshIter).vertex.vertices.push_back(raw_data.vertices[ vertexIndex-1 ]);
 
             switch((*meshIter).format){
-                case 'a':
+                case meshType::VNT:
                 {
                     unsigned int normalIndex = (*meshIter).index.normals[j];
                     (*meshIter).vertex.normals.push_back(raw_data.normals[ normalIndex-1 ]);
@@ -304,13 +304,13 @@ MeshRoot parseOBJ(const std::string& path){
                     (*meshIter).vertex.UVs.push_back(raw_data.UVs[ uvIndex-1 ]);
                     break;
                 }
-                case 'b':
+                case meshType::VN:
                 {
                     unsigned int normalIndex = (*meshIter).index.normals[j];
                     (*meshIter).vertex.normals.push_back(raw_data.normals[ normalIndex-1 ]);
                     break;
                 }
-                case 'c':{
+                case meshType::VT:{
                     unsigned int uvIndex = (*meshIter).index.UVs[j];
                     (*meshIter).vertex.UVs.push_back(raw_data.UVs[ uvIndex-1 ]);
                     break;
