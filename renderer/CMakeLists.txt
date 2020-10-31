@@ -14,6 +14,7 @@ set(CMAKE_AUTORCC ON)
 set(SOURCES
     src/MeshLoader.cpp
     src/FloatingHorizon.cpp
+    src/MeshNodeLoader.cpp
     src/VecUtils.cpp
 )
 
@@ -21,6 +22,7 @@ set(SOURCES
 set(HEADERS
     include/FloatingHorizon.h
     include/MeshLoader.h
+    include/MeshNodeLoader.h
     )
 
 
