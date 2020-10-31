@@ -59,6 +59,7 @@ public:
     const float* getData() const { return vertex_data;};
     const Mtl& getMaterial() const { return material;};
     size_t getSize() const {return size;}
+    size_t static MeshNode::getTypeSize(const MeshNode& mesh);
 
     MeshNode(const MeshNode& other){
         material = other.material;
@@ -68,7 +69,7 @@ public:
         if(other.vertex_data == nullptr){
             vertex_data = nullptr;
         }else{
-            size_t vertex_size = size * getTypeSize();
+            size_t vertex_size = size * getTypeSize(*this);
             vertex_data = new float[vertex_size];
 
             for(size_t i = 0; i < vertex_size; ++i){
@@ -90,7 +91,7 @@ public:
             vertex_data = nullptr;
         }else{
             delete[] vertex_data; // add check for same size
-            size_t vertex_size = size * getTypeSize();
+            size_t vertex_size = size * getTypeSize(*this);
             vertex_data = new float[vertex_size];
 
             for(size_t i = 0; i < vertex_size; ++i){
@@ -115,8 +116,6 @@ public:
     }
 
 private:
-    size_t getTypeSize() const;
-
     meshType type;
     Mtl material;
     size_t size;
