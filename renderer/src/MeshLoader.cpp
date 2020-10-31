@@ -1,6 +1,16 @@
 #include "MeshLoader.h"
 #include "vecUtils.h"
 
+Texture undefined_texture(){ // TODO singleton
+    Texture tex;
+    tex.bitsPerPixel = 24;
+    tex.height = 1;
+    tex.width = 1;
+    tex.type = BMP;
+    tex.pixels = {255,0,139}; // violet
+    return tex;
+}
+
 MeshNodeLoader::~MeshNodeLoader(){
     glDeleteTextures(1, &textureId);
     vbo.destroy();
@@ -46,7 +56,7 @@ void MeshNodeLoader::init_buffers(QOpenGLShaderProgram *program){
     Texture diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
 
     if(diffuse.type == ImageType::Undefined){
-        return;
+        diffuse = undefined_texture();
     }
 
     LoadTexture(diffuse);
