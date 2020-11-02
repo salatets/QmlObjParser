@@ -41,7 +41,7 @@ private:
     FloatingHorizon fh;
     MeshLoader ml;
 
-
+    bool isFirst =true;
     MeshRoot m_model;
     qreal m_pitch;
     qreal m_yaw;

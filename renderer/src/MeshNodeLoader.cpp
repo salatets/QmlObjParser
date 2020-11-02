@@ -2,7 +2,6 @@
 #include "vecUtils.h"
 
 MeshNodeLoader::~MeshNodeLoader(){
-    glDeleteTextures(1, &textureId);
     vbo.destroy();
     vao.destroy();
 }
@@ -18,6 +17,10 @@ Texture undefined_texture(){ // TODO singleton
 }
 
 void MeshNodeLoader::init_buffers(){
+    initializeOpenGLFunctions();
+    if(program == nullptr)
+        return;
+
     if(!program->isLinked())
         return;
 
@@ -37,42 +40,12 @@ void MeshNodeLoader::init_buffers(){
 
     bool success = vbo.bind();
     Q_ASSERT(success);
-    vbo.allocate(m_mesh.getData(), m_mesh.getSize() * sizeof(float) * 8);
-    program->setAttributeBuffer("position", GL_FLOAT, 0, 3, 3 * sizeof(GLfloat));
-    program->enableAttributeArray("position");
-    program->setAttributeBuffer("normal", GL_FLOAT, m_mesh.getSize() * 3  * sizeof(GLfloat), 3, 3 * sizeof(GLfloat));
-    program->enableAttributeArray("normal");
-    program->setAttributeBuffer("texCoords", GL_FLOAT, m_mesh.getSize() * 6  * sizeof(GLfloat), 2, 2 * sizeof(GLfloat));
-    program->enableAttributeArray("texCoords");
+    template_init_buffer();
 
     vbo.release();
     vao.release();
 
-    Texture diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
-
-    if(diffuse.type == ImageType::Undefined){
-        diffuse = undefined_texture();
-    }
-
-    LoadTexture(diffuse);
-}
-
-void MeshNodeLoader::paint(){
-    initializeOpenGLFunctions();
-
-    vao.bind();
-
-    glEnable(GL_DEPTH_TEST);
-    program->setUniformValue("material.specular", vec3ToQVector3D( m_mesh.getMaterial().specular));
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureId);
-
-    glDrawArrays(GL_TRIANGLES, 0, m_mesh.getSize());
-
-    vao.release();
-    glActiveTexture(GL_TEXTURE0);
-
+    post_init_buffer();
 }
 
 unsigned int giveGLType(ImageType type, std::uint16_t bitsPerPixel){
@@ -91,8 +64,7 @@ unsigned int giveGLType(ImageType type, std::uint16_t bitsPerPixel){
     return -1;
 }
 
-void MeshNodeLoader::LoadTexture(Texture texture){
-    initializeOpenGLFunctions();
+void MeshNodeLoaderVNT::LoadTexture(Texture texture){
     glGenTextures(1, &textureId);
 
     glBindTexture(GL_TEXTURE_2D, textureId);
@@ -114,4 +86,60 @@ void MeshNodeLoader::setShader(meshType type){
         return;
 
     init_buffers();
+}
+
+void MeshNodeLoaderVNT::template_init_buffer(){
+    initializeOpenGLFunctions();
+
+    qDebug() << "alloc";
+
+    vbo.allocate(m_mesh.getData(), m_mesh.getSize() * sizeof(float) * 8);
+    program->setAttributeBuffer("position", GL_FLOAT, 0, 3, 3 * sizeof(GLfloat));
+    program->enableAttributeArray("position");
+    program->setAttributeBuffer("normal", GL_FLOAT, m_mesh.getSize() * 3  * sizeof(GLfloat), 3, 3 * sizeof(GLfloat));
+    program->enableAttributeArray("normal");
+    program->setAttributeBuffer("texCoords", GL_FLOAT, m_mesh.getSize() * 6  * sizeof(GLfloat), 2, 2 * sizeof(GLfloat));
+    program->enableAttributeArray("texCoords");
+}
+
+void MeshNodeLoaderVNT::post_init_buffer(){
+    Texture diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
+
+    if(diffuse.type == ImageType::Undefined){
+        diffuse = undefined_texture();
+    }
+
+    LoadTexture(diffuse);
+}
+
+void MeshNodeLoaderVNT::template_paint(){
+    program->setUniformValue("material.specular", vec3ToQVector3D( m_mesh.getMaterial().specular)); // TODO replace
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+
+    glDrawArrays(GL_TRIANGLES, 0, m_mesh.getSize());
+}
+
+MeshNodeLoaderVNT::~MeshNodeLoaderVNT(){
+    glDeleteTextures(1, &textureId);
+}
+
+void MeshNodeLoader::paint(std::function<void(QOpenGLShaderProgram*)> f){
+    if(program == nullptr)
+        return;
+
+    program->bind();
+    f(program);
+
+    vao.bind();
+    glEnable(GL_DEPTH_TEST);
+
+    template_paint();
+
+    glActiveTexture(GL_TEXTURE0);
+
+    vao.release();
+
+    program->release();
 }
