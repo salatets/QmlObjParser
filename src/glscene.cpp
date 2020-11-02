@@ -145,7 +145,7 @@ void GLSceneRenderer::setPath(QUrl path)
             break;
         case Model:
             ml.setMesh(m_model, getPWD(m_path));
-            ml.init_buffers(m_program);
+            ml.setShader(meshType::VNT, fragment,vertex);
             break;
         }
     }
@@ -245,7 +245,7 @@ void GLSceneRenderer::init_buffers(){
         // SCENE
         break;
     case Model:
-        ml.init_buffers(m_program);
+        ml.init_buffers();
         break;
     }
 
@@ -301,7 +301,7 @@ void GLSceneRenderer::paint(){
         // SCENE
         break;
     case Model:
-        ml.paint(m_program);
+        ml.paint();
         break;
     }
 

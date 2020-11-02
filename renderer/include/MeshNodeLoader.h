@@ -14,10 +14,8 @@
 class MeshNodeLoader: public QObject, protected QOpenGLFunctions{
     Q_OBJECT
 public:
-    MeshNodeLoader(){};
-    MeshNodeLoader(MeshNode mesh, std::string path){
-        setMeshNode(mesh, path);
-    };
+    MeshNodeLoader(MeshNode mesh, std::string path, QOpenGLShaderProgram* shad)
+        : m_mesh(mesh), m_path(path), program(shad){};
 
     // TODO needed?
     MeshNodeLoader(const MeshNodeLoader&) = delete;
@@ -25,10 +23,11 @@ public:
 
     ~MeshNodeLoader();
 
-    void setMeshNode(MeshNode mesh, std::string path){ m_mesh = mesh; m_path = path;}
+    void init_buffers();
+    void paint();
 
-    void init_buffers(QOpenGLShaderProgram* program);
-    void paint(QOpenGLShaderProgram* program);
+public slots:
+    void setShader(meshType type);
 
 private:
     void LoadTexture(Texture texture);
@@ -38,6 +37,7 @@ private:
     GLuint textureId;
     MeshNode m_mesh;
     std::string m_path;
+    QOpenGLShaderProgram* program;
 };
 
 

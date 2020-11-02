@@ -17,7 +17,10 @@ Texture undefined_texture(){ // TODO singleton
     return tex;
 }
 
-void MeshNodeLoader::init_buffers(QOpenGLShaderProgram *program){
+void MeshNodeLoader::init_buffers(){
+    if(!program->isLinked())
+        return;
+
     if(!vao.isCreated()){
         bool success = vao.create();
         Q_ASSERT(success);
@@ -54,7 +57,7 @@ void MeshNodeLoader::init_buffers(QOpenGLShaderProgram *program){
     LoadTexture(diffuse);
 }
 
-void MeshNodeLoader::paint(QOpenGLShaderProgram* program){
+void MeshNodeLoader::paint(){
     initializeOpenGLFunctions();
 
     vao.bind();
@@ -104,4 +107,11 @@ void MeshNodeLoader::LoadTexture(Texture texture){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+void MeshNodeLoader::setShader(meshType type){
+    if(m_mesh.getType() != type)
+        return;
+
+    init_buffers();
 }
