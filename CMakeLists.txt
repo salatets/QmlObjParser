@@ -60,6 +60,8 @@ set(${LIBRARY_NAME} PROPERTY
 set(SHADERS_LIST
     shaders/VNT_fragment.glsl shaders/VNT_vertex.glsl
     shaders/VN_fragment.glsl shaders/VN_vertex.glsl
+    shaders/VT_fragment.glsl shaders/VT_vertex.glsl
+    shaders/V_fragment.glsl shaders/V_vertex.glsl
     shaders/hor_fragment.glsl shaders/hor_vertex.glsl)
 
 add_custom_command(

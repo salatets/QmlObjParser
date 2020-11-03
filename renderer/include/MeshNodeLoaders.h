@@ -37,4 +37,37 @@ protected:
     ~MeshNodeLoaderVN() = default;
 };
 
+class MeshNodeLoaderVT : public MeshNodeLoader{
+    Q_OBJECT
+public:
+    MeshNodeLoaderVT(
+            const MeshNode& mesh,
+            const std::string& path,
+            QOpenGLShaderProgram* shad
+            );
+protected:
+    void template_init_buffer() override;
+    void template_paint() override;
+
+    ~MeshNodeLoaderVT();
+private:
+    void LoadTexture(Texture texture);
+    GLuint textureId;
+};
+
+class MeshNodeLoaderV : public MeshNodeLoader{
+    Q_OBJECT
+public:
+    MeshNodeLoaderV(
+            const MeshNode& mesh,
+            const std::string& path,
+            QOpenGLShaderProgram* shad
+            );
+protected:
+    void template_init_buffer() override;
+    void template_paint() override;
+
+    ~MeshNodeLoaderV() = default;
+};
+
 #endif // MESHNODELOADERS_H

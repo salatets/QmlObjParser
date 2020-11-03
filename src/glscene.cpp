@@ -168,6 +168,8 @@ void GLScene::sync(){
 GLSceneRenderer::GLSceneRenderer() : type(Model){
     ml.setShader(meshType::VNT, VNT_fragment, VNT_vertex);
     ml.setShader(meshType::VN, VN_fragment, VN_vertex);
+    ml.setShader(meshType::VT, VT_fragment, VT_vertex);
+    ml.setShader(meshType::V, V_fragment, V_vertex);
 }
 
 void GLSceneRenderer::setPath(const QUrl& path)

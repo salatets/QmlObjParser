@@ -40,6 +40,14 @@ void MeshLoader::setMesh(const MeshRoot& mesh, const std::string& path){
                 loaders[i] = new MeshNodeLoaderVN(*p, path, VN_shader);
                 break;
             }
+            case meshType::VT:{
+                loaders[i] = new MeshNodeLoaderVT(*p, path, VT_shader); // TODO NOT TESTED
+                break;
+            }
+            case meshType::V:{
+                loaders[i] = new MeshNodeLoaderVN(*p, path, V_shader); // TODO NOT TESTED
+                break;
+            }
             default:
                 Q_ASSERT(false);
             }
