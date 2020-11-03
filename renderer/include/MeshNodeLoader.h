@@ -11,39 +11,40 @@
 #include <ImageLoader.h>
 #include <MeshNode.h>
 
+//-----
+#include <Mesh.h>
+
 // only realization for VNT
 class MeshNodeLoader: public QObject, protected QOpenGLFunctions{
     Q_OBJECT
 public:
-    // TODO needed?
-    MeshNodeLoader(const MeshNodeLoader&) = delete;
-    MeshNodeLoader(MeshNodeLoader&&) = delete;
+
+    void init_buffers();
+    void paint(std::function<void(QOpenGLShaderProgram*)>);
 
     virtual ~MeshNodeLoader();
 
-    void init_buffers();
-    void paint(const std::function<void(QOpenGLShaderProgram *)>& f);
-
 public slots:
-    void setShader(meshType type);
+    void setShader(meshType);
 
 protected:
-    MeshNodeLoader(const MeshNode& mesh,const std::string& path, QOpenGLShaderProgram* shad)
-        : m_mesh(mesh), m_path(path), program(shad){};
+    MeshNodeLoader(const MeshNode& mesh, const std::string& path, QOpenGLShaderProgram* program)
+        : m_mesh(mesh), m_path(path), program(program){};
 
     virtual void template_init_buffer() = 0;
     virtual void post_init_buffer() = 0;
     virtual void template_paint() = 0;
 
-    QOpenGLVertexArrayObject vao;
-    QOpenGLBuffer vbo;
     MeshNode m_mesh;
     std::string m_path;
+
+    QOpenGLVertexArrayObject vao;
+    QOpenGLBuffer vbo;
     QOpenGLShaderProgram* program;
 };
 
 class MeshNodeLoaderVNT : public MeshNodeLoader{
-    Q_OBJECT
+    //Q_OBJECT
 public:
     MeshNodeLoaderVNT(
             const MeshNode& mesh,

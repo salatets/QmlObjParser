@@ -11,25 +11,25 @@
 class MeshLoader : public QObject, protected QOpenGLFunctions{
     Q_OBJECT
 public:
-    MeshLoader() :
+    MeshLoader(QObject* parent) :
         loaders(nullptr),
+        loaders_size(0),
+        isInit(false),
         VNT_shader(nullptr),
         VN_shader(nullptr),
         VT_shader(nullptr),
-        V_shader(nullptr) {};
+        V_shader(nullptr){};
 
     ~MeshLoader();
 
-    // TODO needed?
-    MeshLoader(const MeshLoader&) = delete;
-    MeshLoader(MeshLoader&&) = delete;
+    bool isInited(){return isInit;}
 
     void setMesh(const MeshRoot &mesh, const std::string &path);
 
     void setShader(meshType type, char* frag,char * vert);
 
     void init_buffers();
-    void paint(std::function<void(QOpenGLShaderProgram*, const MeshRoot&)> f);
+    void paint(std::function<void(QOpenGLShaderProgram*, MeshRoot)>);
 
 Q_SIGNALS:
     void shaderChanged(meshType type);
@@ -40,6 +40,7 @@ private:
 
     MeshNodeLoader** loaders;
     size_t loaders_size;
+    bool isInit;
     MeshRoot m_model;
     QOpenGLShaderProgram* VNT_shader;
     QOpenGLShaderProgram* VN_shader;

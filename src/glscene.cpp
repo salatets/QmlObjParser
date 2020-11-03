@@ -1,5 +1,5 @@
 #include <QtCore/QRunnable>
-#include <QtMath>
+
 #include <QtQuick/qquickwindow.h>
 
 #include<ObjParser.h>
@@ -8,16 +8,11 @@
 
 #include "shaders.h"
 
-float max(QVector3D vec){
-    float max = vec.x();
+#include <iostream>
 
-    if(vec.y() > max)
-        max = vec.y();
-    if(vec.z() > max)
-        max = vec.z();
+#include <qmath.h>
 
-    return max;
-}
+
 
 GLScene::GLScene() : m_pos(3.14), m_renderer(nullptr){
     connect(this, &QQuickItem::windowChanged, this, &GLScene::handleWindowChanged);
@@ -208,68 +203,21 @@ void GLScene::sync(){
     m_renderer->setWindow(window());
 }
 
-void GLSceneRenderer::init_program(){
-//    if(m_program == nullptr)
-//        m_program = new QOpenGLShaderProgram();
-//    if(m_program->isLinked())
-//        m_program->removeAllShaders();
-
-//    char* ver;
-//    char* frag;
-
-//    switch (type) {
-//    case FH_Model:
-//        ver = hor_vertex;
-//        frag = hor_fragment;
-//        break;
-//    case Scene:
-//        // SCENE
-//        break;
-//    case Model:
-//        ver = vertex;
-//        frag = fragment;
-//        break;
-//    }
-
-//    bool success = m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, ver);
-//    success &= m_program->addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, frag);
-//    Q_ASSERT(success);
-
-//    success = m_program->link();
-//    Q_ASSERT(success);
-}
-
-void GLSceneRenderer::init_buffers(){
-    qDebug() << "main init";
-
-    switch (type) {
-    case FH_Model:
-        fh.init_buffers(m_program);
-        break;
-    case Scene:
-        // SCENE
-        break;
-    case Model:
-        ml.init_buffers();
-        break;
-    }
-}
-
 void GLSceneRenderer::init(){
-    if (isFirst) {
-        QSGRendererInterface *rif = m_window->rendererInterface();
-        Q_ASSERT(rif->graphicsApi() == QSGRendererInterface::OpenGL || rif->graphicsApi() == QSGRendererInterface::OpenGLRhi);
-        isFirst = false;
-
-        initializeOpenGLFunctions();
-
-        init_program();
-
-        if (m_model.empty())
-            return;
-
-        init_buffers();
+    if(!ml.isInited()){
+        ml.init_buffers();
     }
+}
+
+float max(Vec3 vec){
+    float max = vec.x;
+
+    if(vec.y > max)
+        max = vec.y;
+    if(vec.z > max)
+        max = vec.z;
+
+    return max;
 }
 
 // TODO add center point view
@@ -278,25 +226,6 @@ void GLSceneRenderer::paint(){
         return;
 
     m_window->beginExternalCommands();
-    //m_program->bind();
-
-    auto lambda = [&](QOpenGLShaderProgram* program, const MeshRoot& model){
-        glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
-
-        QMatrix4x4 mat;
-        mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
-        mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
-        mat.scale(1/(max(vec3ToQVector3D(model.getSize()))));
-        mat.translate(- vec3ToQVector3D(model.getCenter()));
-
-        program->setUniformValue("model",mat);
-        program->setUniformValue("lightColor", QVector3D(1.0f, 0.0f, 1.0f));
-        program->setUniformValue("objectColor", QVector3D(1.0f, 0.5f, 0.31f));
-        program->setUniformValue("lightPos", QVector3D(sin(m_pos), 0.3f, cos(m_pos)));
-        program->setUniformValue("viewPos", QVector3D(0.0f, 0.0f, 0.0f));
-
-        program->setUniformValue("material.shininess", 64.0f);
-    };
 
     switch (type) {
     case FH_Model:
@@ -307,11 +236,29 @@ void GLSceneRenderer::paint(){
         // SCENE
         break;
     case Model:
-        ml.paint(lambda);
+        ml.paint([this](QOpenGLShaderProgram* program, MeshRoot model){
+            initializeOpenGLFunctions();
+            glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
+
+            QMatrix4x4 mat;
+            mat.setToIdentity();
+            mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
+            mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
+            mat.scale(1.0/(max((model.getSize()))));
+            mat.translate(- vec3ToQVector3D(model.getCenter()));
+
+            program->setUniformValue("model",mat);
+            program->setUniformValue("lightColor", QVector3D(1.0f, 0.0f, 1.0f));
+            program->setUniformValue("objectColor", QVector3D(1.0f, 0.5f, 0.31f));
+            program->setUniformValue("lightPos", QVector3D(sin(m_pos), 0.3f, cos(m_pos)));
+            program->setUniformValue("viewPos", QVector3D(0.0f, 0.0f, 0.0f));
+
+            program->setUniformValue("material.shininess", 64.0f);
+        });
         break;
     }
 
-    //m_program->release();
     m_window->resetOpenGLState();
+
     m_window->endExternalCommands();
 }

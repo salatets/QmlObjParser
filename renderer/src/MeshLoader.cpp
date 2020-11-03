@@ -9,10 +9,10 @@ MeshLoader::~MeshLoader(){
 }
 
 void MeshLoader::init_buffers(){
-    initializeOpenGLFunctions();
     for(size_t i = 0; i < loaders_size; ++i){
         loaders[i]->init_buffers();
     }
+    isInit = true;
 }
 
 void MeshLoader::setMesh(const MeshRoot& mesh, const std::string& path){
@@ -20,6 +20,7 @@ void MeshLoader::setMesh(const MeshRoot& mesh, const std::string& path){
         for(size_t i = 0; i < loaders_size; ++i)
             delete loaders[i];
         delete[] loaders;
+        loaders = nullptr;
     }
 
     loaders_size = mesh.size();
@@ -27,23 +28,26 @@ void MeshLoader::setMesh(const MeshRoot& mesh, const std::string& path){
 
     auto p = mesh.cbegin();
     for(size_t i = 0; i < loaders_size; ++i){
-        loaders[i] = new MeshNodeLoaderVNT(*p,path, VNT_shader); // todo change
+        loaders[i] = new MeshNodeLoaderVNT(*p, path, VNT_shader); // todo change
         loaders[i]->init_buffers();
-        connect(this,&MeshLoader::shaderChanged,loaders[i],&MeshNodeLoader::setShader, Qt::DirectConnection); // MAYBE direct
         ++p;
     }
+
+    m_model = mesh;
+
+    isInit = false;
 }
 
-void MeshLoader::paint(std::function<void(QOpenGLShaderProgram*, const MeshRoot&)> f){
+void MeshLoader::paint(std::function<void(QOpenGLShaderProgram*, MeshRoot)> f){
     for(size_t i = 0; i < loaders_size; ++i){
         loaders[i]->paint(
-                    [f,model = this->m_model](QOpenGLShaderProgram* arg1){return f(arg1, model);}
+                    [f, model = this->m_model](QOpenGLShaderProgram* arg1)
+                        {f(arg1,model);}
         );
     }
 }
 
 void MeshLoader::setShader(meshType type, char *frag, char *vert){
-    initializeOpenGLFunctions();
     auto *shader = getShader(type);
 
     if(shader == nullptr){
@@ -60,7 +64,7 @@ void MeshLoader::setShader(meshType type, char *frag, char *vert){
     success = shader->link();
     Q_ASSERT(success);
 
-    Q_EMIT shaderChanged(type);
+    isInit = false;
 }
 
 QOpenGLShaderProgram* MeshLoader::getShader(meshType type){ // if meshType undefined?

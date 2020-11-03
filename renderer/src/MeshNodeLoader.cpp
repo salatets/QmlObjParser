@@ -1,5 +1,8 @@
 #include "MeshNodeLoader.h"
 #include "vecUtils.h"
+// ---
+#include <QtMath>
+//#include <iostream>
 
 MeshNodeLoader::~MeshNodeLoader(){
     vbo.destroy();
@@ -18,12 +21,7 @@ Texture undefined_texture(){ // TODO singleton
 
 void MeshNodeLoader::init_buffers(){
     initializeOpenGLFunctions();
-    if(program == nullptr)
-        return;
-
-    if(!program->isLinked())
-        return;
-
+//    m_program = program;
     if(!vao.isCreated()){
         bool success = vao.create();
         Q_ASSERT(success);
@@ -84,15 +82,9 @@ void MeshNodeLoaderVNT::LoadTexture(Texture texture){
 void MeshNodeLoader::setShader(meshType type){
     if(m_mesh.getType() != type)
         return;
-
-    init_buffers();
 }
 
 void MeshNodeLoaderVNT::template_init_buffer(){
-    initializeOpenGLFunctions();
-
-    qDebug() << "alloc";
-
     vbo.allocate(m_mesh.getData(), m_mesh.getSize() * sizeof(float) * 8);
     program->setAttributeBuffer("position", GL_FLOAT, 0, 3, 3 * sizeof(GLfloat));
     program->enableAttributeArray("position");
@@ -113,23 +105,25 @@ void MeshNodeLoaderVNT::post_init_buffer(){
 }
 
 void MeshNodeLoaderVNT::template_paint(){
-    program->setUniformValue("material.specular", vec3ToQVector3D( m_mesh.getMaterial().specular)); // TODO replace
+    program->setUniformValue("material.specular", QVector3D(0.5,0.5,0.5)); // TODO replace
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureId);
 
-    glDrawArrays(GL_TRIANGLES, 0, m_mesh.getSize());
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    glActiveTexture(GL_TEXTURE0);
 }
 
 MeshNodeLoaderVNT::~MeshNodeLoaderVNT(){
     glDeleteTextures(1, &textureId);
 }
 
-void MeshNodeLoader::paint(const std::function<void(QOpenGLShaderProgram*)>& f){
-    if(program == nullptr)
-        return;
 
+
+void MeshNodeLoader::paint(std::function<void(QOpenGLShaderProgram*)> f){
     program->bind();
+
     f(program);
 
     vao.bind();
@@ -137,9 +131,6 @@ void MeshNodeLoader::paint(const std::function<void(QOpenGLShaderProgram*)>& f){
 
     template_paint();
 
-    glActiveTexture(GL_TEXTURE0);
-
     vao.release();
-
     program->release();
 }

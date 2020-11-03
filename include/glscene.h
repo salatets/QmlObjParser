@@ -18,7 +18,7 @@ class GLSceneRenderer : public QObject, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    GLSceneRenderer() : type(Model), m_program(nullptr){};
+    GLSceneRenderer() : type(Model), m_program(nullptr), ml(this){};
     ~GLSceneRenderer();
 
     void setPitch(qreal pitch){m_pitch = pitch;}
@@ -34,14 +34,11 @@ public Q_SLOTS:
     void paint();
 
 private:
-    void init_program();
-    void init_buffers();
 
     Renderer type;
     FloatingHorizon fh;
     MeshLoader ml;
 
-    bool isFirst =true;
     MeshRoot m_model;
     qreal m_pitch;
     qreal m_yaw;
