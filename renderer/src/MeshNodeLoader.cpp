@@ -74,15 +74,7 @@ void MeshNodeLoader::setShader(meshType type){
         return;
 }
 
-Texture undefined_texture(){ // TODO singleton
-    Texture tex;
-    tex.bitsPerPixel = 24;
-    tex.height = 1;
-    tex.width = 1;
-    tex.type = BMP;
-    tex.pixels = {255,0,139}; // violet
-    return tex;
-}
+static Texture undefined_texture = {24, 1, 1, {255,0,139}, BMP};
 
 MeshNodeLoaderVNT::MeshNodeLoaderVNT(
         const MeshNode& mesh,
@@ -93,7 +85,7 @@ MeshNodeLoaderVNT::MeshNodeLoaderVNT(
         Texture diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
 
         if(diffuse.type == ImageType::Undefined){
-            diffuse = undefined_texture();
+            diffuse = undefined_texture;
         }
 
         LoadTexture(diffuse);
@@ -115,7 +107,7 @@ void MeshNodeLoaderVNT::template_paint(){
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textureId);
 
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDrawArrays(GL_TRIANGLES, 0, m_mesh.getSize());
 
     glActiveTexture(GL_TEXTURE0);
 }
@@ -133,8 +125,12 @@ void MeshNodeLoader::paint(std::function<void(QOpenGLShaderProgram*)> f){
 
     vao.bind();
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
 
     template_paint();
+
+    glDisable(GL_CULL_FACE);
 
     vao.release();
     program->release();

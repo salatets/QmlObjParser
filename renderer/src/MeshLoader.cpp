@@ -29,7 +29,6 @@ void MeshLoader::setMesh(const MeshRoot& mesh, const std::string& path){
     auto p = mesh.cbegin();
     for(size_t i = 0; i < loaders_size; ++i){
         loaders[i] = new MeshNodeLoaderVNT(*p, path, VNT_shader); // todo change
-        loaders[i]->init_buffers();
         ++p;
     }
 
