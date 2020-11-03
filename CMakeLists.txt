@@ -56,10 +56,16 @@ set(${LIBRARY_NAME} PROPERTY
 #-----------------------------------
 # generate shaders header from files
 #-----------------------------------
+
+set(SHADERS_LIST
+    shaders/VNT_fragment.glsl shaders/VNT_vertex.glsl
+    shaders/VN_fragment.glsl shaders/VN_vertex.glsl
+    shaders/hor_fragment.glsl shaders/hor_vertex.glsl)
+
 add_custom_command(
     OUTPUT "${SHADERS}"
-    COMMAND python utils/fileToString.py -i shaders/fragment.glsl shaders/vertex.glsl shaders/hor_vertex.glsl shaders/hor_fragment.glsl -o "${SHADERS}"
-    DEPENDS shaders/fragment.glsl shaders/vertex.glsl shaders/hor_vertex.glsl shaders/hor_fragment.glsl
+    COMMAND python utils/fileToString.py -i ${SHADERS_LIST} -o "${SHADERS}"
+    DEPENDS ${SHADERS_LIST}
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
     )
 set_property(SOURCE src/glscene.cpp APPEND PROPERTY OBJECT_DEPENDS "${SHADERS}")

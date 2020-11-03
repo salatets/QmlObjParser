@@ -11,10 +11,36 @@
 
 #include "shaders.h"
 
-GLScene::GLScene() : m_pos(3.14), m_renderer(nullptr){
-    connect(this, &QQuickItem::windowChanged, this, &GLScene::handleWindowChanged);
-    setAcceptedMouseButtons(Qt::LeftButton);
-    setFlag(ItemAcceptsInputMethod, true);
+std::string convertPath(const QUrl& path){
+    std::string res;
+
+    if(path.isRelative()){
+        QString temp = path.toString();
+        res = temp.toUtf8().constData();
+    }else{ // format like file:/// or file:/
+        int trunc_len = path.scheme().length() + 1;
+        QString temp = path.toString();
+        int i = 0;
+
+        for(; i < 3; i++){
+            if(temp[trunc_len + i] != '/')
+                break;
+        }
+
+#ifndef _WIN32
+        --trunc_len;
+#endif
+
+        res = temp.toUtf8().constData();
+        res = res.substr(trunc_len + i);
+    }
+
+    return res;
+}
+
+// TODO add move semantic
+inline std::string getPWD(const std::string& path){
+    return path.substr(0, path.rfind('/') + 1);
 }
 
 void roundTo(QPoint& val, int to){
@@ -29,7 +55,12 @@ void roundTo(QPoint& val, int to){
         val.ry() += to;
 }
 
-// TODO add not integer angles
+GLScene::GLScene() : m_pos(3.14), m_renderer(nullptr){
+    connect(this, &QQuickItem::windowChanged, this, &GLScene::handleWindowChanged);
+    setAcceptedMouseButtons(Qt::LeftButton);
+    setFlag(ItemAcceptsInputMethod, true);
+}
+
 QPoint GLScene::mouseToAngle(){
     QPoint pos{m_prev + m_start - m_current};
     roundTo(pos, 360);
@@ -38,7 +69,7 @@ QPoint GLScene::mouseToAngle(){
 
 void GLScene::mousePressEvent(QMouseEvent* event)
 {
-    m_start = event->pos(); // MAYBE {{}};
+    m_start = event->pos();
 
     event->accept();
 }
@@ -88,36 +119,57 @@ void GLScene::setPath(const QUrl& path)
     Q_EMIT pathChanged();
 }
 
-std::string convertPath(const QUrl& path){
-    std::string res;
+void GLScene::handleWindowChanged(QQuickWindow *win)
+{
+    if (win != nullptr) {
+        connect(win, &QQuickWindow::beforeSynchronizing, this, &GLScene::sync, Qt::DirectConnection);
+        connect(win, &QQuickWindow::sceneGraphInvalidated, this, &GLScene::cleanup, Qt::DirectConnection);
 
-    if(path.isRelative()){
-        QString temp = path.toString();
-        res = temp.toUtf8().constData();
-    }else{ // format like file:/// or file:/
-        int trunc_len = path.scheme().length() + 1;
-        QString temp = path.toString();
-        int i = 0;
-
-        for(; i < 3; i++){
-            if(temp[trunc_len + i] != '/')
-                break;
-        }
-
-#ifndef _WIN32
-        --trunc_len;
-#endif
-
-        res = temp.toUtf8().constData();
-        res = res.substr(trunc_len + i);
+        win->setColor(Qt::gray);
     }
-
-    return res;
 }
 
-// TODO add move semantic
-inline std::string getPWD(const std::string& path){
-    return path.substr(0, path.rfind('/') + 1);
+void GLScene::cleanup()
+{
+    delete m_renderer;
+    m_renderer = nullptr;
+}
+
+class CleanupJob : public QRunnable
+{
+public:
+    explicit CleanupJob(GLSceneRenderer *renderer) : m_renderer(renderer) { }
+    void run() override { delete m_renderer; }
+private:
+    GLSceneRenderer *m_renderer;
+};
+
+void GLScene::releaseResources()
+{
+    window()->scheduleRenderJob(new CleanupJob(m_renderer), QQuickWindow::BeforeSynchronizingStage);
+    m_renderer = nullptr;
+}
+
+void GLScene::sync(){
+    if (!m_renderer) {
+        m_renderer = new GLSceneRenderer();
+        connect(window(), &QQuickWindow::beforeRendering, m_renderer, &GLSceneRenderer::init, Qt::DirectConnection);
+        connect(window(), &QQuickWindow::beforeRenderPassRecording, m_renderer, &GLSceneRenderer::paint, Qt::DirectConnection);
+    }
+
+    QPoint angles = mouseToAngle();
+
+    m_renderer->setViewportSize(window()->size() * window()->devicePixelRatio());
+    m_renderer->setPitch(angles.y());
+    m_renderer->setYaw(angles.x());
+    m_renderer->setPos(m_pos);
+    m_renderer->setPath(m_path);
+    m_renderer->setWindow(window());
+}
+
+GLSceneRenderer::GLSceneRenderer() : type(Model){
+    ml.setShader(meshType::VNT, VNT_fragment, VNT_vertex);
+    ml.setShader(meshType::VN, VN_fragment, VN_vertex);
 }
 
 void GLSceneRenderer::setPath(QUrl path)
@@ -139,64 +191,12 @@ void GLSceneRenderer::setPath(QUrl path)
             // SCENE
             break;
         case Model:
-            ml.setShader(meshType::VNT, fragment,vertex);
             ml.setMesh(m_model, getPWD(m_path));
             break;
         }
     }
     old_url = path;
     m_window->update();
-}
-
-void GLScene::handleWindowChanged(QQuickWindow *win)
-{
-    if (win != nullptr) {
-        connect(win, &QQuickWindow::beforeSynchronizing, this, &GLScene::sync, Qt::DirectConnection);
-        connect(win, &QQuickWindow::sceneGraphInvalidated, this, &GLScene::cleanup, Qt::DirectConnection);
-
-        win->setColor(Qt::gray);
-    }
-}
-
-void GLScene::cleanup()
-{
-    delete m_renderer;
-    m_renderer = nullptr;
-}
-
-class CleanupJob : public QRunnable
-{
-public:
-    CleanupJob(GLSceneRenderer *renderer) : m_renderer(renderer) { }
-    void run() override { delete m_renderer; }
-private:
-    GLSceneRenderer *m_renderer;
-};
-
-void GLScene::releaseResources()
-{
-    window()->scheduleRenderJob(new CleanupJob(m_renderer), QQuickWindow::BeforeSynchronizingStage);
-    m_renderer = nullptr;
-}
-
-GLSceneRenderer::~GLSceneRenderer(){
-}
-
-void GLScene::sync(){
-    if (!m_renderer) {
-        m_renderer = new GLSceneRenderer();
-        connect(window(), &QQuickWindow::beforeRendering, m_renderer, &GLSceneRenderer::init, Qt::DirectConnection);
-        connect(window(), &QQuickWindow::beforeRenderPassRecording, m_renderer, &GLSceneRenderer::paint, Qt::DirectConnection);
-    }
-
-    QPoint angles = mouseToAngle();
-
-    m_renderer->setViewportSize(window()->size() * window()->devicePixelRatio());
-    m_renderer->setPitch(angles.y());
-    m_renderer->setYaw(angles.x());
-    m_renderer->setPos(m_pos);
-    m_renderer->setPath(m_path);
-    m_renderer->setWindow(window());
 }
 
 void GLSceneRenderer::init(){
@@ -216,7 +216,6 @@ float max(Vec3 vec){
     return max;
 }
 
-// TODO add center point view
 void GLSceneRenderer::paint(){
     if(m_model.empty())
         return;

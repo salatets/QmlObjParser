@@ -18,8 +18,8 @@ class GLSceneRenderer : public QObject, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    GLSceneRenderer() : type(Model){};
-    ~GLSceneRenderer();
+    GLSceneRenderer();
+    ~GLSceneRenderer(){};
 
     void setPitch(qreal pitch){m_pitch = pitch;}
     void setYaw(qreal yaw){m_yaw = yaw;}
