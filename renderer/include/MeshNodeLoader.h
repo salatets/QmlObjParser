@@ -29,10 +29,11 @@ public slots:
 
 protected:
     MeshNodeLoader(const MeshNode& mesh, const std::string& path, QOpenGLShaderProgram* program)
-        : m_mesh(mesh), m_path(path), program(program){};
+        : m_mesh(mesh), m_path(path), program(program){
+                initializeOpenGLFunctions();
+    };
 
     virtual void template_init_buffer() = 0;
-    virtual void post_init_buffer() = 0;
     virtual void template_paint() = 0;
 
     MeshNode m_mesh;
@@ -50,10 +51,9 @@ public:
             const MeshNode& mesh,
             const std::string& path,
             QOpenGLShaderProgram* shad
-            ): MeshNodeLoader(mesh, path,shad){}
+            );
 protected:
     void template_init_buffer() override;
-    void post_init_buffer() override;
     void template_paint() override;
 
     ~MeshNodeLoaderVNT();

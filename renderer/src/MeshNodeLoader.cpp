@@ -4,24 +4,16 @@
 #include <QtMath>
 //#include <iostream>
 
+
+
 MeshNodeLoader::~MeshNodeLoader(){
     vbo.destroy();
     vao.destroy();
 }
 
-Texture undefined_texture(){ // TODO singleton
-    Texture tex;
-    tex.bitsPerPixel = 24;
-    tex.height = 1;
-    tex.width = 1;
-    tex.type = BMP;
-    tex.pixels = {255,0,139}; // violet
-    return tex;
-}
+
 
 void MeshNodeLoader::init_buffers(){
-    initializeOpenGLFunctions();
-//    m_program = program;
     if(!vao.isCreated()){
         bool success = vao.create();
         Q_ASSERT(success);
@@ -42,8 +34,6 @@ void MeshNodeLoader::init_buffers(){
 
     vbo.release();
     vao.release();
-
-    post_init_buffer();
 }
 
 unsigned int giveGLType(ImageType type, std::uint16_t bitsPerPixel){
@@ -84,6 +74,31 @@ void MeshNodeLoader::setShader(meshType type){
         return;
 }
 
+Texture undefined_texture(){ // TODO singleton
+    Texture tex;
+    tex.bitsPerPixel = 24;
+    tex.height = 1;
+    tex.width = 1;
+    tex.type = BMP;
+    tex.pixels = {255,0,139}; // violet
+    return tex;
+}
+
+MeshNodeLoaderVNT::MeshNodeLoaderVNT(
+        const MeshNode& mesh,
+        const std::string& path,
+        QOpenGLShaderProgram* shad
+        ): MeshNodeLoader(mesh, path,shad){
+
+        Texture diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
+
+        if(diffuse.type == ImageType::Undefined){
+            diffuse = undefined_texture();
+        }
+
+        LoadTexture(diffuse);
+}
+
 void MeshNodeLoaderVNT::template_init_buffer(){
     vbo.allocate(m_mesh.getData(), m_mesh.getSize() * sizeof(float) * 8);
     program->setAttributeBuffer("position", GL_FLOAT, 0, 3, 3 * sizeof(GLfloat));
@@ -92,16 +107,6 @@ void MeshNodeLoaderVNT::template_init_buffer(){
     program->enableAttributeArray("normal");
     program->setAttributeBuffer("texCoords", GL_FLOAT, m_mesh.getSize() * 6  * sizeof(GLfloat), 2, 2 * sizeof(GLfloat));
     program->enableAttributeArray("texCoords");
-}
-
-void MeshNodeLoaderVNT::post_init_buffer(){
-    Texture diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
-
-    if(diffuse.type == ImageType::Undefined){
-        diffuse = undefined_texture();
-    }
-
-    LoadTexture(diffuse);
 }
 
 void MeshNodeLoaderVNT::template_paint(){
