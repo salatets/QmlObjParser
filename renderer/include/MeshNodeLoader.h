@@ -16,11 +16,11 @@ class MeshNodeLoader: public QObject, protected QOpenGLFunctions{
 public:
 
     void init_buffers();
-    void paint(std::function<void(QOpenGLShaderProgram*)>);
+    void paint(const std::function<void(QOpenGLShaderProgram *)> &);
 
     virtual ~MeshNodeLoader();
 
-public slots:
+public Q_SLOTS:
     void setShader(meshType);
 
 protected:

@@ -25,7 +25,7 @@ public:
     void setShader(meshType type, char* frag,char * vert);
 
     void init_buffers();
-    void paint(std::function<void(QOpenGLShaderProgram*, MeshRoot)>);
+    void paint(const std::function<void(QOpenGLShaderProgram *, MeshRoot)> &);
 
 Q_SIGNALS:
     void shaderChanged(meshType type);

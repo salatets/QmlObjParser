@@ -16,7 +16,7 @@ unsigned int giveGLType(ImageType type, std::uint16_t bitsPerPixel){
     return -1;
 }
 
-static Texture undefined_texture = {24, 1, 1, {255,0,139}, BMP};
+static const Texture undefined_texture = {24, 1, 1, {static_cast<char>(255),0,static_cast<char>(139)}, BMP}; // TODO constexpr
 
 //------------------------------------------
 
@@ -99,5 +99,4 @@ void MeshNodeLoaderVN::template_paint(){
     glDrawArrays(GL_TRIANGLES, 0, m_mesh.getSize());
 }
 
-MeshNodeLoaderVN::~MeshNodeLoaderVN(){}
 

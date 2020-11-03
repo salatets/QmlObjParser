@@ -48,7 +48,7 @@ add_subdirectory(renderer)
 add_subdirectory(objparser)
 
 set(${LIBRARY_NAME} PROPERTY
-    CMAKE_CXX_STANDARD 11
+    CMAKE_CXX_STANDARD 20
     CMAKE_CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS NO
     )

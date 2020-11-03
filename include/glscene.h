@@ -24,7 +24,7 @@ public:
     void setPitch(qreal pitch){m_pitch = pitch;}
     void setYaw(qreal yaw){m_yaw = yaw;}
     void setPos(qreal pos){m_pos = pos;}
-    void setPath(QUrl path);
+    void setPath(const QUrl& path);
 
     void setViewportSize(QSize size) { m_viewportSize = size; }
     void setWindow(QQuickWindow *window) { m_window = window; }
@@ -40,14 +40,14 @@ private:
     MeshLoader ml;
 
     MeshRoot m_model;
-    qreal m_pitch;
-    qreal m_yaw;
-    qreal m_pos;
+    qreal m_pitch {0};
+    qreal m_yaw {0};
+    qreal m_pos {0};
     std::string m_path;
     QUrl old_url;
 
     QSize m_viewportSize;
-    QQuickWindow *m_window;
+    QQuickWindow *m_window {nullptr};
 };
 
 

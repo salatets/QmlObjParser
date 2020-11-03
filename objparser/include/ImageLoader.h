@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdint>
 #include <string>
+#include <initializer_list>
 
 enum ImageType{
     BMP,
@@ -14,7 +15,7 @@ struct Texture{
     std::uint16_t bitsPerPixel;
     std::int32_t width;
     std::int32_t height;
-    std::vector<std::uint8_t> pixels;
+    std::vector<char> pixels;
     ImageType type;
 };
 

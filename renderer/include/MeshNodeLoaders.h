@@ -4,6 +4,7 @@
 #include "MeshNodeLoader.h"
 
 class MeshNodeLoaderVNT : public MeshNodeLoader{
+    Q_OBJECT
 public:
     MeshNodeLoaderVNT(
             const MeshNode& mesh,
@@ -22,6 +23,7 @@ private:
 };
 
 class MeshNodeLoaderVN : public MeshNodeLoader{
+    Q_OBJECT
 public:
     MeshNodeLoaderVN(
             const MeshNode& mesh,
@@ -32,7 +34,7 @@ protected:
     void template_init_buffer() override;
     void template_paint() override;
 
-    ~MeshNodeLoaderVN();
+    ~MeshNodeLoaderVN() = default;
 };
 
 #endif // MESHNODELOADERS_H

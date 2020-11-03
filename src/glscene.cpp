@@ -106,7 +106,6 @@ void GLScene::setPos(qreal pos)
     if (pos == m_pos)
         return;
     m_pos= pos;
-    Q_EMIT posChanged();
     if (window() != nullptr)
         window()->update();
 }
@@ -116,7 +115,6 @@ void GLScene::setPath(const QUrl& path)
     if (path == m_path)
         return;
     m_path= path;
-    Q_EMIT pathChanged();
 }
 
 void GLScene::handleWindowChanged(QQuickWindow *win)
@@ -151,7 +149,7 @@ void GLScene::releaseResources()
 }
 
 void GLScene::sync(){
-    if (!m_renderer) {
+    if (m_renderer == nullptr) {
         m_renderer = new GLSceneRenderer();
         connect(window(), &QQuickWindow::beforeRendering, m_renderer, &GLSceneRenderer::init, Qt::DirectConnection);
         connect(window(), &QQuickWindow::beforeRenderPassRecording, m_renderer, &GLSceneRenderer::paint, Qt::DirectConnection);
@@ -172,7 +170,7 @@ GLSceneRenderer::GLSceneRenderer() : type(Model){
     ml.setShader(meshType::VN, VN_fragment, VN_vertex);
 }
 
-void GLSceneRenderer::setPath(QUrl path)
+void GLSceneRenderer::setPath(const QUrl& path)
 {
     if(path == old_url)
         return;
@@ -239,13 +237,13 @@ void GLSceneRenderer::paint(){
             mat.setToIdentity();
             mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
             mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
-            mat.scale(1.0/(max((model.getSize()))));
+            mat.scale(1.0f/(max((model.getSize()))));
             mat.translate(- vec3ToQVector3D(model.getCenter()));
 
             program->setUniformValue("model",mat);
             program->setUniformValue("lightColor", QVector3D(1.0f, 0.0f, 1.0f));
             program->setUniformValue("objectColor", QVector3D(1.0f, 0.5f, 0.31f));
-            program->setUniformValue("lightPos", QVector3D(sin(m_pos), 0.3f, cos(m_pos)));
+            program->setUniformValue("lightPos", QVector3D(static_cast<float>(sin(m_pos)), 0.3f,static_cast<float>(cos(m_pos))));
             program->setUniformValue("viewPos", QVector3D(0.0f, 0.0f, 0.0f));
 
             program->setUniformValue("material.shininess", 64.0f);

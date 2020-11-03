@@ -64,7 +64,7 @@ Texture parseBMP(const std::string& path){
     texture.pixels.resize(size);
 
     hFile.seekg (PixelsOffset, std::ios::beg);
-    hFile.read(reinterpret_cast<char*>(texture.pixels.data()), size);
+    hFile.read(texture.pixels.data(), size);
     hFile.close();
     return texture;
 }

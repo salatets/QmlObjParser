@@ -28,7 +28,7 @@ void MeshNodeLoader::setShader(meshType type){
         return;
 }
 
-void MeshNodeLoader::paint(std::function<void(QOpenGLShaderProgram*)> f){
+void MeshNodeLoader::paint(const std::function<void(QOpenGLShaderProgram*)>& f){
     program->bind();
 
     f(program);

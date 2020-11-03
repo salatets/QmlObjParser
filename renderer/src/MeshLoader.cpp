@@ -50,7 +50,7 @@ void MeshLoader::setMesh(const MeshRoot& mesh, const std::string& path){
     isInit = false;
 }
 
-void MeshLoader::paint(std::function<void(QOpenGLShaderProgram*, MeshRoot)> f){
+void MeshLoader::paint(const std::function<void(QOpenGLShaderProgram*, MeshRoot)>& f){
     for(size_t i = 0; i < loaders_size; ++i){
         loaders[i]->paint(
                     [f, model = this->m_model](QOpenGLShaderProgram* arg1)
