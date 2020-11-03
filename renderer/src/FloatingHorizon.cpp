@@ -90,12 +90,12 @@ auto FloatingHorizon::getPointsToDraw(QMatrix4x4 proj, int width, int height,int
         if (acc){
             if(hi){
                 draw_vertices.emplace_back(std::array<QVector3D,2>{{
-                                vertices[proj_vecs[i].first], QVector3D(255,0,0)}}
-                                );
+                                                                       vertices[proj_vecs[i].first], QVector3D(255,0,0)}}
+                                           );
             }else{
                 draw_vertices.emplace_back(std::array<QVector3D,2>{{
-                                vertices[proj_vecs[i].first], QVector3D(0,0,255)}}
-                                );
+                                                                       vertices[proj_vecs[i].first], QVector3D(0,0,255)}}
+                                           );
             }
         }
 

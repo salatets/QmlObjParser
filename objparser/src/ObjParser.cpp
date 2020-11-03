@@ -18,6 +18,7 @@
  * face data
  */
 
+// TODO index
 bool parseMTL(const std::string& path, std::list<Mtl>* materials){
     std::ifstream fstrm(path);
 
@@ -258,7 +259,7 @@ MeshRoot parseOBJ(const std::string& path){
             fstrm >> material_name;
 
             auto result = std::find_if(mesh_materials.begin(), mesh_materials.end(),
-                                    [&material_name](const Mtl& material) {return material.name == material_name;});
+                                       [&material_name](const Mtl& material) {return material.name == material_name;});
 
             if(result == mesh_materials.end()){
                 std::cerr << "material not found\n";
@@ -279,11 +280,11 @@ MeshRoot parseOBJ(const std::string& path){
             std::string filename;
             fstrm >> filename;
 
-             if(!parseMTL(pwd + filename, &mesh_materials)){
+            if(!parseMTL(pwd + filename, &mesh_materials)){
                 fstrm.close();
                 std::cerr << "could't parse mtl\n";
                 return MeshRoot();
-             }
+            }
         }
 
 
@@ -307,36 +308,36 @@ MeshRoot parseOBJ(const std::string& path){
             (*meshIter).vertex.vertices.push_back(raw_data.vertices[ vertexIndex-1 ]);
 
             switch((*meshIter).format){
-                case meshType::VNT:
-                {
-                    unsigned int normalIndex = (*meshIter).index.normals[j];
-                    (*meshIter).vertex.normals.push_back(raw_data.normals[ normalIndex-1 ]);
+            case meshType::VNT:
+            {
+                unsigned int normalIndex = (*meshIter).index.normals[j];
+                (*meshIter).vertex.normals.push_back(raw_data.normals[ normalIndex-1 ]);
 
-                    unsigned int uvIndex = (*meshIter).index.UVs[j];
-                    (*meshIter).vertex.UVs.push_back(raw_data.UVs[ uvIndex-1 ]);
-                    break;
-                }
-                case meshType::VN:
-                {
-                    unsigned int normalIndex = (*meshIter).index.normals[j];
-                    (*meshIter).vertex.normals.push_back(raw_data.normals[ normalIndex-1 ]);
-                    break;
-                }
-                case meshType::VT:{
-                    unsigned int uvIndex = (*meshIter).index.UVs[j];
-                    (*meshIter).vertex.UVs.push_back(raw_data.UVs[ uvIndex-1 ]);
-                    break;
-                }
+                unsigned int uvIndex = (*meshIter).index.UVs[j];
+                (*meshIter).vertex.UVs.push_back(raw_data.UVs[ uvIndex-1 ]);
+                break;
+            }
+            case meshType::VN:
+            {
+                unsigned int normalIndex = (*meshIter).index.normals[j];
+                (*meshIter).vertex.normals.push_back(raw_data.normals[ normalIndex-1 ]);
+                break;
+            }
+            case meshType::VT:{
+                unsigned int uvIndex = (*meshIter).index.UVs[j];
+                (*meshIter).vertex.UVs.push_back(raw_data.UVs[ uvIndex-1 ]);
+                break;
+            }
             }
 
         }
 
         meshes.emplace_back(MeshFactory::MakeMesh(
-                               (*meshIter).material,
-                               (*meshIter).format,
-                               (*meshIter).vertex.vertices,
-                               (*meshIter).vertex.normals,
-                               (*meshIter).vertex.UVs));
+                                (*meshIter).material,
+                                (*meshIter).format,
+                                (*meshIter).vertex.vertices,
+                                (*meshIter).vertex.normals,
+                                (*meshIter).vertex.UVs));
         ++meshIter;
     }
 

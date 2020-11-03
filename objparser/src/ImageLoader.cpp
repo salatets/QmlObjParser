@@ -6,25 +6,25 @@ std::int32_t readInt32(const std::vector<std::uint8_t>& buffer, int index)
 {
     return (std::int32_t )(
                 ((std::uint8_t)buffer[index + 3] << 24) |
-                ((std::uint8_t)buffer[index + 2] << 16) |
-                ((std::uint8_t)buffer[index + 1] << 8) |
-                ((std::uint8_t)buffer[index]));
+            ((std::uint8_t)buffer[index + 2] << 16) |
+            ((std::uint8_t)buffer[index + 1] << 8) |
+            ((std::uint8_t)buffer[index]));
 }
 
 std::uint32_t readUint32(const std::vector<std::uint8_t>& buffer, int index)
 {
     return (std::uint32_t )(
                 ((std::uint8_t)buffer[index + 3] << 24) |
-                ((std::uint8_t)buffer[index + 2] << 16) |
-                ((std::uint8_t)buffer[index + 1] << 8) |
-                ((std::uint8_t)buffer[index]));
+            ((std::uint8_t)buffer[index + 2] << 16) |
+            ((std::uint8_t)buffer[index + 1] << 8) |
+            ((std::uint8_t)buffer[index]));
 }
 
 std::uint16_t readUint16(const std::vector<std::uint8_t>& buffer, int index)
 {
     return (std::uint16_t )(
-             ((std::uint8_t)buffer[index + 1] << 8) |
-             ((std::uint8_t)buffer[index]));
+                ((std::uint8_t)buffer[index + 1] << 8) |
+            ((std::uint8_t)buffer[index]));
 }
 
 Texture parseBMP(const std::string& path){

@@ -13,7 +13,7 @@ set(SOURCES
     src/ImageLoader.cpp
     src/ObjParser.cpp
     src/vec.cpp
-)
+    )
 
 set(LIBS_FOR_TEST ${PROJECT_NAME})
 

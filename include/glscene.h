@@ -2,7 +2,6 @@
 #define GLSCENE_H
 
 #include <QtQuick/QQuickItem>
-#include <QtGui/QOpenGLShaderProgram>
 
 #include <Mesh.h>
 #include <FloatingHorizon.h>
@@ -18,7 +17,7 @@ class GLSceneRenderer : public QObject, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    GLSceneRenderer() : type(Model), m_program(nullptr), ml(this){};
+    GLSceneRenderer() : type(Model){};
     ~GLSceneRenderer();
 
     void setPitch(qreal pitch){m_pitch = pitch;}
@@ -47,7 +46,6 @@ private:
     QUrl old_url;
 
     QSize m_viewportSize;
-    QOpenGLShaderProgram *m_program;
     QQuickWindow *m_window;
 };
 

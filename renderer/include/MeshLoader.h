@@ -1,17 +1,13 @@
 #ifndef MESHLOADER_H
 #define MESHLOADER_H
 
-#include <QtQuick/QQuickItem>
-#include <QOpenGLFunctions>
-#include <functional>
-
 #include <Mesh.h>
 #include "MeshNodeLoader.h"
 
 class MeshLoader : public QObject, protected QOpenGLFunctions{
     Q_OBJECT
 public:
-    MeshLoader(QObject* parent) :
+    MeshLoader() :
         loaders(nullptr),
         loaders_size(0),
         isInit(false),

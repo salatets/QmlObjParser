@@ -1,17 +1,9 @@
 #include "MeshNodeLoader.h"
-#include "vecUtils.h"
-// ---
-#include <QtMath>
-//#include <iostream>
-
-
 
 MeshNodeLoader::~MeshNodeLoader(){
     vbo.destroy();
     vao.destroy();
 }
-
-
 
 void MeshNodeLoader::init_buffers(){
     if(!vao.isCreated()){
@@ -45,7 +37,7 @@ unsigned int giveGLType(ImageType type, std::uint16_t bitsPerPixel){
             return GL_BGRA;
         else
             return -1;
-        }
+    }
     case Undefined:
         return 0;
     }
@@ -82,13 +74,13 @@ MeshNodeLoaderVNT::MeshNodeLoaderVNT(
         QOpenGLShaderProgram* shad
         ): MeshNodeLoader(mesh, path,shad){
 
-        Texture diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
+    Texture diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
 
-        if(diffuse.type == ImageType::Undefined){
-            diffuse = undefined_texture;
-        }
+    if(diffuse.type == ImageType::Undefined){
+        diffuse = undefined_texture;
+    }
 
-        LoadTexture(diffuse);
+    LoadTexture(diffuse);
 }
 
 void MeshNodeLoaderVNT::template_init_buffer(){
@@ -115,8 +107,6 @@ void MeshNodeLoaderVNT::template_paint(){
 MeshNodeLoaderVNT::~MeshNodeLoaderVNT(){
     glDeleteTextures(1, &textureId);
 }
-
-
 
 void MeshNodeLoader::paint(std::function<void(QOpenGLShaderProgram*)> f){
     program->bind();

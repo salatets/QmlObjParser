@@ -26,6 +26,6 @@ Vec3 operator/( float const& left, Vec3 const& right ){
 
 bool operator==( Vec3 const& left, Vec3 const& right ){
     return left.x == right.x &&
-           left.y == right.y &&
-           left.z == right.z;
+            left.y == right.y &&
+            left.z == right.z;
 }

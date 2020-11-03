@@ -1,7 +1,6 @@
 #ifndef MESHNODELOADER_H
 #define MESHNODELOADER_H
 
-#include <QtQuick/QQuickItem>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QOpenGLBuffer>
 #include <QtGui/QOpenGLVertexArrayObject>
@@ -10,9 +9,6 @@
 
 #include <ImageLoader.h>
 #include <MeshNode.h>
-
-//-----
-#include <Mesh.h>
 
 // only realization for VNT
 class MeshNodeLoader: public QObject, protected QOpenGLFunctions{
@@ -30,7 +26,7 @@ public slots:
 protected:
     MeshNodeLoader(const MeshNode& mesh, const std::string& path, QOpenGLShaderProgram* program)
         : m_mesh(mesh), m_path(path), program(program){
-                initializeOpenGLFunctions();
+        initializeOpenGLFunctions();
     };
 
     virtual void template_init_buffer() = 0;

@@ -16,7 +16,7 @@ set(SOURCES
     src/FloatingHorizon.cpp
     src/MeshNodeLoader.cpp
     src/vecUtils.cpp
-)
+    )
 
 #add headers with moc
 set(HEADERS
@@ -31,18 +31,18 @@ set(HEADERS
 #---------------
 
 add_library(${PROJECT_NAME}
-     ${SOURCES} ${HEADERS}
-)
+    ${SOURCES} ${HEADERS}
+    )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include ../objparser/include )
 
 find_package(Qt5 COMPONENTS Core Gui Quick REQUIRED)
 
 target_compile_definitions(${PROJECT_NAME}
-  PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
+    PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(${PROJECT_NAME}
-  PRIVATE objparser
-  Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Quick)
+    PRIVATE objparser
+    Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Quick)
 
 set(${LIBRARY_NAME} PROPERTY
     CMAKE_CXX_STANDARD 17

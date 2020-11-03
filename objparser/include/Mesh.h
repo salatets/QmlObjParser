@@ -10,7 +10,7 @@ public:
 
     template<typename Iterator>
     MeshRoot(Vec3 center, Vec3 size,
-         Iterator p, Iterator q) : meshes(p,q), m_center(center),m_size(size) {};
+             Iterator p, Iterator q) : meshes(p,q), m_center(center),m_size(size) {};
 
     const Vec3& getCenter() const {return m_center;}
     const Vec3& getSize() const {return m_size;}

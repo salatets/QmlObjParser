@@ -12,26 +12,26 @@ ApplicationWindow {
 
     menuBar: MenuBar {
         Menu {
-                    title: qsTr("&File")
-                    Action {
-                        text: qsTr("&Open...")
-                        shortcut: StandardKey.Open
-                        onTriggered: fileDialog.open()
-                    }
-                    MenuSeparator { }
-                    Action {
-                        text: qsTr("&Quit")
-                        shortcut: StandardKey.Quit
-                        onTriggered: Qt.quit()
-                    }
-                }
-                Menu {
-                    title: qsTr("&Labs")
-                    Action { text: qsTr("Lab 1") }
-                    Action { text: qsTr("Lab 2") }
-                    Action { text: qsTr("RGZ") }
-                }
+            title: qsTr("&File")
+            Action {
+                text: qsTr("&Open...")
+                shortcut: StandardKey.Open
+                onTriggered: fileDialog.open()
             }
+            MenuSeparator { }
+            Action {
+                text: qsTr("&Quit")
+                shortcut: StandardKey.Quit
+                onTriggered: Qt.quit()
+            }
+        }
+        Menu {
+            title: qsTr("&Labs")
+            Action { text: qsTr("Lab 1") }
+            Action { text: qsTr("Lab 2") }
+            Action { text: qsTr("RGZ") }
+        }
+    }
 
     GLScene {
         id: glbox
@@ -49,32 +49,32 @@ ApplicationWindow {
         anchors.margins: -10
 
         MouseArea {
-               anchors.fill: parent
-               anchors.margins: -10
-               hoverEnabled: true
-               onEntered: animateOpacityUP.start()
-               onExited: animateOpacityDOWN.start()
-           }
+            anchors.fill: parent
+            anchors.margins: -10
+            hoverEnabled: true
+            onEntered: animateOpacityUP.start()
+            onExited: animateOpacityDOWN.start()
+        }
 
         NumberAnimation {
-                id: animateOpacityUP
-                target: rect_controls
-                properties: "opacity"
-                from: 0.5
-                to: 1.0
-                duration: 250
-                easing.type: Easing.InQuad
-           }
+            id: animateOpacityUP
+            target: rect_controls
+            properties: "opacity"
+            from: 0.5
+            to: 1.0
+            duration: 250
+            easing.type: Easing.InQuad
+        }
 
         NumberAnimation {
-                id: animateOpacityDOWN
-                target: rect_controls
-                properties: "opacity"
-                from: 1.0
-                to: 0.5
-                duration: 250
-                easing.type: Easing.OutQuad
-           }
+            id: animateOpacityDOWN
+            target: rect_controls
+            properties: "opacity"
+            from: 1.0
+            to: 0.5
+            duration: 250
+            easing.type: Easing.OutQuad
+        }
     }
 
     ColumnLayout{
@@ -89,22 +89,22 @@ ApplicationWindow {
         RowLayout{
 
 
-                Label {
-                    Layout.fillWidth: true
-                    Layout.maximumWidth: 60
-                    text: "light"
-                    font.pixelSize: 30
+            Label {
+                Layout.fillWidth: true
+                Layout.maximumWidth: 60
+                text: "light"
+                font.pixelSize: 30
+            }
+            Slider{
+                from: 0
+                to: 6.283
+                value: 3.14 // TODO add sync with model
+                Layout.fillWidth: true
+                onMoved:
+                {
+                    glbox.pos = value;
                 }
-                Slider{
-                    from: 0
-                    to: 6.283
-                    value: 3.14 // TODO add sync with model
-                    Layout.fillWidth: true
-                    onMoved:
-                    {
-                        glbox.pos = value;
-                    }
-                }
+            }
 
         }
     }

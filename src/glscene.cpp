@@ -1,5 +1,5 @@
 #include <QtCore/QRunnable>
-
+#include <QtMath>
 #include <QtQuick/qquickwindow.h>
 
 #include<ObjParser.h>
@@ -7,12 +7,6 @@
 #include <vecUtils.h>
 
 #include "shaders.h"
-
-#include <iostream>
-
-#include <qmath.h>
-
-
 
 GLScene::GLScene() : m_pos(3.14), m_renderer(nullptr){
     connect(this, &QQuickItem::windowChanged, this, &GLScene::handleWindowChanged);
@@ -34,44 +28,44 @@ void roundTo(QPoint& val, int to){
 
 // TODO add not integer angles
 QPoint GLScene::mouseToAngle(){
-     QPoint pos{m_prev + m_start - m_current};
-     roundTo(pos, 360);
-     return pos;
+    QPoint pos{m_prev + m_start - m_current};
+    roundTo(pos, 360);
+    return pos;
 }
 
 void GLScene::mousePressEvent(QMouseEvent* event)
-    {
-        m_start = event->pos(); // MAYBE {{}};
+{
+    m_start = event->pos(); // MAYBE {{}};
 
-        event->accept();
-    }
+    event->accept();
+}
 
 void GLScene::mouseMoveEvent(QMouseEvent* event)
-    {
-        m_current = event->pos();
+{
+    m_current = event->pos();
 
-        event->accept();
+    event->accept();
 
-        if (window() != nullptr)
-            window()->update();
-    }
+    if (window() != nullptr)
+        window()->update();
+}
 
 void GLScene::mouseReleaseEvent(QMouseEvent* event)
-    {
-       m_current = event->pos();
+{
+    m_current = event->pos();
 
-       m_prev += m_start - m_current;
+    m_prev += m_start - m_current;
 
-       m_start = {0,0};
-       m_current = {0,0};
+    m_start = {0,0};
+    m_current = {0,0};
 
-       roundTo(m_prev, 360);
+    roundTo(m_prev, 360);
 
-       event->accept();
+    event->accept();
 
-       if (window() != nullptr)
-           window()->update();
-    }
+    if (window() != nullptr)
+        window()->update();
+}
 
 void GLScene::setPos(qreal pos)
 {
@@ -136,7 +130,7 @@ void GLSceneRenderer::setPath(QUrl path)
         switch (type) {
         case FH_Model:
             fh.setMesh(m_model);
-            fh.init_buffers(m_program);
+            //fh.init_buffers(m_program);
             break;
         case Scene:
             // SCENE
@@ -183,7 +177,6 @@ void GLScene::releaseResources()
 }
 
 GLSceneRenderer::~GLSceneRenderer(){
-    delete m_program;
 }
 
 void GLScene::sync(){
