@@ -31,9 +31,9 @@ set(${PROJECT_NAME} PROPERTY
     CXX_EXTENSIONS NO
     )
 
-#------
+#------------------
 # test fuctionality
-#------
+#------------------
 
 get_directory_property(IS_SUBPROJECT PARENT_DIRECTORY)
 

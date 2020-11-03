@@ -5,7 +5,6 @@
 #include <fstream>
 #include <iostream>
 
-#include <MeshFactory.h>
 #include <ObjParser.h>
 
 /* Structure of parse wavefront .obj
@@ -332,7 +331,7 @@ MeshRoot parseOBJ(const std::string& path){
 
         }
 
-        meshes.emplace_back(MeshFactory::MakeMesh(
+        meshes.emplace_back(MeshNode::make(
                                 (*meshIter).material,
                                 (*meshIter).format,
                                 (*meshIter).vertex.vertices,

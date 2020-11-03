@@ -1,7 +1,6 @@
 #include <MeshNode.h>
 #include <cstring>
-
-MeshNode::MeshNode() : type(UNDEFINED), size(0), vertex_data(nullptr){}
+#include <cassert>
 
 MeshNode::MeshNode(const Mtl& material,
                    const std::vector<Vec3>& vertexs,
@@ -59,4 +58,24 @@ size_t MeshNode::getTypeSize(const MeshNode& mesh){
     }
 
     return 0;
+}
+
+MeshNode MeshNode::make(const Mtl& material,
+                         meshType format,
+                         const std::vector<Vec3>& vertexs,
+                         const std::vector<Vec3>& normals,
+                         const std::vector<Vec2>& uvs){
+
+    switch(format){
+    case meshType::VNT:
+        return MeshNode(material, vertexs, normals, uvs);
+    case meshType::VN:
+        return MeshNode(material, vertexs, normals);
+    case meshType::VT:
+        return MeshNode(material, vertexs, normals);
+    case meshType::V:
+        return MeshNode(material, vertexs);
+    }
+
+    assert(meshType::UNDEFINED == format);
 }

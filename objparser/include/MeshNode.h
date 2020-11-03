@@ -5,8 +5,6 @@
 #include <vector>
 #include "vec.h"
 
-
-
 enum illum{
     AMBIENT_ON = 1,
     HIGHTLIGHT_ON = 2
@@ -26,10 +24,10 @@ struct Mtl{
 
 enum meshType{
     VNT,
-    VT,
     VN,
+    VT,
     V,
-    UNDEFINED,
+    UNDEFINED, // This type no constructable
 };
 
 
@@ -37,23 +35,11 @@ enum meshType{
 class MeshNode
 {
 public:
-    MeshNode(); // UNDEFINED
-
-    MeshNode(const Mtl& material,
-             const std::vector<Vec3>& vertexs,
-             const std::vector<Vec3>& normals,
-             const std::vector<Vec2>& uvs); // VNT
-
-    MeshNode(const Mtl& material,
-             const std::vector<Vec3>& vertexs,
-             const std::vector<Vec3>& normals); // VN
-
-    MeshNode(const Mtl& material,
-             const std::vector<Vec3>& vertexs,
-             const std::vector<Vec2>& uvs); // VT
-
-    MeshNode(const Mtl& material,
-             const std::vector<Vec3>& vertexs); // V
+    static MeshNode make(const Mtl& material,
+                             meshType format,
+                             const std::vector<Vec3>& vertexs,
+                             const std::vector<Vec3>& normals,
+                             const std::vector<Vec2>& uvs);
 
     const meshType& getType() const {return type;}
     const float* getData() const { return vertex_data;};
@@ -120,6 +106,22 @@ private:
     Mtl material;
     size_t size;
     float* vertex_data;
+
+    MeshNode(const Mtl& material,
+             const std::vector<Vec3>& vertexs,
+             const std::vector<Vec3>& normals,
+             const std::vector<Vec2>& uvs); // VNT
+
+    MeshNode(const Mtl& material,
+             const std::vector<Vec3>& vertexs,
+             const std::vector<Vec3>& normals); // VN
+
+    MeshNode(const Mtl& material,
+             const std::vector<Vec3>& vertexs,
+             const std::vector<Vec2>& uvs); // VT
+
+    MeshNode(const Mtl& material,
+             const std::vector<Vec3>& vertexs); // V
 };
 
 #endif // MESHNODE_H
