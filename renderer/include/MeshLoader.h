@@ -32,7 +32,7 @@ Q_SIGNALS:
 
 private:
     QOpenGLShaderProgram* getShader(meshType type);
-    void assignShader(meshType type, QOpenGLShaderProgram* new_point);
+    QOpenGLShaderProgram* assignShader(meshType type, QOpenGLShaderProgram* new_point);
 
     MeshNodeLoader** loaders;
     size_t loaders_size;

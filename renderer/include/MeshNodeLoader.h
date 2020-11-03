@@ -40,24 +40,7 @@ protected:
     QOpenGLShaderProgram* program;
 };
 
-class MeshNodeLoaderVNT : public MeshNodeLoader{
-    //Q_OBJECT
-public:
-    MeshNodeLoaderVNT(
-            const MeshNode& mesh,
-            const std::string& path,
-            QOpenGLShaderProgram* shad
-            );
-protected:
-    void template_init_buffer() override;
-    void template_paint() override;
 
-    ~MeshNodeLoaderVNT();
-
-private:
-    void LoadTexture(Texture texture);
-    GLuint textureId;
-};
 
 
 #endif // MESHNODELOADER_H

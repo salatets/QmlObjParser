@@ -15,6 +15,7 @@ set(SOURCES
     src/MeshLoader.cpp
     src/FloatingHorizon.cpp
     src/MeshNodeLoader.cpp
+    src/MeshNodeLoaders.cpp
     src/vecUtils.cpp
     )
 
@@ -23,6 +24,7 @@ set(HEADERS
     include/FloatingHorizon.h
     include/MeshLoader.h
     include/MeshNodeLoader.h
+    include/MeshNodeLoaders.h
     )
 
 

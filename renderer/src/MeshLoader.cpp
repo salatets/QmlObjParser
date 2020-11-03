@@ -1,4 +1,5 @@
 #include "MeshLoader.h"
+#include "MeshNodeLoaders.h"
 
 MeshLoader::~MeshLoader(){
     for(size_t i = 0; i < loaders_size; ++i){
@@ -26,14 +27,26 @@ void MeshLoader::setMesh(const MeshRoot& mesh, const std::string& path){
     loaders_size = mesh.size();
     loaders = new MeshNodeLoader*[mesh.size()]; // TODO placement new
 
-    auto p = mesh.cbegin();
-    for(size_t i = 0; i < loaders_size; ++i){
-        loaders[i] = new MeshNodeLoaderVNT(*p, path, VNT_shader); // todo change
-        ++p;
+    {
+        auto p = mesh.cbegin();
+        size_t i = 0;
+        for(; i < loaders_size; ++i, ++p){
+            switch(p->getType()){
+            case meshType::VNT:{
+                loaders[i] = new MeshNodeLoaderVNT(*p, path, VNT_shader);
+                break;
+            }
+            case meshType::VN:{
+                loaders[i] = new MeshNodeLoaderVN(*p, path, VN_shader);
+                break;
+            }
+            default:
+                Q_ASSERT(false);
+            }
+        }
     }
 
     m_model = mesh;
-
     isInit = false;
 }
 
@@ -50,8 +63,7 @@ void MeshLoader::setShader(meshType type, char *frag, char *vert){
     auto *shader = getShader(type);
 
     if(shader == nullptr){
-        assignShader(type, new QOpenGLShaderProgram()); // TODO refactor;
-        shader = getShader(type);
+        shader = assignShader(type, new QOpenGLShaderProgram()); // TODO refactor;
     }
     if(shader->isLinked())
         shader->removeAllShaders();
@@ -66,44 +78,36 @@ void MeshLoader::setShader(meshType type, char *frag, char *vert){
     isInit = false;
 }
 
-QOpenGLShaderProgram* MeshLoader::getShader(meshType type){ // if meshType undefined?
+QOpenGLShaderProgram* MeshLoader::getShader(meshType type){
     switch(type){
-    case meshType::VNT:{
+    case meshType::VNT:
         return VNT_shader;
-    }
-    case meshType::VN:{
+    case meshType::VN:
         return VN_shader;
-    }
-    case meshType::VT:{
+    case meshType::VT:
         return VT_shader;
-    }
-    case meshType::V:{
+    case meshType::V:
         return V_shader;
     }
-    }
-
     return nullptr;
 }
 
-void MeshLoader::assignShader(meshType type, QOpenGLShaderProgram* new_point){
+QOpenGLShaderProgram* MeshLoader::assignShader(meshType type, QOpenGLShaderProgram* new_point){
     switch(type){
-    case meshType::VNT:{
+    case meshType::VNT:
         VNT_shader = new_point;
-        break;
-    }
-    case meshType::VN:{
+        return new_point;
+    case meshType::VN:
         VN_shader = new_point;
-        break;
-    }
-    case meshType::VT:{
+        return new_point;
+    case meshType::VT:
         VT_shader = new_point;
-        break;
-    }
-    case meshType::V:{
+        return new_point;
+    case meshType::V:
         V_shader = new_point;
-        break;
+        return new_point;
     }
-    }
+    return nullptr;
 }
 
 
