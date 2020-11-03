@@ -6,7 +6,7 @@
 class MeshFactory{
 public:
     static MeshNode MakeMesh(const Mtl& material,
-                       const meshType& format,
+                       meshType format,
                        const std::vector<Vec3>& vertexs,
                        const std::vector<Vec3>& normals,
                        const std::vector<Vec2>& uvs){

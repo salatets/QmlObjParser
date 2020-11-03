@@ -22,13 +22,13 @@ public:
     virtual ~MeshNodeLoader();
 
     void init_buffers();
-    void paint(std::function<void(QOpenGLShaderProgram*)> f);
+    void paint(const std::function<void(QOpenGLShaderProgram *)>& f);
 
 public slots:
     void setShader(meshType type);
 
 protected:
-    MeshNodeLoader(MeshNode mesh, std::string path, QOpenGLShaderProgram* shad)
+    MeshNodeLoader(const MeshNode& mesh,const std::string& path, QOpenGLShaderProgram* shad)
         : m_mesh(mesh), m_path(path), program(shad){};
 
     virtual void template_init_buffer() = 0;
@@ -46,8 +46,8 @@ class MeshNodeLoaderVNT : public MeshNodeLoader{
     Q_OBJECT
 public:
     MeshNodeLoaderVNT(
-            MeshNode mesh,
-            std::string path,
+            const MeshNode& mesh,
+            const std::string& path,
             QOpenGLShaderProgram* shad
             ): MeshNodeLoader(mesh, path,shad){}
 protected:

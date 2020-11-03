@@ -18,7 +18,7 @@ class GLSceneRenderer : public QObject, protected QOpenGLFunctions
 {
     Q_OBJECT
 public:
-    GLSceneRenderer() : m_program(nullptr), type(Model){};
+    GLSceneRenderer() : type(Model), m_program(nullptr){};
     ~GLSceneRenderer();
 
     void setPitch(qreal pitch){m_pitch = pitch;}
@@ -26,10 +26,10 @@ public:
     void setPos(qreal pos){m_pos = pos;}
     void setPath(QUrl path);
 
-    void setViewportSize(const QSize &size) { m_viewportSize = size; }
+    void setViewportSize(QSize size) { m_viewportSize = size; }
     void setWindow(QQuickWindow *window) { m_window = window; }
 
-public slots:
+public Q_SLOTS:
     void init();
     void paint();
 
@@ -69,21 +69,21 @@ public:
     QUrl path() const { return m_path; }
 
     void setPos(qreal pos);
-    void setPath(QUrl path);
+    void setPath(const QUrl &path);
 
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
 
-signals:
+Q_SIGNALS:
     void posChanged();
     void pathChanged();
 
-public slots:
+public Q_SLOTS:
     void sync();
     void cleanup();
 
-private slots:
+private Q_SLOTS:
     void handleWindowChanged(QQuickWindow *win);
 
 private:

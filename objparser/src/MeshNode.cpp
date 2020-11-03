@@ -1,7 +1,7 @@
 #include <MeshNode.h>
 #include <cstring>
 
-MeshNode::MeshNode() : type(UNDEFINED), material(), size(0), vertex_data(nullptr){}
+MeshNode::MeshNode() : type(UNDEFINED), size(0), vertex_data(nullptr){}
 
 MeshNode::MeshNode(const Mtl& material,
          const std::vector<Vec3>& vertexs,

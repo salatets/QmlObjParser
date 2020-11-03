@@ -59,7 +59,7 @@ public:
     const float* getData() const { return vertex_data;};
     const Mtl& getMaterial() const { return material;};
     size_t getSize() const {return size;}
-    size_t static MeshNode::getTypeSize(const MeshNode& mesh);
+    size_t static getTypeSize(const MeshNode& mesh);
 
     MeshNode(const MeshNode& other){
         material = other.material;

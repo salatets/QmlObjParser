@@ -5,11 +5,11 @@
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
     QGuiApplication app(argc, argv);
 
-    app.setOrganizationName("ORG");
-    app.setOrganizationDomain("DOM");
+    QGuiApplication::setOrganizationName("ORG");
+    QGuiApplication::setOrganizationDomain("DOM");
 
     qmlRegisterType<GLScene>("GLScene", 1, 0, "GLScene");
 

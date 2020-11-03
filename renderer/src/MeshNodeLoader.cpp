@@ -125,7 +125,7 @@ MeshNodeLoaderVNT::~MeshNodeLoaderVNT(){
     glDeleteTextures(1, &textureId);
 }
 
-void MeshNodeLoader::paint(std::function<void(QOpenGLShaderProgram*)> f){
+void MeshNodeLoader::paint(const std::function<void(QOpenGLShaderProgram*)>& f){
     if(program == nullptr)
         return;
 

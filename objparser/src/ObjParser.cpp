@@ -1,10 +1,12 @@
+#include <algorithm>
+#include <limits>
+#include <list>
 #include <sstream>
 #include <fstream>
 #include <iostream>
-#include <list>
 
-#include <ObjParser.h>
 #include <MeshFactory.h>
+#include <ObjParser.h>
 
 /* Structure of parse wavefront .obj
  -------------------------
@@ -16,7 +18,7 @@
  * face data
  */
 
-bool parseMTL(const std::string& path, std::list<Mtl>& materials){
+bool parseMTL(const std::string& path, std::list<Mtl>* materials){
     std::ifstream fstrm(path);
 
     if (!fstrm){
@@ -31,33 +33,33 @@ bool parseMTL(const std::string& path, std::list<Mtl>& materials){
         fstrm >> token;
 
         if(token == "newmtl"){
-            materials.emplace_back(Mtl());
+            materials->emplace_back(Mtl());
             added_new = true;
             fstrm >> token;
-            materials.back().name = token;
+            materials->back().name = token;
         }else if(added_new){
             if(token == "Ka"){
                 float x,y,z;
                 fstrm >> x >> y >>z;
-                materials.back().ambient = Vec3(x,y,z);
+                materials->back().ambient = Vec3(x,y,z);
             }else if(token == "Kd"){
                 float x,y,z;
                 fstrm >> x >> y >>z;
-                materials.back().diffuse = Vec3(x,y,z);
+                materials->back().diffuse = Vec3(x,y,z);
             }else if(token == "Ks"){
                 float x,y,z;
                 fstrm >> x >> y >>z;
-                materials.back().specular = Vec3(x,y,z);
+                materials->back().specular = Vec3(x,y,z);
             }else if(token == "illum"){
                 int x;
                 fstrm >> x;
                 if(x > 0 && x < 3)
-                    materials.back().illum_mode = illum(x);
+                    materials->back().illum_mode = illum(x);
                 else
-                    materials.back().illum_mode = illum();
+                    materials->back().illum_mode = illum();
             }else if(token == "map_Kd"){
                 fstrm >> token;
-                materials.back().diffuse_map_path = token;
+                materials->back().diffuse_map_path = token;
             }
         }
 
@@ -88,7 +90,7 @@ meshType checkFaceFormat(std::ifstream& strm){
         }
     }
 
-    if(found == false)
+    if(!found)
         return format;
 
     std::string expr;
@@ -277,7 +279,7 @@ MeshRoot parseOBJ(const std::string& path){
             std::string filename;
             fstrm >> filename;
 
-             if(!parseMTL(pwd + filename, mesh_materials)){
+             if(!parseMTL(pwd + filename, &mesh_materials)){
                 fstrm.close();
                 std::cerr << "could't parse mtl\n";
                 return MeshRoot();

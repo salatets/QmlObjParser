@@ -15,7 +15,7 @@ void MeshLoader::init_buffers(){
     }
 }
 
-void MeshLoader::setMesh(MeshRoot mesh, std::string path){
+void MeshLoader::setMesh(const MeshRoot& mesh, const std::string& path){
     if(loaders_size != 0 && loaders != nullptr){
         for(size_t i = 0; i < loaders_size; ++i)
             delete loaders[i];
@@ -35,15 +35,16 @@ void MeshLoader::setMesh(MeshRoot mesh, std::string path){
 }
 
 void MeshLoader::paint(std::function<void(QOpenGLShaderProgram*, const MeshRoot&)> f){
-    qDebug() << "context second" << glGetString(GL_VERSION);
     for(size_t i = 0; i < loaders_size; ++i){
-        loaders[i]->paint(std::bind(f, std::placeholders::_1, m_model));
+        loaders[i]->paint(
+                    [f,model = this->m_model](QOpenGLShaderProgram* arg1){return f(arg1, model);}
+        );
     }
 }
 
 void MeshLoader::setShader(meshType type, char *frag, char *vert){
     initializeOpenGLFunctions();
-    auto shader = getShader(type);
+    auto *shader = getShader(type);
 
     if(shader == nullptr){
         assignShader(type, new QOpenGLShaderProgram()); // TODO refactor;
@@ -59,7 +60,7 @@ void MeshLoader::setShader(meshType type, char *frag, char *vert){
     success = shader->link();
     Q_ASSERT(success);
 
-    emit shaderChanged(type);
+    Q_EMIT shaderChanged(type);
 }
 
 QOpenGLShaderProgram* MeshLoader::getShader(meshType type){ // if meshType undefined?
@@ -100,7 +101,6 @@ void MeshLoader::assignShader(meshType type, QOpenGLShaderProgram* new_point){
             break;
         }
     }
-    return;
 }
 
 

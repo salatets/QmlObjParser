@@ -15,7 +15,7 @@ set(SOURCES
     src/MeshLoader.cpp
     src/FloatingHorizon.cpp
     src/MeshNodeLoader.cpp
-    src/VecUtils.cpp
+    src/vecUtils.cpp
 )
 
 #add headers with moc

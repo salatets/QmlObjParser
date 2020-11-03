@@ -1,14 +1,14 @@
-#include <QtQuick/qquickwindow.h>
 #include <QtCore/QRunnable>
 #include <QtMath>
+#include <QtQuick/qquickwindow.h>
 
-#include <glscene.h>
 #include<ObjParser.h>
+#include <glscene.h>
 #include <vecUtils.h>
 
 #include "shaders.h"
 
-float max(const QVector3D& vec){
+float max(QVector3D vec){
     float max = vec.x();
 
     if(vec.y() > max)
@@ -57,7 +57,7 @@ void GLScene::mouseMoveEvent(QMouseEvent* event)
 
         event->accept();
 
-        if (window())
+        if (window() != nullptr)
             window()->update();
     }
 
@@ -74,7 +74,7 @@ void GLScene::mouseReleaseEvent(QMouseEvent* event)
 
        event->accept();
 
-       if (window())
+       if (window() != nullptr)
            window()->update();
     }
 
@@ -83,17 +83,17 @@ void GLScene::setPos(qreal pos)
     if (pos == m_pos)
         return;
     m_pos= pos;
-    emit posChanged();
-    if (window())
+    Q_EMIT posChanged();
+    if (window() != nullptr)
         window()->update();
 }
 
-void GLScene::setPath(QUrl path)
+void GLScene::setPath(const QUrl& path)
 {
     if (path == m_path)
         return;
     m_path= path;
-    emit pathChanged();
+    Q_EMIT pathChanged();
 }
 
 std::string convertPath(const QUrl& path){
@@ -111,6 +111,10 @@ std::string convertPath(const QUrl& path){
             if(temp[trunc_len + i] != '/')
                 break;
         }
+
+#ifndef _WIN32
+        --trunc_len;
+#endif
 
         res = temp.toUtf8().constData();
         res = res.substr(trunc_len + i);
@@ -154,7 +158,7 @@ void GLSceneRenderer::setPath(QUrl path)
 
 void GLScene::handleWindowChanged(QQuickWindow *win)
 {
-    if (win) {
+    if (win != nullptr) {
         connect(win, &QQuickWindow::beforeSynchronizing, this, &GLScene::sync, Qt::DirectConnection);
         connect(win, &QQuickWindow::sceneGraphInvalidated, this, &GLScene::cleanup, Qt::DirectConnection);
 
@@ -275,8 +279,6 @@ void GLSceneRenderer::paint(){
 
     m_window->beginExternalCommands();
     //m_program->bind();
-
-    qDebug() << "context first" << glGetString(GL_VERSION);
 
     auto lambda = [&](QOpenGLShaderProgram* program, const MeshRoot& model){
         glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());

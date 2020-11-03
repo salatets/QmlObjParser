@@ -24,14 +24,14 @@ public:
     MeshLoader(const MeshLoader&) = delete;
     MeshLoader(MeshLoader&&) = delete;
 
-    void setMesh(MeshRoot mesh, std::string path);
+    void setMesh(const MeshRoot &mesh, const std::string &path);
 
     void setShader(meshType type, char* frag,char * vert);
 
     void init_buffers();
     void paint(std::function<void(QOpenGLShaderProgram*, const MeshRoot&)> f);
 
-signals:
+Q_SIGNALS:
     void shaderChanged(meshType type);
 
 private:
