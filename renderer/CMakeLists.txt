@@ -36,13 +36,14 @@ add_library(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include ../objparser/include )
 
-find_package(Qt5 COMPONENTS Core Gui Quick REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Quick OpenGL REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Quick OpenGL REQUIRED)
 
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE objparser
-    Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Quick)
+    PUBLIC objparser
+    Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Quick Qt${QT_VERSION_MAJOR}::OpenGL)
 
 set(${LIBRARY_NAME} PROPERTY
     CMAKE_CXX_STANDARD 17

@@ -1,7 +1,8 @@
 #ifndef GLSCENE_H
 #define GLSCENE_H
 
-#include <QtQuick/QQuickItem>
+#include <QQuickItem>
+#include <QQuickWindow>
 
 #include <Mesh.h>
 #include <FloatingHorizon.h>

@@ -2,9 +2,9 @@
 #define FLOATINGHORIZON_H
 
 #include <QtQuick/QQuickItem>
-#include <QtGui/QOpenGLShaderProgram>
-#include <QtGui/QOpenGLBuffer>
-#include <QtGui/QOpenGLVertexArrayObject>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLBuffer>
+#include <QOpenGLVertexArrayObject>
 #include <QOpenGLFunctions>
 
 #include <Mesh.h>

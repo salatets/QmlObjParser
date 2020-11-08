@@ -1,8 +1,11 @@
 #include <QtCore/QRunnable>
 #include <QtMath>
-#include <QtQuick/qquickwindow.h>
 
-#include<ObjParser.h>
+#if QT_VERSION_MAJOR == 6
+#include <QQuickOpenGLUtils>
+#endif
+
+#include <ObjParser.h>
 #include <glscene.h>
 #include <vecUtils.h>
 
@@ -251,7 +254,11 @@ void GLSceneRenderer::paint(){
         break;
     }
 
+    #if QT_VERSION_MAJOR == 6
+    QQuickOpenGLUtils::resetOpenGLState();
+    #else
     m_window->resetOpenGLState();
+    #endif
 
     m_window->endExternalCommands();
 }

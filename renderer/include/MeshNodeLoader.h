@@ -1,9 +1,9 @@
 #ifndef MESHNODELOADER_H
 #define MESHNODELOADER_H
 
-#include <QtGui/QOpenGLShaderProgram>
-#include <QtGui/QOpenGLBuffer>
-#include <QtGui/QOpenGLVertexArrayObject>
+#include <QOpenGLShaderProgram>
+#include <QOpenGLBuffer>
+#include <QOpenGLVertexArrayObject>
 #include <QOpenGLFunctions>
 #include <functional>
 

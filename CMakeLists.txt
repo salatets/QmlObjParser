@@ -33,13 +33,16 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
-find_package(Qt5 COMPONENTS Core Gui Quick REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Quick REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Quick REQUIRED)
 
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE renderer objparser
+    PUBLIC renderer objparser
     Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Quick)
+
+add_definitions( -DQT_VERSION_MAJOR=${QT_VERSION_MAJOR})
 
 add_subdirectory(renderer)
 add_subdirectory(objparser)
