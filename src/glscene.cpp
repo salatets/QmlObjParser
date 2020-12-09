@@ -101,6 +101,15 @@ void GLScene::mouseReleaseEvent(QMouseEvent* event)
         window()->update();
 }
 
+void GLScene::wheelEvent(QWheelEvent *event)
+{
+    wheel_current += event->angleDelta().y() / 240.0;
+    event->accept();
+
+    if (window() != nullptr)
+        window()->update();
+}
+
 void GLScene::setPos(qreal pos)
 {
     if (pos == m_pos)
@@ -162,6 +171,7 @@ void GLScene::sync(){
     m_renderer->setYaw(angles.x());
     m_renderer->setPos(m_pos);
     m_renderer->setPath(m_path);
+    m_renderer->setZoom(wheel_current);
     m_renderer->setWindow(window());
 }
 
@@ -237,6 +247,7 @@ void GLSceneRenderer::paint(){
 
             QMatrix4x4 mat;
             mat.setToIdentity();
+            mat.translate(QVector3D(0,0, m_zoom ));
             mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
             mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
             mat.scale(1.0f/(max((model.getSize()))));

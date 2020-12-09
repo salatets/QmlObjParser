@@ -25,6 +25,7 @@ public:
     void setYaw(qreal yaw){m_yaw = yaw;}
     void setPos(qreal pos){m_pos = pos;}
     void setPath(const QUrl& path);
+    void setZoom(qreal zoom){m_zoom = zoom;}
 
     void setViewportSize(QSize size) { m_viewportSize = size; }
     void setWindow(QQuickWindow *window) { m_window = window; }
@@ -43,6 +44,7 @@ private:
     qreal m_pitch {0};
     qreal m_yaw {0};
     qreal m_pos {0};
+    qreal m_zoom {0};
     std::string m_path;
     QUrl old_url;
 
@@ -70,6 +72,7 @@ public:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
 
 Q_SIGNALS:
     void posChanged();
@@ -92,6 +95,7 @@ private:
     QPoint m_start;
     QPoint m_current;
     QPoint m_prev;
+    qreal wheel_current;
 
     GLSceneRenderer *m_renderer;
 };
