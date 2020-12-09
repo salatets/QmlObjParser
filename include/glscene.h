@@ -63,8 +63,8 @@ class GLScene: public QQuickItem
 public:
     GLScene();
 
-    qreal pos() const { return m_pos; }
-    QUrl path() const { return m_path; }
+    qreal pos() const { return light_pos; }
+    QUrl path() const { return object_path; }
 
     void setPos(qreal pos);
     void setPath(const QUrl &path);
@@ -89,13 +89,13 @@ private:
     void releaseResources() override;
     QPoint mouseToAngle();
 
-    qreal m_pos;
-    QUrl m_path;
+    qreal light_pos;
+    QUrl object_path;
 
-    QPoint m_start;
-    QPoint m_current;
-    QPoint m_prev;
     qreal wheel_current;
+    QPoint mouse_start;
+    QPoint mouse_current;
+    QPoint mouse_prev;
 
     GLSceneRenderer *m_renderer;
 };

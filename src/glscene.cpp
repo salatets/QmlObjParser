@@ -55,28 +55,28 @@ void roundTo(QPoint& val, int to){
         val.ry() += to;
 }
 
-GLScene::GLScene() : m_pos(3.14), m_renderer(nullptr){
+GLScene::GLScene() : light_pos(3.14), m_renderer(nullptr){
     connect(this, &QQuickItem::windowChanged, this, &GLScene::handleWindowChanged);
     setAcceptedMouseButtons(Qt::LeftButton);
     setFlag(ItemAcceptsInputMethod, true);
 }
 
 QPoint GLScene::mouseToAngle(){
-    QPoint pos{m_prev + m_start - m_current};
+    QPoint pos{mouse_prev + mouse_start - mouse_current};
     roundTo(pos, 360);
     return pos;
 }
 
 void GLScene::mousePressEvent(QMouseEvent* event)
 {
-    m_start = event->pos();
+    mouse_start = event->pos();
 
     event->accept();
 }
 
 void GLScene::mouseMoveEvent(QMouseEvent* event)
 {
-    m_current = event->pos();
+    mouse_current = event->pos();
 
     event->accept();
 
@@ -86,14 +86,14 @@ void GLScene::mouseMoveEvent(QMouseEvent* event)
 
 void GLScene::mouseReleaseEvent(QMouseEvent* event)
 {
-    m_current = event->pos();
+    mouse_current = event->pos();
 
-    m_prev += m_start - m_current;
+    mouse_prev += mouse_start - mouse_current;
 
-    m_start = {0,0};
-    m_current = {0,0};
+    mouse_start = {0,0};
+    mouse_current = {0,0};
 
-    roundTo(m_prev, 360);
+    roundTo(mouse_prev, 360);
 
     event->accept();
 
@@ -112,18 +112,20 @@ void GLScene::wheelEvent(QWheelEvent *event)
 
 void GLScene::setPos(qreal pos)
 {
-    if (pos == m_pos)
+    if (pos == light_pos)
         return;
-    m_pos= pos;
+    light_pos= pos;
     if (window() != nullptr)
         window()->update();
 }
 
 void GLScene::setPath(const QUrl& path)
 {
-    if (path == m_path)
+    if (path == object_path)
         return;
-    m_path= path;
+    object_path= path;
+    if (window() != nullptr)
+        window()->update();
 }
 
 void GLScene::handleWindowChanged(QQuickWindow *win)
@@ -169,8 +171,8 @@ void GLScene::sync(){
     m_renderer->setViewportSize(window()->size() * window()->devicePixelRatio());
     m_renderer->setPitch(angles.y());
     m_renderer->setYaw(angles.x());
-    m_renderer->setPos(m_pos);
-    m_renderer->setPath(m_path);
+    m_renderer->setPos(light_pos);
+    m_renderer->setPath(object_path);
     m_renderer->setZoom(wheel_current);
     m_renderer->setWindow(window());
 }
