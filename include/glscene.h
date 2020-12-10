@@ -19,13 +19,14 @@ class GLSceneRenderer : public QObject, protected QOpenGLFunctions
     Q_OBJECT
 public:
     GLSceneRenderer();
-    ~GLSceneRenderer(){};
+    ~GLSceneRenderer(){}
 
     void setPitch(qreal pitch){m_pitch = pitch;}
     void setYaw(qreal yaw){m_yaw = yaw;}
     void setPos(qreal pos){m_pos = pos;}
     void setPath(const QUrl& path);
     void setZoom(qreal zoom){m_zoom = zoom;}
+    void setPerspective(bool is_perspective){m_perspective = is_perspective;}
 
     void setViewportSize(QSize size) { m_viewportSize = size; }
     void setWindow(QQuickWindow *window) { m_window = window; }
@@ -46,6 +47,7 @@ private:
     qreal m_pos {0};
     qreal m_zoom {0};
     std::string m_path;
+    bool m_perspective {true};
     QUrl old_url;
 
     QSize m_viewportSize;
@@ -56,8 +58,9 @@ private:
 class GLScene: public QQuickItem
 {
     Q_OBJECT
-    Q_PROPERTY(qreal pos READ pos WRITE setPos NOTIFY posChanged)
-    Q_PROPERTY(QUrl path READ path WRITE setPath NOTIFY pathChanged)
+    Q_PROPERTY(qreal pos READ pos WRITE setPos)
+    Q_PROPERTY(QUrl path READ path WRITE setPath)
+    Q_PROPERTY(bool perspective READ perspective WRITE setPerspective)
     QML_ELEMENT
 
 public:
@@ -65,9 +68,11 @@ public:
 
     qreal pos() const { return light_pos; }
     QUrl path() const { return object_path; }
+    bool perspective() const {return is_perspective;}
 
     void setPos(qreal pos);
     void setPath(const QUrl &path);
+    void setPerspective(bool perspective);
 
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
@@ -91,6 +96,7 @@ private:
 
     qreal light_pos;
     QUrl object_path;
+    bool is_perspective;
 
     qreal wheel_current;
     QPoint mouse_start;

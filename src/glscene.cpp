@@ -55,7 +55,7 @@ void roundTo(QPoint& val, int to){
         val.ry() += to;
 }
 
-GLScene::GLScene() : light_pos(3.14), m_renderer(nullptr){
+GLScene::GLScene() : light_pos(3.14), wheel_current(0), m_renderer(nullptr){
     connect(this, &QQuickItem::windowChanged, this, &GLScene::handleWindowChanged);
     setAcceptedMouseButtons(Qt::LeftButton);
     setFlag(ItemAcceptsInputMethod, true);
@@ -112,8 +112,6 @@ void GLScene::wheelEvent(QWheelEvent *event)
 
 void GLScene::setPos(qreal pos)
 {
-    if (pos == light_pos)
-        return;
     light_pos= pos;
     if (window() != nullptr)
         window()->update();
@@ -125,6 +123,12 @@ void GLScene::setPath(const QUrl& path)
         return;
     object_path= path;
     if (window() != nullptr)
+        window()->update();
+}
+
+void GLScene::setPerspective(bool perspective){
+    is_perspective = perspective;
+    if (window() != nullptr) // TODO check needed??
         window()->update();
 }
 
@@ -174,6 +178,7 @@ void GLScene::sync(){
     m_renderer->setPos(light_pos);
     m_renderer->setPath(object_path);
     m_renderer->setZoom(wheel_current);
+    m_renderer->setPerspective(is_perspective);
     m_renderer->setWindow(window());
 }
 
@@ -184,7 +189,7 @@ GLSceneRenderer::GLSceneRenderer() : type(Model){
     ml.setShader(meshType::V, V_fragment, V_vertex);
 }
 
-void GLSceneRenderer::setPath(const QUrl& path)
+void GLSceneRenderer::setPath(const QUrl& path) // TODO renderer will not parse models
 {
     if(path == old_url)
         return;
@@ -247,14 +252,26 @@ void GLSceneRenderer::paint(){
             initializeOpenGLFunctions();
             glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
 
+            QMatrix4x4 proj;
             QMatrix4x4 mat;
+            proj.setToIdentity();
             mat.setToIdentity();
-            mat.translate(QVector3D(0,0, m_zoom ));
+
+            auto m_corr = m_zoom -1;
+            // TODO same size of object
+            if(m_perspective){
+                proj.perspective(45,(double)(m_viewportSize.width())/m_viewportSize.height(),0.1,10);
+                mat.translate(QVector3D(0,0, m_corr -2));
+            }else{
+                mat.scale(-1/(m_corr),-1/(m_corr),1/(m_corr));
+            }
+
             mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
             mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
             mat.scale(1.0f/(max((model.getSize()))));
             mat.translate(- vec3ToQVector3D(model.getCenter()));
 
+            program->setUniformValue("projection",proj);
             program->setUniformValue("model",mat);
             program->setUniformValue("lightColor", QVector3D(1.0f, 0.0f, 1.0f));
             program->setUniformValue("objectColor", QVector3D(1.0f, 0.5f, 0.31f));
