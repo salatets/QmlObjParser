@@ -2,7 +2,9 @@ import QtQuick 2.3
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.3
 import QtQuick.Dialogs 1.3
+
 import GLScene 1.0
+//import Helper 1.0
 
 ApplicationWindow {
     width: 400
@@ -27,9 +29,24 @@ ApplicationWindow {
         }
         Menu {
             title: qsTr("&Labs")
-            Action { text: qsTr("Lab 1") }
-            Action { text: qsTr("Lab 2") }
-            Action { text: qsTr("RGZ") }
+            Action {
+                text: qsTr("Lab 1")
+                onTriggered: {
+                    glbox.viewMode = GLScene.FH_Model
+                }
+            }
+            Action {
+                text: qsTr("Lab 2")
+                onTriggered: {
+                    glbox.viewMode = GLScene.Scene
+                }
+            }
+            Action {
+                text: qsTr("RGZ")
+                onTriggered: {
+                    glbox.viewMode = GLScene.Model
+                }
+            }
         }
     }
 
@@ -87,7 +104,24 @@ ApplicationWindow {
         anchors.margins: 20
 
         RowLayout{
+            visible: glbox.viewMode === GLScene.Model
+        CheckBox{
+            id: checkbox
+            checked: true
+            onCheckStateChanged:
+            {
+                glbox.perspective = checkbox.checked;
+            }
+        }
+        Label {
+            Layout.fillWidth: true
+            Layout.maximumWidth: 60
+            text: "perspective"
+            font.pixelSize: 30
+        }
+        }
 
+        RowLayout{
 
             Label {
                 Layout.fillWidth: true
@@ -95,10 +129,11 @@ ApplicationWindow {
                 text: "light"
                 font.pixelSize: 30
             }
+
             Slider{
                 from: 0
                 to: 6.283
-                value: 3.14 // TODO add sync with model
+                value: glbox.pos
                 Layout.fillWidth: true
                 onMoved:
                 {

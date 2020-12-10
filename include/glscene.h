@@ -8,10 +8,17 @@
 #include <FloatingHorizon.h>
 #include <MeshLoader.h>
 
-enum Renderer{
-    FH_Model,
-    Scene,
-    Model
+class Helper : public QObject  // TODO ugly name
+{
+    Q_OBJECT
+
+public:
+    enum Renderer{
+        FH_Model,
+        Scene,
+        Model
+    };
+    Q_ENUM(Renderer)
 };
 
 class GLSceneRenderer : public QObject, protected QOpenGLFunctions
@@ -31,13 +38,15 @@ public:
     void setViewportSize(QSize size) { m_viewportSize = size; }
     void setWindow(QQuickWindow *window) { m_window = window; }
 
+
+
 public Q_SLOTS:
     void init();
     void paint();
 
 private:
 
-    Renderer type;
+    Helper::Renderer type;
     FloatingHorizon fh;
     MeshLoader ml;
 
@@ -61,6 +70,7 @@ class GLScene: public QQuickItem
     Q_PROPERTY(qreal pos READ pos WRITE setPos)
     Q_PROPERTY(QUrl path READ path WRITE setPath)
     Q_PROPERTY(bool perspective READ perspective WRITE setPerspective)
+    Q_PROPERTY(Helper::Renderer viewMode READ viewMode WRITE setViewMode NOTIFY viewModeChanged)
     QML_ELEMENT
 
 public:
@@ -69,10 +79,12 @@ public:
     qreal pos() const { return light_pos; }
     QUrl path() const { return object_path; }
     bool perspective() const {return is_perspective;}
+    Helper::Renderer viewMode() const {return viewType;}
 
     void setPos(qreal pos);
     void setPath(const QUrl &path);
     void setPerspective(bool perspective);
+    void setViewMode(Helper::Renderer type);
 
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
@@ -80,8 +92,7 @@ public:
     void wheelEvent(QWheelEvent* event) override;
 
 Q_SIGNALS:
-    void posChanged();
-    void pathChanged();
+    void viewModeChanged();
 
 public Q_SLOTS:
     void sync();
@@ -103,6 +114,7 @@ private:
     QPoint mouse_current;
     QPoint mouse_prev;
 
+    Helper::Renderer viewType;
     GLSceneRenderer *m_renderer;
 };
 #endif // GLSCENE_H

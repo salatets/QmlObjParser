@@ -55,7 +55,7 @@ void roundTo(QPoint& val, int to){
         val.ry() += to;
 }
 
-GLScene::GLScene() : light_pos(3.14), wheel_current(0), m_renderer(nullptr){
+GLScene::GLScene() : light_pos(3.14), wheel_current(0), m_renderer(nullptr), viewType(Helper::Renderer::Model){
     connect(this, &QQuickItem::windowChanged, this, &GLScene::handleWindowChanged);
     setAcceptedMouseButtons(Qt::LeftButton);
     setFlag(ItemAcceptsInputMethod, true);
@@ -132,6 +132,15 @@ void GLScene::setPerspective(bool perspective){
         window()->update();
 }
 
+void GLScene::setViewMode(Helper::Renderer type){
+    if(type == viewType)
+        return;
+    viewType = type;
+    emit viewModeChanged();
+    if (window() != nullptr)
+        window()->update();
+}
+
 void GLScene::handleWindowChanged(QQuickWindow *win)
 {
     if (win != nullptr) {
@@ -182,7 +191,7 @@ void GLScene::sync(){
     m_renderer->setWindow(window());
 }
 
-GLSceneRenderer::GLSceneRenderer() : type(Model){
+GLSceneRenderer::GLSceneRenderer() : type(Helper::Model){
     ml.setShader(meshType::VNT, VNT_fragment, VNT_vertex);
     ml.setShader(meshType::VN, VN_fragment, VN_vertex);
     ml.setShader(meshType::VT, VT_fragment, VT_vertex);
@@ -200,14 +209,14 @@ void GLSceneRenderer::setPath(const QUrl& path) // TODO renderer will not parse 
     if(!m_model.empty()){
 
         switch (type) {
-        case FH_Model:
+        case Helper::FH_Model:
             fh.setMesh(m_model);
             //fh.init_buffers(m_program);
             break;
-        case Scene:
+        case Helper::Scene:
             // SCENE
             break;
-        case Model:
+        case Helper::Model:
             ml.setMesh(m_model, getPWD(m_path));
             break;
         }
@@ -240,14 +249,14 @@ void GLSceneRenderer::paint(){
     m_window->beginExternalCommands();
 
     switch (type) {
-    case FH_Model:
+    case Helper::FH_Model:
         // TODO size of points
         //fh.paint(mat, m_viewportSize.width(), m_viewportSize.height());
         break;
-    case Scene:
+    case Helper::Scene:
         // SCENE
         break;
-    case Model:
+    case Helper::Model:
         ml.paint([this](QOpenGLShaderProgram* program, MeshRoot model){
             initializeOpenGLFunctions();
             glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
