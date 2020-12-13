@@ -23,9 +23,11 @@ void MeshNodeLoader::init_buffers(){
     vao.release();
 }
 
-void MeshNodeLoader::setShader(meshType type){
+void MeshNodeLoader::setShader(meshType type, std::shared_ptr<QOpenGLShaderProgram>& shader){
     if(m_mesh.getType() != type)
         return;
+
+    program = shader;
 }
 
 void MeshNodeLoader::paint(const program_param &params){

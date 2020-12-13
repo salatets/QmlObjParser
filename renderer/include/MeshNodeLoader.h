@@ -28,8 +28,7 @@ public:
 
     virtual ~MeshNodeLoader();
 
-public Q_SLOTS:
-    void setShader(meshType);
+    void setShader(meshType, std::shared_ptr<QOpenGLShaderProgram>&);
 
 protected:
     MeshNodeLoader(const MeshNode& mesh, const std::string& path, QOpenGLShaderProgram* program)
