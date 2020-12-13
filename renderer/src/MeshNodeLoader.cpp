@@ -28,10 +28,12 @@ void MeshNodeLoader::setShader(meshType type){
         return;
 }
 
-void MeshNodeLoader::paint(const std::function<void(QOpenGLShaderProgram*)>& f){
+void MeshNodeLoader::paint(const program_param &params){
     program->bind();
 
-    f(program);
+    for(auto&& p : params){
+        std::visit([program = this->program, &p](auto&& arg){program->setUniformValue(p.first,arg);},p.second);
+    }
 
     vao.bind();
     glEnable(GL_DEPTH_TEST);

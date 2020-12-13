@@ -273,7 +273,7 @@ void GLSceneRenderer::paint(){
         // SCENE
         break;
     case Helper::Model:
-        ml.paint([this](QOpenGLShaderProgram* program, MeshRoot model){
+        ml.paint([this](const MeshRoot& model){
             initializeOpenGLFunctions();
             glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
 
@@ -294,17 +294,19 @@ void GLSceneRenderer::paint(){
 
             mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
             mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
-            mat.scale(1.0f/(max((model.getSize()))));
-            mat.translate(- vec3ToQVector3D(model.getCenter()));
+            float m = 1.0f / max((model.getSize()));
 
-            program->setUniformValue("projection",proj);
-            program->setUniformValue("model",mat);
-            program->setUniformValue("lightColor", QVector3D(1.0f, 0.0f, 1.0f));
-            program->setUniformValue("objectColor", QVector3D(1.0f, 0.5f, 0.31f));
-            program->setUniformValue("lightPos", QVector3D(static_cast<float>(sin(m_pos)), 0.3f,static_cast<float>(cos(m_pos))));
-            program->setUniformValue("viewPos", QVector3D(0.0f, 0.0f, 0.0f));
+            program_param params {
+                {"model",mat},
+                {"projection",proj},
+                {"lightColor", QVector3D(1.0f, 0.0f, 1.0f)},
+                {"objectColor", QVector3D(1.0f, 0.5f, 0.31f)},
+                {"lightPos", QVector3D(static_cast<float>(sin(m_pos)), 0.3f,static_cast<float>(cos(m_pos)))},
+                {"viewPos", QVector3D(0.0f, 0.0f, 0.0f)},
+                {"material.shininess", 64.0f}
+            };
 
-            program->setUniformValue("material.shininess", 64.0f);
+            return std::make_tuple(QVector3D(m,m,m),- vec3ToQVector3D(model.getCenter()),params);
         });
         break;
     }

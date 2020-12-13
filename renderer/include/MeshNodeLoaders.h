@@ -3,6 +3,8 @@
 
 #include "MeshNodeLoader.h"
 
+// TODO remade with std::variant
+
 class MeshNodeLoaderVNT : public MeshNodeLoader{
     Q_OBJECT
 public:

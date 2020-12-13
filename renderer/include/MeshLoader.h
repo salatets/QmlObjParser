@@ -14,7 +14,7 @@ public:
         VNT_shader(nullptr),
         VN_shader(nullptr),
         VT_shader(nullptr),
-        V_shader(nullptr){};
+        V_shader(nullptr){}
 
     ~MeshLoader();
 
@@ -25,12 +25,16 @@ public:
     void setShader(meshType type, char* frag,char * vert);
 
     void init_buffers();
-    void paint(const std::function<void(QOpenGLShaderProgram *, MeshRoot)> &);
-
+    // tuple(scale,transform,params) first param must be model matrix
+    void paint(const std::function<std::tuple<QVector3D,QVector3D,program_param>(const MeshRoot &)> &);
+    // first param must be model matrix
+    void paint(const QVector3D& scale, const QVector3D& translate, const std::function<program_param(const MeshRoot&)>&);
 Q_SIGNALS:
     void shaderChanged(meshType type);
 
 private:
+    void internal_paint(const program_param& params);
+
     QOpenGLShaderProgram* getShader(meshType type);
     QOpenGLShaderProgram* assignShader(meshType type, QOpenGLShaderProgram* new_point);
 

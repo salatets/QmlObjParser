@@ -6,17 +6,25 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLFunctions>
 #include <functional>
+#include <variant>
+#include <forward_list>
 
 #include <ImageLoader.h>
 #include <MeshNode.h>
 
-// only realization for VNT
+using program_param =
+std::forward_list<
+std::pair<
+const char*, std::variant<QMatrix4x4,QVector3D,GLfloat>
+>
+>;
+
 class MeshNodeLoader: public QObject, protected QOpenGLFunctions{
     Q_OBJECT
 public:
 
     void init_buffers();
-    void paint(const std::function<void(QOpenGLShaderProgram *)> &);
+    void paint(const program_param&);
 
     virtual ~MeshNodeLoader();
 
@@ -27,7 +35,7 @@ protected:
     MeshNodeLoader(const MeshNode& mesh, const std::string& path, QOpenGLShaderProgram* program)
         : m_mesh(mesh), m_path(path), program(program){
         initializeOpenGLFunctions();
-    };
+    }
 
     virtual void template_init_buffer() = 0;
     virtual void template_paint() = 0;

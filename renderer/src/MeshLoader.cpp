@@ -58,13 +58,34 @@ void MeshLoader::setMesh(const MeshRoot& mesh, const std::string& path){
     isInit = false;
 }
 
-void MeshLoader::paint(const std::function<void(QOpenGLShaderProgram*, MeshRoot)>& f){
+inline void MeshLoader::internal_paint(const program_param& params){
     for(size_t i = 0; i < loaders_size; ++i){
-        loaders[i]->paint(
-                    [f, model = this->m_model](QOpenGLShaderProgram* arg1)
-        {f(arg1,model);}
-        );
+        loaders[i]->paint(params);
     }
+}
+
+inline void apply_transform(const QVector3D& scale, const QVector3D& translate, program_param& params){
+    const char* model_name = params.front().first;
+    QMatrix4x4 model = std::get<QMatrix4x4>(params.front().second);
+    params.pop_front();
+
+    model.scale(scale);
+    model.translate(translate);
+    params.push_front(std::make_pair(model_name, model));
+}
+
+void MeshLoader::paint(const QVector3D& scale, const QVector3D& translate, const std::function<program_param(const MeshRoot&)>& get_params){
+    auto params = get_params(m_model);
+    apply_transform(scale,translate, params);
+    internal_paint(params);
+}
+
+void MeshLoader::paint(const std::function<std::tuple<QVector3D,QVector3D,program_param>(const MeshRoot&)>& get_params){
+    auto out = get_params(m_model);
+    program_param params = std::get<2>(out);
+
+    apply_transform(std::get<0>(out), std::get<1>(out),params);
+    internal_paint(params);
 }
 
 void MeshLoader::setShader(meshType type, char *frag, char *vert){
