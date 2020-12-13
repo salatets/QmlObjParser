@@ -29,16 +29,18 @@ public:
     GLSceneRenderer();
     ~GLSceneRenderer(){}
 
+    void setPath(const QUrl& url);
+    void setSceneType(Helper::Renderer scene_type){this->scene_type = scene_type;}
+
     void setPitch(qreal pitch){m_pitch = pitch;}
     void setYaw(qreal yaw){m_yaw = yaw;}
     void setPos(qreal pos){m_pos = pos;}
-    void setPath(const QUrl& url);
+
     void setZoom(qreal zoom){m_zoom = zoom;}
     void setPerspective(bool is_perspective){m_perspective = is_perspective;}
 
     void setViewportSize(QSize size) { m_viewportSize = size; }
     void setWindow(QQuickWindow *window) { m_window = window; }
-
 
 
 public Q_SLOTS:

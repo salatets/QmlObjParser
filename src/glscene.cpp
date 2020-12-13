@@ -181,13 +181,17 @@ void GLScene::sync(){
 
     QPoint angles = mouseToAngle();
 
-    m_renderer->setViewportSize(window()->size() * window()->devicePixelRatio());
+    m_renderer->setPath(object_path);
+    m_renderer->setSceneType(viewType);
+
     m_renderer->setPitch(angles.y());
     m_renderer->setYaw(angles.x());
     m_renderer->setPos(light_pos);
-    m_renderer->setPath(object_path);
+
     m_renderer->setZoom(wheel_current);
     m_renderer->setPerspective(is_perspective);
+
+    m_renderer->setViewportSize(window()->size() * window()->devicePixelRatio());
     m_renderer->setWindow(window());
 }
 
@@ -300,7 +304,6 @@ void GLSceneRenderer::paint(){
                 {"model",mat},
                 {"projection",proj},
                 {"lightColor", QVector3D(1.0f, 0.0f, 1.0f)},
-                {"objectColor", QVector3D(1.0f, 0.5f, 0.31f)},
                 {"lightPos", QVector3D(static_cast<float>(sin(m_pos)), 0.3f,static_cast<float>(cos(m_pos)))},
                 {"viewPos", QVector3D(0.0f, 0.0f, 0.0f)},
                 {"material.shininess", 64.0f}
