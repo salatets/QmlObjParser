@@ -133,7 +133,10 @@ ApplicationWindow {
             Slider{
                 from: 0
                 to: 6.283
-                value: glbox.pos
+                Component.onCompleted:
+                {
+                    value = glbox.pos;
+                }
                 Layout.fillWidth: true
                 onMoved:
                 {
