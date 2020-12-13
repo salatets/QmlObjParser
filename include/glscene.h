@@ -7,7 +7,7 @@
 #include <Mesh.h>
 #include <FloatingHorizon.h>
 #include <MeshLoader.h>
-#include <SceneParser.h>
+#include <SceneLoader.h>
 
 class Helper : public QObject  // TODO ugly name
 {
@@ -51,6 +51,7 @@ private:
 
     Helper::Renderer scene_type;
     FloatingHorizon fh;
+    SceneLoader sl;
     MeshLoader ml;
 
     Scene scene;

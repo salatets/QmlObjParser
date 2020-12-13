@@ -200,6 +200,10 @@ GLSceneRenderer::GLSceneRenderer() : scene_type(Helper::Model){
     ml.setShader(meshType::VN, VN_fragment, VN_vertex);
     ml.setShader(meshType::VT, VT_fragment, VT_vertex);
     ml.setShader(meshType::V, V_fragment, V_vertex);
+    sl.setShader(meshType::VNT, VNT_fragment, VNT_vertex);
+    sl.setShader(meshType::VN, VN_fragment, VN_vertex);
+    sl.setShader(meshType::VT, VT_fragment, VT_vertex);
+    sl.setShader(meshType::V, V_fragment, V_vertex);
 }
 
 Scene FileLoader(const std::string& path){
@@ -234,7 +238,7 @@ void GLSceneRenderer::setPath(const QUrl& url)
             //fh.init_buffers(m_program);
             break;
         case Helper::Scene:
-            // SCENE
+            sl.setScene(scene,getPWD(m_path));
             break;
         case Helper::Model:
             ml.setMesh(std::get<2>(scene.meshes[0]), getPWD(m_path));
@@ -249,6 +253,7 @@ void GLSceneRenderer::init(){
     if(!ml.isInited()){
         ml.init_buffers();
     }
+    sl.init_buffers();
 }
 
 float max(Vec3 vec){
@@ -274,7 +279,25 @@ void GLSceneRenderer::paint(){
         //fh.paint(mat, m_viewportSize.width(), m_viewportSize.height());
         break;
     case Helper::Scene:
-        // SCENE
+        sl.paint([this](const MeshRoot& model){
+            initializeOpenGLFunctions();
+            glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
+
+            QMatrix4x4 proj;
+            QMatrix4x4 mat;
+            proj.setToIdentity();
+            mat.setToIdentity();
+
+            mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
+            mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
+
+            program_param params {
+                {"model",mat},
+                {"projection",proj},
+                {"objectColor", vec3ToQVector3D(model.front().getMaterial().diffuse)}, // todo add properties to meshes
+            };
+            return params;
+        });
         break;
     case Helper::Model:
         ml.paint([this](const MeshRoot& model){
