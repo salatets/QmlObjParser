@@ -11,7 +11,7 @@ public:
     MeshNodeLoaderVNT(
             const MeshNode& mesh,
             const std::string& path,
-            QOpenGLShaderProgram* shad
+            std::shared_ptr<QOpenGLShaderProgram>& shad
             );
 protected:
     void template_init_buffer() override;
@@ -30,7 +30,7 @@ public:
     MeshNodeLoaderVN(
             const MeshNode& mesh,
             const std::string& path,
-            QOpenGLShaderProgram* shad
+            std::shared_ptr<QOpenGLShaderProgram>& shad
             );
 protected:
     void template_init_buffer() override;
@@ -45,7 +45,7 @@ public:
     MeshNodeLoaderVT(
             const MeshNode& mesh,
             const std::string& path,
-            QOpenGLShaderProgram* shad
+            std::shared_ptr<QOpenGLShaderProgram>& shad
             );
 protected:
     void template_init_buffer() override;
@@ -63,7 +63,7 @@ public:
     MeshNodeLoaderV(
             const MeshNode& mesh,
             const std::string& path,
-            QOpenGLShaderProgram* shad
+            std::shared_ptr<QOpenGLShaderProgram>& shad
             );
 protected:
     void template_init_buffer() override;

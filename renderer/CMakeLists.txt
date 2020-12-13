@@ -20,6 +20,7 @@ set(SOURCES
     src/FloatingHorizon.cpp
     src/MeshNodeLoader.cpp
     src/MeshNodeLoaders.cpp
+    src/ShaderHolder.cpp
     src/vecUtils.cpp
     )
 
@@ -48,7 +49,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Quick OpenGL REQUIRED)
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(${PROJECT_NAME}
-    PUBLIC objparser
+    PUBLIC objparser sceneparser
     Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Quick Qt${QT_VERSION_MAJOR}::OpenGL)
 
 

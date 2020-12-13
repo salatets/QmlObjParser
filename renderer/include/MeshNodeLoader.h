@@ -31,7 +31,7 @@ public:
     void setShader(meshType, std::shared_ptr<QOpenGLShaderProgram>&);
 
 protected:
-    MeshNodeLoader(const MeshNode& mesh, const std::string& path, QOpenGLShaderProgram* program)
+    MeshNodeLoader(const MeshNode& mesh, const std::string& path, std::shared_ptr<QOpenGLShaderProgram>& program)
         : m_mesh(mesh), m_path(path), program(program){
         initializeOpenGLFunctions();
     }
@@ -44,7 +44,7 @@ protected:
 
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo;
-    QOpenGLShaderProgram* program;
+    std::shared_ptr<QOpenGLShaderProgram> program;
 };
 
 

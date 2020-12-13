@@ -88,55 +88,10 @@ void MeshLoader::paint(const std::function<std::tuple<QVector3D,QVector3D,progra
     internal_paint(params);
 }
 
-void MeshLoader::setShader(meshType type, char *frag, char *vert){
-    auto *shader = getShader(type);
-
-    if(shader == nullptr){
-        shader = assignShader(type, new QOpenGLShaderProgram()); // TODO refactor;
+void MeshLoader::afterSetShader(meshType type){
+    for(size_t i = 0; i < loaders_size; ++i){
+        loaders[i]->setShader(type, getShader(type));
     }
-    if(shader->isLinked())
-        shader->removeAllShaders();
 
-    bool success = shader->addCacheableShaderFromSourceCode(QOpenGLShader::Vertex, vert);
-    success &= shader->addCacheableShaderFromSourceCode(QOpenGLShader::Fragment, frag);
-    Q_ASSERT(success);
-
-    success = shader->link();
-    Q_ASSERT(success);
-
-    isInit = false;
+    isInit=false;
 }
-
-QOpenGLShaderProgram* MeshLoader::getShader(meshType type){
-    switch(type){
-    case meshType::VNT:
-        return VNT_shader;
-    case meshType::VN:
-        return VN_shader;
-    case meshType::VT:
-        return VT_shader;
-    case meshType::V:
-        return V_shader;
-    }
-    return nullptr;
-}
-
-QOpenGLShaderProgram* MeshLoader::assignShader(meshType type, QOpenGLShaderProgram* new_point){
-    switch(type){
-    case meshType::VNT:
-        VNT_shader = new_point;
-        return new_point;
-    case meshType::VN:
-        VN_shader = new_point;
-        return new_point;
-    case meshType::VT:
-        VT_shader = new_point;
-        return new_point;
-    case meshType::V:
-        V_shader = new_point;
-        return new_point;
-    }
-    return nullptr;
-}
-
-

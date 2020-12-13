@@ -37,11 +37,10 @@ void MeshNodeLoaderVNT::LoadTexture(Texture texture){ // TODO texture loader
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-MeshNodeLoaderVNT::MeshNodeLoaderVNT(
-        const MeshNode& mesh,
+MeshNodeLoaderVNT::MeshNodeLoaderVNT(const MeshNode& mesh,
         const std::string& path,
-        QOpenGLShaderProgram* shad
-        ): MeshNodeLoader(mesh, path,shad){
+        std::shared_ptr<QOpenGLShaderProgram> &shad
+        ): MeshNodeLoader(mesh, path, shad){
 
     Texture diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
 
@@ -79,10 +78,9 @@ MeshNodeLoaderVNT::~MeshNodeLoaderVNT(){
 
 //------------------------------------------
 
-MeshNodeLoaderVN::MeshNodeLoaderVN(
-        const MeshNode& mesh,
+MeshNodeLoaderVN::MeshNodeLoaderVN(const MeshNode& mesh,
         const std::string& path,
-        QOpenGLShaderProgram* shad
+        std::shared_ptr<QOpenGLShaderProgram> &shad
         ): MeshNodeLoader(mesh, path,shad){}
 
 void MeshNodeLoaderVN::template_init_buffer(){
@@ -104,7 +102,7 @@ void MeshNodeLoaderVN::template_paint(){
 MeshNodeLoaderV::MeshNodeLoaderV(
         const MeshNode& mesh,
         const std::string& path,
-        QOpenGLShaderProgram* shad
+        std::shared_ptr<QOpenGLShaderProgram>& shad
         ): MeshNodeLoader(mesh, path,shad){}
 
 void MeshNodeLoaderV::template_init_buffer(){
@@ -119,10 +117,9 @@ void MeshNodeLoaderV::template_paint(){
 
 //------------------------------------------
 
-MeshNodeLoaderVT::MeshNodeLoaderVT(
-        const MeshNode& mesh,
+MeshNodeLoaderVT::MeshNodeLoaderVT(const MeshNode& mesh,
         const std::string& path,
-        QOpenGLShaderProgram* shad
+        std::shared_ptr<QOpenGLShaderProgram> &shad
         ): MeshNodeLoader(mesh, path,shad){}
 
 void MeshNodeLoaderVT::template_init_buffer(){
