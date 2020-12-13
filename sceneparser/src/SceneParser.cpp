@@ -11,7 +11,7 @@ inline std::string getPWD(const std::string& path){
 
 
 /*
- * currently parse mesh x y z name
+ * currently parse mesh translate(x y z) scale(x y z) name
  * mesh = objfile
  */
 Scene ParseScene(const std::string& path){
@@ -30,19 +30,22 @@ Scene ParseScene(const std::string& path){
        if(token == "mesh"){
             float x = 0,y= 0,z = 0;
             fstrm>>x>>y>>z;
-            Vec3 vec(x,y,z);
-            fstrm >> token;
+            Vec3 translate(x,y,z);
 
+            fstrm>>x>>y>>z;
+            Vec3 scale(x,y,z);
+
+            fstrm >> token;
             if(token.empty()){
                 std::cerr << "mesh in scene " << " could not specified\n";
                 return Scene();
             }
 
-            if(token[token.size()] == '\n')
+            if(token.back() == '\n')
                 token = token.substr(0, path.rfind('\n'));
 
             MeshRoot mesh = parseOBJ(pwd + token);
-            scene.meshes.emplace_back(vec,mesh);
+            scene.meshes.emplace_back(translate,scale,mesh);
        }
        fstrm.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
