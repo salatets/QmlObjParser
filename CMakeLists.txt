@@ -7,6 +7,10 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS NO)
+
 #-------------
 # Locate files
 #-------------
@@ -39,7 +43,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Quick REQUIRED)
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(${PROJECT_NAME}
-    PUBLIC renderer objparser
+    PUBLIC renderer objparser sceneparser
     Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Quick)
 
 add_definitions( -DQT_VERSION_MAJOR=${QT_VERSION_MAJOR})
@@ -47,12 +51,6 @@ add_definitions( -DQT_VERSION_MAJOR=${QT_VERSION_MAJOR})
 add_subdirectory(renderer)
 add_subdirectory(objparser)
 add_subdirectory(sceneparser)
-
-set(${LIBRARY_NAME} PROPERTY
-    CMAKE_CXX_STANDARD 20
-    CMAKE_CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS NO
-    )
 
 #-----------------------------------
 # generate shaders header from files
