@@ -46,6 +46,7 @@ add_definitions( -DQT_VERSION_MAJOR=${QT_VERSION_MAJOR})
 
 add_subdirectory(renderer)
 add_subdirectory(objparser)
+add_subdirectory(sceneparser)
 
 set(${LIBRARY_NAME} PROPERTY
     CMAKE_CXX_STANDARD 20
