@@ -7,7 +7,7 @@ struct Vec3{
     float y;
     float z;
     Vec3(float x, float y, float z)
-        : x(x), y(y), z(z){};
+        : x(x), y(y), z(z){}
 };
 
 Vec3 operator+( Vec3 const& left, Vec3 const& right );
