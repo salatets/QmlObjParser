@@ -7,6 +7,7 @@
 #include <Mesh.h>
 #include <FloatingHorizon.h>
 #include <MeshLoader.h>
+#include <SceneParser.h>
 
 class Helper : public QObject  // TODO ugly name
 {
@@ -31,7 +32,7 @@ public:
     void setPitch(qreal pitch){m_pitch = pitch;}
     void setYaw(qreal yaw){m_yaw = yaw;}
     void setPos(qreal pos){m_pos = pos;}
-    void setPath(const QUrl& path);
+    void setPath(const QUrl& url);
     void setZoom(qreal zoom){m_zoom = zoom;}
     void setPerspective(bool is_perspective){m_perspective = is_perspective;}
 
@@ -46,11 +47,11 @@ public Q_SLOTS:
 
 private:
 
-    Helper::Renderer type;
+    Helper::Renderer scene_type;
     FloatingHorizon fh;
     MeshLoader ml;
 
-    MeshRoot m_model;
+    Scene scene;
     qreal m_pitch {0};
     qreal m_yaw {0};
     qreal m_pos {0};

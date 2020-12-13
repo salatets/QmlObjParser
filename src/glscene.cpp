@@ -191,37 +191,53 @@ void GLScene::sync(){
     m_renderer->setWindow(window());
 }
 
-GLSceneRenderer::GLSceneRenderer() : type(Helper::Model){
+GLSceneRenderer::GLSceneRenderer() : scene_type(Helper::Model){
     ml.setShader(meshType::VNT, VNT_fragment, VNT_vertex);
     ml.setShader(meshType::VN, VN_fragment, VN_vertex);
     ml.setShader(meshType::VT, VT_fragment, VT_vertex);
     ml.setShader(meshType::V, V_fragment, V_vertex);
 }
 
-void GLSceneRenderer::setPath(const QUrl& path) // TODO renderer will not parse models
+Scene FileLoader(const std::string& path){
+    std::string ext = path.substr(path.rfind('.') + 1);
+
+    if(ext == "obj"){
+        Scene scene;
+        scene.meshes.emplace_back(Vec3(0,0,0),Vec3(0,0,0),parseOBJ(path));
+        return scene;
+    }else if(ext == "scene"){
+        return ParseScene(path);
+    }
+
+    qDebug() << "could not parse giving " << QString(ext.data()) << " object\n";
+    return Scene();
+}
+
+void GLSceneRenderer::setPath(const QUrl& url)
 {
-    if(path == old_url)
+    if(url == old_url)
         return;
 
-    m_path = convertPath(path);
-    m_model = parseOBJ(m_path);
+    m_path = convertPath(url);
 
-    if(!m_model.empty()){
+    scene = FileLoader(m_path);
 
-        switch (type) {
+    if(!scene.meshes.empty()){
+
+        switch (scene_type) {
         case Helper::FH_Model:
-            fh.setMesh(m_model);
+            fh.setMesh(std::get<2>(scene.meshes[0]));
             //fh.init_buffers(m_program);
             break;
         case Helper::Scene:
             // SCENE
             break;
         case Helper::Model:
-            ml.setMesh(m_model, getPWD(m_path));
+            ml.setMesh(std::get<2>(scene.meshes[0]), getPWD(m_path));
             break;
         }
     }
-    old_url = path;
+    old_url = url;
     m_window->update();
 }
 
@@ -243,12 +259,12 @@ float max(Vec3 vec){
 }
 
 void GLSceneRenderer::paint(){
-    if(m_model.empty())
+    if(scene.meshes.empty())
         return;
 
     m_window->beginExternalCommands();
 
-    switch (type) {
+    switch (scene_type) {
     case Helper::FH_Model:
         // TODO size of points
         //fh.paint(mat, m_viewportSize.width(), m_viewportSize.height());
@@ -267,7 +283,8 @@ void GLSceneRenderer::paint(){
             mat.setToIdentity();
 
             auto m_corr = m_zoom -1;
-            // TODO same size of object
+
+            // TODO remade this hack
             if(m_perspective){
                 proj.perspective(45,(double)(m_viewportSize.width())/m_viewportSize.height(),0.1,10);
                 mat.translate(QVector3D(0,0, m_corr -2));
