@@ -48,6 +48,17 @@ ApplicationWindow {
                 }
             }
         }
+
+        MenuSeparator { }
+        Menu  {
+            title: qsTr("&Help")
+
+            Action {
+                text: qsTr("&Help")
+                shortcut: StandardKey.HelpContents
+                onTriggered: helpDialog.open()
+            }
+        }
     }
 
     GLScene {
@@ -62,36 +73,9 @@ ApplicationWindow {
         border.width: 1
         border.color: "white"
         opacity: 0.5
+        visible: controls_layout.visible
         anchors.fill: controls_layout
         anchors.margins: -10
-
-        MouseArea {
-            anchors.fill: parent
-            anchors.margins: -10
-            hoverEnabled: true
-            onEntered: animateOpacityUP.start()
-            onExited: animateOpacityDOWN.start()
-        }
-
-        NumberAnimation {
-            id: animateOpacityUP
-            target: rect_controls
-            properties: "opacity"
-            from: 0.5
-            to: 1.0
-            duration: 250
-            easing.type: Easing.InQuad
-        }
-
-        NumberAnimation {
-            id: animateOpacityDOWN
-            target: rect_controls
-            properties: "opacity"
-            from: 1.0
-            to: 0.5
-            duration: 250
-            easing.type: Easing.OutQuad
-        }
     }
 
     ColumnLayout{
@@ -99,30 +83,29 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.bottom: parent.bottom
+        visible: glbox.viewMode === GLScene.Model
 
         opacity: rect_controls.opacity
         anchors.margins: 20
 
         RowLayout{
-            visible: glbox.viewMode === GLScene.Model
-        CheckBox{
-            id: checkbox
-            checked: true
-            onCheckStateChanged:
-            {
-                glbox.perspective = checkbox.checked;
+            CheckBox{
+                id: checkbox
+                checked: true
+                onCheckStateChanged:
+                {
+                    glbox.perspective = checkbox.checked;
+                }
             }
-        }
-        Label {
-            Layout.fillWidth: true
-            Layout.maximumWidth: 60
-            text: "perspective"
-            font.pixelSize: 30
-        }
+            Label {
+                Layout.fillWidth: true
+                Layout.maximumWidth: 60
+                text: "perspective"
+                font.pixelSize: 30
+            }
         }
 
         RowLayout{
-
             Label {
                 Layout.fillWidth: true
                 Layout.maximumWidth: 60
@@ -154,5 +137,28 @@ ApplicationWindow {
         onAccepted: {
             glbox.path = fileDialog.fileUrl
         }
+    }
+
+    Dialog {
+        id: helpDialog
+        title: "help"
+        Text {
+            textFormat: Text.StyledText
+            text: '
+<h1>Controls</h1>
+<p>Hold and move mouse to rotate object<br>
+Use mouse wheel for zoom object<br>
+In different modes may be additional control panel, dont shy to use it<br>
+<h1>Supported formats</h1>
+<p> in this moment project support .obj and .scene formats<br>
+<h1>Scene format</h1>
+.scene files constais(separator - new line):
+<ul>
+<li> mesh sx sy sz tx ty tz name.obj<br>
+there are first coordinats for object scale in scene, second for translation
+'
+        }
+
+        standardButtons: Dialog.Ok
     }
 }
