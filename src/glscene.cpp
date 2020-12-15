@@ -288,13 +288,19 @@ void GLSceneRenderer::paint(){
             proj.setToIdentity();
             mat.setToIdentity();
 
+            proj.perspective(45,(double)(m_viewportSize.width())/m_viewportSize.height(),0.1,10);
+            mat.translate(QVector3D(0,0, - 6));
+
             mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
             mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
 
             program_param params {
                 {"model",mat},
                 {"projection",proj},
-                {"objectColor", vec3ToQVector3D(model.front().getMaterial().diffuse)}, // todo add properties to meshes
+                {"lightColor", QVector3D(1.0f, 0.0f, 1.0f)},
+                {"lightPos", QVector3D(0, 0.6f, -6)},
+                {"viewPos", QVector3D(0.0f, 0.0f, 0.0f)},
+                {"material.shininess", 64.0f}
             };
             return params;
         });
