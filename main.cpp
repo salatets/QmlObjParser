@@ -1,5 +1,6 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QTranslator>
 //#include <QQuickWindow>
 
 #include "glscene.h"
@@ -14,6 +15,10 @@ int main(int argc, char *argv[])
 
     QGuiApplication::setOrganizationName("ORG");
     QGuiApplication::setOrganizationDomain("DOM");
+
+    QTranslator appTranslator;
+    appTranslator.load(QLocale(), QLatin1String("RGZ"), QLatin1String("_"), QLatin1String("translations"));
+    app.installTranslator(&appTranslator);
 
     qmlRegisterType<GLScene>("GLScene", 1, 0, "GLScene");
 

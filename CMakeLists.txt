@@ -37,8 +37,8 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Quick QuickControls2 REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Quick QuickControls2 REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Quick QuickControls2 LinguistTools REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Quick QuickControls2 LinguistTools REQUIRED)
 
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
@@ -51,6 +51,20 @@ add_definitions( -DQT_VERSION_MAJOR=${QT_VERSION_MAJOR})
 add_subdirectory(renderer)
 add_subdirectory(objparser)
 add_subdirectory(sceneparser)
+
+#-------------
+# translations
+#-------------
+
+set(TS_FILES
+    i18n/RGZ_ru.ts)
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/translations")
+set_source_files_properties(${TS_FILES} PROPERTIES OUTPUT_LOCATION "translations")
+
+qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+add_custom_target(translations DEPENDS ${QM_FILES})
+
+add_dependencies(${PROJECT_NAME} translations)
 
 #-----------------------------------
 # generate shaders header from files
