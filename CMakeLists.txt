@@ -37,14 +37,14 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Quick REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Quick REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Gui Quick QuickControls2 REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Quick QuickControls2 REQUIRED)
 
 target_compile_definitions(${PROJECT_NAME}
     PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 target_link_libraries(${PROJECT_NAME}
     PUBLIC renderer objparser sceneparser
-    Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Quick)
+    Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui Qt${QT_VERSION_MAJOR}::Quick Qt${QT_VERSION_MAJOR}::QuickControls2)
 
 add_definitions( -DQT_VERSION_MAJOR=${QT_VERSION_MAJOR})
 
