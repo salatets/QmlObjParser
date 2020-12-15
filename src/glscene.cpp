@@ -55,7 +55,7 @@ void roundTo(QPoint& val, int to){
         val.ry() += to;
 }
 
-GLScene::GLScene() : light_pos(3.14), wheel_current(0), m_renderer(nullptr), viewType(Helper::Renderer::Model){
+GLScene::GLScene() : light_pos(3.14), wheel_current(0), viewType(Helper::Renderer::Model), m_renderer(nullptr){
     connect(this, &QQuickItem::windowChanged, this, &GLScene::handleWindowChanged);
     setAcceptedMouseButtons(Qt::LeftButton);
     setFlag(ItemAcceptsInputMethod, true);
@@ -204,6 +204,7 @@ GLSceneRenderer::GLSceneRenderer() : scene_type(Helper::Model){
     sl.setShader(meshType::VN, VN_fragment, VN_vertex);
     sl.setShader(meshType::VT, VT_fragment, VT_vertex);
     sl.setShader(meshType::V, V_fragment, V_vertex);
+    fh.setShader(1, hor_fragment, hor_vertex);
 }
 
 Scene FileLoader(const std::string& path){
@@ -235,7 +236,6 @@ void GLSceneRenderer::setPath(const QUrl& url)
         switch (scene_type) {
         case Helper::FH_Model:
             fh.setMesh(std::get<2>(scene.meshes[0]));
-            //fh.init_buffers(m_program);
             break;
         case Helper::Scene:
             sl.setScene(scene,getPWD(m_path));
@@ -250,10 +250,20 @@ void GLSceneRenderer::setPath(const QUrl& url)
 }
 
 void GLSceneRenderer::init(){
-    if(!ml.isInited()){
-        ml.init_buffers();
+
+    switch (scene_type) {
+    case Helper::FH_Model:
+        if(!fh.isInited())
+            fh.init_buffers();
+        break;
+    case Helper::Scene:
+        sl.init_buffers();
+        break;
+    case Helper::Model:
+        if(!ml.isInited())
+            ml.init_buffers();
+        break;
     }
-    sl.init_buffers();
 }
 
 float max(Vec3 vec){
@@ -275,11 +285,23 @@ void GLSceneRenderer::paint(){
 
     switch (scene_type) {
     case Helper::FH_Model:
-        // TODO size of points
-        //fh.paint(mat, m_viewportSize.width(), m_viewportSize.height());
+        fh.paint([this](const MeshRoot& m_model){
+            initializeOpenGLFunctions();
+            glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
+
+            QMatrix4x4 mat;
+            mat.setToIdentity();
+            mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(1,0,0), m_pitch));
+            mat.rotate(QQuaternion::fromAxisAndAngle(QVector3D(0,1,0), m_yaw));
+
+            mat.scale(1.0f / max((m_model.getSize())));
+            mat.translate(- vec3ToQVector3D(m_model.getCenter()));
+
+            return std::make_tuple(m_viewportSize.width(), m_viewportSize.height(),mat);
+        });
         break;
     case Helper::Scene:
-        sl.paint([this](const MeshRoot& model){
+        sl.paint([this](const MeshRoot&){
             initializeOpenGLFunctions();
             glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
 
@@ -298,7 +320,7 @@ void GLSceneRenderer::paint(){
                 {"model",mat},
                 {"projection",proj},
                 {"lightColor", QVector3D(1.0f, 0.0f, 1.0f)},
-                {"lightPos", QVector3D(0, 0.6f, -6)},
+                {"lightPos", QVector3D(0.0f, 0.6f, -6.0f)},
                 {"viewPos", QVector3D(0.0f, 0.0f, 0.0f)},
                 {"material.shininess", 64.0f}
             };
@@ -343,11 +365,11 @@ void GLSceneRenderer::paint(){
         break;
     }
 
-    #if QT_VERSION_MAJOR == 6
+#if QT_VERSION_MAJOR == 6
     QQuickOpenGLUtils::resetOpenGLState();
-    #else
+#else
     m_window->resetOpenGLState();
-    #endif
+#endif
 
     m_window->endExternalCommands();
 }

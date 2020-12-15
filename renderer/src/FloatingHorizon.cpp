@@ -3,6 +3,7 @@
 
 void FloatingHorizon::setMesh(MeshRoot mesh){
     // todo add loading full model
+    m_model = mesh;
 
     size_t size = (*mesh.cbegin()).getSize();
 
@@ -11,9 +12,11 @@ void FloatingHorizon::setMesh(MeshRoot mesh){
 
     auto vertex_data = reinterpret_cast<const QVector3D*>((*mesh.cbegin()).getData());
     vertices.assign(vertex_data, vertex_data + size);
+
+    isInit = false;
 }
 
-void FloatingHorizon::init_buffers(QOpenGLShaderProgram* program){
+void FloatingHorizon::init_buffers(){
     if(!vao.isCreated()){
         bool success = vao.create();
         Q_ASSERT(success);
@@ -30,6 +33,9 @@ void FloatingHorizon::init_buffers(QOpenGLShaderProgram* program){
 
     bool success = vbo.bind();
     Q_ASSERT(success);
+
+    auto* program = getShader(1).get();
+
     vbo.allocate(nullptr, vertices.size() * sizeof(QVector3D) * 2); // coord color
     program->setAttributeBuffer("position", GL_FLOAT, 0, 3,6 * sizeof(GLfloat));
     program->enableAttributeArray("position");
@@ -38,9 +44,11 @@ void FloatingHorizon::init_buffers(QOpenGLShaderProgram* program){
 
     vbo.release();
     vao.release();
+
+    isInit = true;
 }
 
-auto FloatingHorizon::getPointsToDraw(QMatrix4x4 proj, int width, int height,int point_size){
+auto FloatingHorizon::getPointsToDraw(QMatrix4x4 proj, GLsizei width, GLsizei height, int point_size){
     std::vector<std::array<QVector3D,2>> draw_vertices;
     draw_vertices.reserve(vertices.size());
 
@@ -124,19 +132,23 @@ void FloatingHorizon::clearHorizons(int width, int height){
 }
 
 // FIXME light shader render after light pos move
-void FloatingHorizon::paint(QMatrix4x4 mat, GLsizei width, GLsizei height)
-{
-    initializeOpenGLFunctions();
+void FloatingHorizon::paint(const std::function<std::tuple<GLsizei, GLsizei, QMatrix4x4>(const MeshRoot &)> & get_param)
+{   
+    auto params = get_param(m_model);
 
-    vao.bind();
+    auto* program = getShader(1).get();
+
+    program->bind();
+
+    program->setUniformValue("model",std::get<2>(params));
 
     glEnable(GL_PROGRAM_POINT_SIZE);
 
-    clearHorizons(width, height);
+    clearHorizons(std::get<0>(params), std::get<1>(params));
 
-    int size_point = 4;
-    auto vc_draw = getPointsToDraw(mat,width, height, size_point);
+    auto vc_draw = getPointsToDraw(std::get<2>(params), std::get<0>(params), std::get<1>(params), 4);
 
+    vao.bind();
     vbo.bind();
     vbo.write(0,&vc_draw.data()[0],vc_draw.size() * 6 * sizeof(float));
     vbo.release();
@@ -144,4 +156,9 @@ void FloatingHorizon::paint(QMatrix4x4 mat, GLsizei width, GLsizei height)
     glDrawArrays(GL_POINTS, 0, vc_draw.size());
 
     vao.release();
+    program->release();
+}
+
+void FloatingHorizon::afterSetShader(int){
+    isInit=false;
 }
