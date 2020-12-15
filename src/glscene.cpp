@@ -232,19 +232,10 @@ void GLSceneRenderer::setPath(const QUrl& url)
     scene = FileLoader(m_path);
 
     if(!scene.meshes.empty()){
-
-        switch (scene_type) {
-        case Helper::FH_Model:
             fh.setMesh(std::get<2>(scene.meshes[0]));
-            break;
-        case Helper::Scene:
             sl.setScene(scene,getPWD(m_path));
-            break;
-        case Helper::Model:
             ml.setMesh(std::get<2>(scene.meshes[0]), getPWD(m_path));
-            break;
         }
-    }
     old_url = url;
     m_window->update();
 }
