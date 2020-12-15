@@ -143,8 +143,11 @@ QQ.ApplicationWindow {
         QQ.ScrollView {
             anchors.fill: parent
             clip:true
+            QQ.ScrollBar.horizontal.policy: QQ.ScrollBar.AlwaysOff
             Text {
+                width: parent.width
                 textFormat: Text.StyledText
+                wrapMode: Text.WordWrap
                 text: qsTr('<h1>Controls</h1>
 <p>Hold and move mouse to rotate object<br>
 Use mouse wheel for zoom object<br>
@@ -152,7 +155,7 @@ In different modes may be additional control panel, dont shy to use it<br>
 <h1>Supported formats</h1>
 <p> in this moment project support .obj and .scene formats<br>
 <h1>Scene format</h1>
-<p>.scene files constais(separator - new line):
+<p>.scene files constain(separator - new line):
 <ul>
 <li> mesh sx sy sz tx ty tz name.obj<br>
 there are first coordinats for object scale in scene, second for translation
