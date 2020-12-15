@@ -21,7 +21,7 @@ set(SOURCES
     src/MeshNodeLoader.cpp
     src/MeshNodeLoaders.cpp
     src/SceneLoader.cpp
-    src/ShaderHolder.cpp
+    include/ShaderHolder.h
     src/vecUtils.cpp
     )
 

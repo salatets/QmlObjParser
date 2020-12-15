@@ -33,19 +33,19 @@ void MeshLoader::setMesh(const MeshRoot& mesh, const std::string& path){
         for(; i < loaders_size; ++i, ++p){
             switch(p->getType()){
             case meshType::VNT:{
-                loaders[i] = new MeshNodeLoaderVNT(*p, path, VNT_shader);
+                loaders[i] = new MeshNodeLoaderVNT(*p, path, getShader(meshType::VNT));
                 break;
             }
             case meshType::VN:{
-                loaders[i] = new MeshNodeLoaderVN(*p, path, VN_shader);
+                loaders[i] = new MeshNodeLoaderVN(*p, path, getShader(meshType::VN));
                 break;
             }
             case meshType::VT:{
-                loaders[i] = new MeshNodeLoaderVT(*p, path, VT_shader); // TODO NOT TESTED
+                loaders[i] = new MeshNodeLoaderVT(*p, path, getShader(meshType::VT));
                 break;
             }
             case meshType::V:{
-                loaders[i] = new MeshNodeLoaderVN(*p, path, V_shader); // TODO NOT TESTED
+                loaders[i] = new MeshNodeLoaderVN(*p, path, getShader(meshType::V));
                 break;
             }
             default:

@@ -6,10 +6,10 @@
 #include <SceneParser.h>
 #include "ShaderHolder.h"
 
-class SceneLoader : public QObject, protected QOpenGLFunctions, public ShaderHolder{
+class SceneLoader : public QObject, protected QOpenGLFunctions, public ShaderHolder<meshType>{
     Q_OBJECT
 public:
-    SceneLoader(){}
+    SceneLoader(): ShaderHolder<meshType>({meshType::VNT,meshType::VN,meshType::VT,meshType::V}){}
 
     void setScene(const Scene &scene, const std::string &path);
 

@@ -5,13 +5,15 @@
 #include "MeshNodeLoader.h"
 #include "ShaderHolder.h"
 
-class MeshLoader : public QObject, protected QOpenGLFunctions, public ShaderHolder{
+class MeshLoader : public QObject, protected QOpenGLFunctions, public ShaderHolder<meshType>{
     Q_OBJECT
 public:
     MeshLoader() :
+        ShaderHolder({meshType::VNT,meshType::VN,meshType::VT,meshType::V}),
         loaders(nullptr),
         loaders_size(0),
-        isInit(false){}
+        isInit(false)
+        {}
 
     ~MeshLoader();
 

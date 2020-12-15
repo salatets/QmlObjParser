@@ -7,13 +7,16 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLFunctions>
 
+#include "ShaderHolder.h"
 #include <Mesh.h>
 
-class FloatingHorizon : public QObject, protected QOpenGLFunctions
-{
+class FloatingHorizon : public QObject, protected QOpenGLFunctions, public ShaderHolder<int>{ // TODO replace shaderHolder
     Q_OBJECT
 public:
-    FloatingHorizon(){};
+    FloatingHorizon() :
+    ShaderHolder({1}),
+    {
+    }
 
     void setMesh(MeshRoot mesh);
 
@@ -24,6 +27,7 @@ private:
 
     void clearHorizons(int width, int height);
     auto getPointsToDraw(QMatrix4x4 proj, int width, int height,int point_size);
+
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo;
     std::vector<int> lower_horizon;
