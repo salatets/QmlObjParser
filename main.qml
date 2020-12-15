@@ -1,47 +1,46 @@
-import QtQuick 2.3
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.3
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Controls 2.15 as QQ
 import QtQuick.Dialogs 1.3
 
 import GLScene 1.0
-//import Helper 1.0
 
-ApplicationWindow {
-    width: 400
-    height: 400
+QQ.ApplicationWindow {
+    id: root
+    minimumWidth: 400
+    minimumHeight: 400
     visible: true
-    color: "white"
 
-    menuBar: MenuBar {
-        Menu {
+    menuBar: QQ.MenuBar {
+        QQ.Menu {
             title: qsTr("&File")
-            Action {
+            QQ.Action {
                 text: qsTr("&Open...")
                 shortcut: StandardKey.Open
                 onTriggered: fileDialog.open()
             }
-            MenuSeparator { }
-            Action {
+            QQ.MenuSeparator { }
+            QQ.Action {
                 text: qsTr("&Quit")
                 shortcut: StandardKey.Quit
                 onTriggered: Qt.quit()
             }
         }
-        Menu {
+        QQ.Menu {
             title: qsTr("&Labs")
-            Action {
+            QQ.Action {
                 text: qsTr("Lab 1")
                 onTriggered: {
                     glbox.viewMode = GLScene.FH_Model
                 }
             }
-            Action {
+            QQ.Action {
                 text: qsTr("Lab 2")
                 onTriggered: {
                     glbox.viewMode = GLScene.Scene
                 }
             }
-            Action {
+            QQ.Action {
                 text: qsTr("RGZ")
                 onTriggered: {
                     glbox.viewMode = GLScene.Model
@@ -49,11 +48,10 @@ ApplicationWindow {
             }
         }
 
-        MenuSeparator { }
-        Menu  {
+        QQ.Menu  {
             title: qsTr("&Help")
 
-            Action {
+            QQ.Action {
                 text: qsTr("&Help")
                 shortcut: StandardKey.HelpContents
                 onTriggered: helpDialog.open()
@@ -68,14 +66,12 @@ ApplicationWindow {
 
     Rectangle{
         id:rect_controls
-        color: Qt.rgba(1, 1, 1, 0.7)
-        radius: 10
-        border.width: 1
-        border.color: "white"
-        opacity: 0.5
         visible: controls_layout.visible
         anchors.fill: controls_layout
         anchors.margins: -10
+        color: "#e0e0e0"
+        border.width: 1
+        opacity: 0.8
     }
 
     ColumnLayout{
@@ -89,7 +85,7 @@ ApplicationWindow {
         anchors.margins: 20
 
         RowLayout{
-            CheckBox{
+            QQ.CheckBox{
                 id: checkbox
                 checked: true
                 onCheckStateChanged:
@@ -97,23 +93,19 @@ ApplicationWindow {
                     glbox.perspective = checkbox.checked;
                 }
             }
-            Label {
+            QQ.Label {
                 Layout.fillWidth: true
-                Layout.maximumWidth: 60
-                text: "perspective"
-                font.pixelSize: 30
+                text: qsTr("Perspective")
             }
         }
 
         RowLayout{
-            Label {
+            QQ.Label {
                 Layout.fillWidth: true
-                Layout.maximumWidth: 60
-                text: "light"
-                font.pixelSize: 30
+                text: qsTr("light position")
             }
 
-            Slider{
+            QQ.Slider{
                 from: 0
                 to: 6.283
                 Component.onCompleted:
@@ -132,33 +124,41 @@ ApplicationWindow {
 
     FileDialog {
         id: fileDialog
-        title: "Please choose a .obj file"
+        title: qsTr("Please choose a .obj file")
         folder: shortcuts.home
         onAccepted: {
             glbox.path = fileDialog.fileUrl
         }
     }
 
-    Dialog {
+    QQ.Dialog {
         id: helpDialog
-        title: "help"
-        Text {
-            textFormat: Text.StyledText
-            text: '
-<h1>Controls</h1>
+        title: qsTr("help")
+        modal: false
+
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        standardButtons: Dialog.Close
+
+        QQ.ScrollView {
+            anchors.fill: parent
+            clip:true
+            Text {
+                textFormat: Text.StyledText
+                text: qsTr('<h1>Controls</h1>
 <p>Hold and move mouse to rotate object<br>
 Use mouse wheel for zoom object<br>
 In different modes may be additional control panel, dont shy to use it<br>
 <h1>Supported formats</h1>
 <p> in this moment project support .obj and .scene formats<br>
 <h1>Scene format</h1>
-.scene files constais(separator - new line):
+<p>.scene files constais(separator - new line):
 <ul>
 <li> mesh sx sy sz tx ty tz name.obj<br>
 there are first coordinats for object scale in scene, second for translation
-'
+')
+            }
         }
 
-        standardButtons: Dialog.Ok
     }
 }
