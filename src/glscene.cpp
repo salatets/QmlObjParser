@@ -314,7 +314,7 @@ void GLSceneRenderer::paint(){
             // TODO remade this hack
             if(m_perspective){
                 proj.perspective(45,(double)(m_viewportSize.width())/m_viewportSize.height(),0.1,10);
-                mat.translate(QVector3D(0,0, m_corr -2));
+                mat.translate(QVector3D(0,0, m_corr - 2));
             }else{
                 mat.scale(-1/(m_corr),-1/(m_corr),1/(m_corr));
             }
@@ -327,7 +327,7 @@ void GLSceneRenderer::paint(){
                 {"model",mat},
                 {"projection",proj},
                 {"lightColor", QVector3D(1.0f, 0.0f, 1.0f)},
-                {"lightPos", QVector3D(static_cast<float>(sin(m_pos)), 0.3f,static_cast<float>(cos(m_pos)))},
+                {"lightPos", QVector3D(static_cast<float>(sin(m_pos)), 0.3f, (m_perspective ? m_corr - 2 : 0) + static_cast<float>(cos(m_pos)))},
                 {"viewPos", QVector3D(0.0f, 0.0f, 0.0f)},
                 {"material.shininess", 64.0f}
             };
