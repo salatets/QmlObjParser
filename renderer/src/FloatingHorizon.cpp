@@ -62,7 +62,7 @@ auto FloatingHorizon::getPointsToDraw(QMatrix4x4 proj, GLsizei width, GLsizei he
         proj_vecs.emplace_back(i,proj_vec);
     }
 
-    std::sort(proj_vecs.begin(), proj_vecs.end(), [](auto a, auto b){return a.second.z() > b.second.z();});
+    std::sort(proj_vecs.begin(), proj_vecs.end(), [](auto a, auto b){return a.second.z() < b.second.z();});
 
     // Transform vertices to screen space
     for(size_t i = 0; i < vertices.size(); ++i){
