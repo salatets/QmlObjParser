@@ -12,7 +12,7 @@ MeshNode::MeshNode(const Mtl& material,
     std::memcpy(vertex_data, vertexs.data(), vertexs.size() * 3 * sizeof(float));
     std::memcpy(vertex_data + this->size * 3, normals.data(), normals.size() * 3 * sizeof(float));
     std::memcpy(vertex_data + this->size * 6, uvs.data(), uvs.size() * 2 * sizeof(float));
-};
+}
 
 MeshNode::MeshNode(const Mtl& material,
                    const std::vector<Vec3>& vertexs,
@@ -22,7 +22,7 @@ MeshNode::MeshNode(const Mtl& material,
 
     std::memcpy(vertex_data, vertexs.data(), vertexs.size() * 3 * sizeof(float));
     std::memcpy(vertex_data + this->size * 3, normals.data(), normals.size() * 3 * sizeof(float));
-};
+}
 
 MeshNode::MeshNode(const Mtl& material,
                    const std::vector<Vec3>& vertexs,
@@ -32,7 +32,7 @@ MeshNode::MeshNode(const Mtl& material,
 
     std::memcpy(vertex_data, vertexs.data(), vertexs.size() * 3 * sizeof(float));
     std::memcpy(vertex_data + this->size * 3, uvs.data(), uvs.size() * 2 * sizeof(float));
-};
+}
 
 MeshNode::MeshNode(const Mtl& material,
                    const std::vector<Vec3>& vertexs) : type(V), material(material), size(vertexs.size()){
@@ -40,7 +40,7 @@ MeshNode::MeshNode(const Mtl& material,
     vertex_data = new float[size * getTypeSize(*this)];
 
     std::memcpy(vertex_data, vertexs.data(), vertexs.size() * 3 * sizeof(float));
-};
+}
 
 
 size_t MeshNode::getTypeSize(const MeshNode& mesh){

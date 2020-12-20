@@ -42,8 +42,8 @@ public:
                              const std::vector<Vec2>& uvs);
 
     const meshType& getType() const {return type;}
-    const float* getData() const { return vertex_data;};
-    const Mtl& getMaterial() const { return material;};
+    const float* getData() const { return vertex_data;}
+    const Mtl& getMaterial() const { return material;}
     size_t getSize() const {return size;}
     size_t static getTypeSize(const MeshNode& mesh);
 
@@ -104,8 +104,8 @@ public:
 private:
     meshType type;
     Mtl material;
-    size_t size;
-    float* vertex_data;
+    size_t size; // size of vertex, not float
+    float* vertex_data; // coord data, then normals data, then uv data
 
     MeshNode(const Mtl& material,
              const std::vector<Vec3>& vertexs,

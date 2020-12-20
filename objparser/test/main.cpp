@@ -30,7 +30,7 @@ TEST_CASE("load cube.obj"){
     MeshRoot test = parseOBJ("cube.obj");
     REQUIRE(test.size() == 1);
 
-    MeshNode mesh = *test.cbegin();
+    MeshNode mesh = test.front();
 
     SUBCASE("test mesh"){
         CHECK(mesh.getType() == meshType::VNT);

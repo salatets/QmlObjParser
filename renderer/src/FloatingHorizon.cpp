@@ -5,12 +5,12 @@ void FloatingHorizon::setMesh(MeshRoot mesh){
     // todo add loading full model
     m_model = mesh;
 
-    size_t size = (*mesh.cbegin()).getSize();
+    size_t size = mesh.front().getSize();
 
     vertices.clear();
     vertices.reserve(size);
 
-    auto vertex_data = reinterpret_cast<const QVector3D*>((*mesh.cbegin()).getData());
+    auto vertex_data = reinterpret_cast<const QVector3D*>(mesh.front().getData());
     vertices.assign(vertex_data, vertex_data + size);
 
     isInit = false;
