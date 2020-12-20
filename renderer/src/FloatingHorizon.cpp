@@ -80,7 +80,7 @@ auto FloatingHorizon::getPointsToDraw(QMatrix4x4 proj, GLsizei width, GLsizei he
 
         // radius
         for(int j = point[0] - point_size + 1; j < point[0] + point_size; ++j){
-            if(j < 0 || j > width)
+            if(j < 0 || j >= width)
                 continue;
 
             if(higher_horizon[j] < point[1]){
