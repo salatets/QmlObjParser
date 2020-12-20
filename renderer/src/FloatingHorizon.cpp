@@ -10,7 +10,9 @@ void FloatingHorizon::setMesh(MeshRoot mesh){
     vertices.clear();
     vertices.reserve(size);
 
-    auto vertex_data = reinterpret_cast<const QVector3D*>(mesh.front().getData());
+    // FIXME first two vertex is broken if front() is used
+    auto vertex_data = reinterpret_cast<const QVector3D*>(mesh.cbegin()->getData());
+
     vertices.assign(vertex_data, vertex_data + size);
 
     isInit = false;
