@@ -21,7 +21,6 @@ set(SOURCES
     src/MeshNodeLoader.cpp
     src/MeshNodeLoaders.cpp
     src/SceneLoader.cpp
-    include/ShaderHolder.h
     src/vecUtils.cpp
     )
 
@@ -32,6 +31,7 @@ set(HEADERS
     include/MeshNodeLoader.h
     include/MeshNodeLoaders.h
     include/SceneLoader.h
+    include/ShaderHolder.h
     )
 
 
