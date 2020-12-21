@@ -10,6 +10,7 @@
 #include <vecUtils.h>
 
 #include "shaders.h"
+#include "ImageToMesh.h"
 
 std::string convertPath(const QUrl& path){
     std::string res;
@@ -212,10 +213,14 @@ Scene FileLoader(const std::string& path){
 
     if(ext == "obj"){
         Scene scene;
-        scene.meshes.emplace_back(Vec3(0,0,0),Vec3(0,0,0),parseOBJ(path));
+        scene.meshes.emplace_back(Vec3(1,1,1),Vec3(0,0,0),parseOBJ(path));
         return scene;
     }else if(ext == "scene"){
         return ParseScene(path);
+    }else if(ext == "bmp"){
+        Scene scene;
+        scene.meshes.emplace_back(Vec3(1,1,1),Vec3(0,0,0),BmpToMesh(parseBMP(path)));
+        return scene;
     }
 
     qDebug() << "could not parse giving " << QString(ext.data()) << " object\n";
