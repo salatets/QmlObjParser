@@ -19,7 +19,7 @@ struct Mtl{
     illum illum_mode;
     std::string diffuse_map_path;
     Mtl() : name(""), ambient(0,0,0), diffuse(0,0,0), specular(0,0,0),
-        illum_mode(AMBIENT_ON), diffuse_map_path("") {};
+        illum_mode(AMBIENT_ON), diffuse_map_path("") {}
 };
 
 enum meshType{
@@ -38,8 +38,8 @@ public:
     static MeshNode make(const Mtl& material,
                              meshType format,
                              const std::vector<Vec3>& vertexs,
-                             const std::vector<Vec3>& normals,
-                             const std::vector<Vec2>& uvs);
+                             const std::vector<Vec3>& normals = {},
+                             const std::vector<Vec2>& uvs = {});
 
     const meshType& getType() const {return type;}
     const float* getData() const { return vertex_data;}
