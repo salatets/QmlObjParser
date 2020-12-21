@@ -38,9 +38,9 @@ void MeshNodeLoaderVNT::LoadTexture(Texture texture){ // TODO texture loader
 }
 
 MeshNodeLoaderVNT::MeshNodeLoaderVNT(const MeshNode& mesh,
-        const std::string& path,
-        std::shared_ptr<QOpenGLShaderProgram> &shad
-        ): MeshNodeLoader(mesh, path, shad){
+                                     const std::string& path,
+                                     std::shared_ptr<QOpenGLShaderProgram> &shad
+                                     ): MeshNodeLoader(mesh, path, shad){
 
     Texture diffuse = parseBMP(m_path + m_mesh.getMaterial().diffuse_map_path);
 
@@ -79,9 +79,9 @@ MeshNodeLoaderVNT::~MeshNodeLoaderVNT(){
 //------------------------------------------
 
 MeshNodeLoaderVN::MeshNodeLoaderVN(const MeshNode& mesh,
-        const std::string& path,
-        std::shared_ptr<QOpenGLShaderProgram> &shad
-        ): MeshNodeLoader(mesh, path,shad){}
+                                   const std::string& path,
+                                   std::shared_ptr<QOpenGLShaderProgram> &shad
+                                   ): MeshNodeLoader(mesh, path,shad){}
 
 void MeshNodeLoaderVN::template_init_buffer(){
     vbo.allocate(m_mesh.getData(), m_mesh.getSize() * sizeof(float) * MeshNode::getTypeSize(m_mesh));
@@ -118,9 +118,9 @@ void MeshNodeLoaderV::template_paint(){
 //------------------------------------------
 
 MeshNodeLoaderVT::MeshNodeLoaderVT(const MeshNode& mesh,
-        const std::string& path,
-        std::shared_ptr<QOpenGLShaderProgram> &shad
-        ): MeshNodeLoader(mesh, path,shad){}
+                                   const std::string& path,
+                                   std::shared_ptr<QOpenGLShaderProgram> &shad
+                                   ): MeshNodeLoader(mesh, path,shad){}
 
 void MeshNodeLoaderVT::template_init_buffer(){
     vbo.allocate(m_mesh.getData(), m_mesh.getSize() * sizeof(float) * MeshNode::getTypeSize(m_mesh));

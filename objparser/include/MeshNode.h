@@ -36,10 +36,10 @@ class MeshNode
 {
 public:
     static MeshNode make(const Mtl& material,
-                             meshType format,
-                             const std::vector<Vec3>& vertexs,
-                             const std::vector<Vec3>& normals = {},
-                             const std::vector<Vec2>& uvs = {});
+                         meshType format,
+                         const std::vector<Vec3>& vertexs,
+                         const std::vector<Vec3>& normals = {},
+                         const std::vector<Vec2>& uvs = {});
 
     const meshType& getType() const {return type;}
     const float* getData() const { return vertex_data;}

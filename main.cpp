@@ -7,9 +7,9 @@
 
 int main(int argc, char *argv[])
 {
-    #if QT_VERSION_MAJOR == 5
+#if QT_VERSION_MAJOR == 5
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
-    #endif
+#endif
 
     QGuiApplication app(argc, argv);
 

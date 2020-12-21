@@ -237,10 +237,10 @@ void GLSceneRenderer::setPath(const QUrl& url)
     scene = FileLoader(m_path);
 
     if(!scene.meshes.empty()){
-            fh.setMesh(std::get<2>(scene.meshes[0]));
-            sl.setScene(scene,getPWD(m_path));
-            ml.setMesh(std::get<2>(scene.meshes[0]), getPWD(m_path));
-        }
+        fh.setMesh(std::get<2>(scene.meshes[0]));
+        sl.setScene(scene,getPWD(m_path));
+        ml.setMesh(std::get<2>(scene.meshes[0]), getPWD(m_path));
+    }
     old_url = url;
     m_window->update();
 }

@@ -19,7 +19,8 @@ const char*, std::variant<QMatrix4x4,QVector3D,GLfloat>
 >
 >;
 
-class MeshNodeLoader: public QObject, protected QOpenGLFunctions{
+class MeshNodeLoader: public QObject, protected QOpenGLFunctions
+{
     Q_OBJECT
 public:
 

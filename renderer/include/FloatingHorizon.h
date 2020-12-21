@@ -14,8 +14,8 @@ class FloatingHorizon : public QObject, protected QOpenGLFunctions, public Shade
     Q_OBJECT
 public:
     FloatingHorizon() :
-    ShaderHolder({1}),
-      isInit(false)
+        ShaderHolder({1}),
+        isInit(false)
     {
         initializeOpenGLFunctions();
     }
@@ -27,7 +27,7 @@ public:
     void init_buffers();
     // tuple(width,height,model matrix)
     void paint(const std::function<std::tuple<GLsizei, GLsizei, QMatrix4x4>(const MeshRoot &)> &);
-            //QMatrix4x4 mat, GLsizei width, GLsizei height);
+    //QMatrix4x4 mat, GLsizei width, GLsizei height);
 
 private:
 

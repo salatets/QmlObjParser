@@ -13,7 +13,7 @@ public:
         loaders(nullptr),
         loaders_size(0),
         isInit(false)
-        {}
+    {}
 
     ~MeshLoader();
 

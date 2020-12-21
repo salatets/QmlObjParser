@@ -60,11 +60,12 @@ size_t MeshNode::getTypeSize(const MeshNode& mesh){
     return 0;
 }
 
+// TODO add overload
 MeshNode MeshNode::make(const Mtl& material,
-                         meshType format,
-                         const std::vector<Vec3>& vertexs,
-                         const std::vector<Vec3>& normals,
-                         const std::vector<Vec2>& uvs){
+                        meshType format,
+                        const std::vector<Vec3>& vertexs,
+                        const std::vector<Vec3>& normals,
+                        const std::vector<Vec2>& uvs){
 
     switch(format){
     case meshType::VNT:

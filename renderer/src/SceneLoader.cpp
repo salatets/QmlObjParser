@@ -42,7 +42,7 @@ void SceneLoader::paint(const std::function<std::tuple<QVector3D,QVector3D,progr
 
 void SceneLoader::afterSetShader(meshType type){
     for(auto& loader : loaders){
-            loader.setShader(type,getShader(type));
+        loader.setShader(type,getShader(type));
     }
 }
 

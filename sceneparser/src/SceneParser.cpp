@@ -25,9 +25,9 @@ Scene ParseScene(const std::string& path){
     std::string pwd = getPWD(path); // dubplicant from ObjParser
     std::string token;
     while (fstrm.peek() != -1){
-       fstrm >> token;
+        fstrm >> token;
 
-       if(token == "mesh"){
+        if(token == "mesh"){
             float x = 0,y= 0,z = 0;
             fstrm>>x>>y>>z;
             Vec3 scale(x,y,z);
@@ -46,8 +46,8 @@ Scene ParseScene(const std::string& path){
 
             MeshRoot mesh = parseOBJ(pwd + token);
             scene.meshes.emplace_back(scale,translate,mesh);
-       }
-       fstrm.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        fstrm.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
     fstrm.close();
 
