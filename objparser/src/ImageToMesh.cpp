@@ -1,5 +1,5 @@
+#include <algorithm>
 #include "ImageToMesh.h"
-#include <iostream>
 
 MeshRoot BmpToMesh(const Texture& texture){
     std::int32_t width = texture.width;
