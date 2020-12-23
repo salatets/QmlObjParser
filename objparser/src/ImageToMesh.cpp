@@ -2,8 +2,6 @@
 #include "ImageToMesh.h"
 
 MeshRoot BmpToMesh(const Texture& texture){
-    std::int32_t width = texture.width;
-    //std::int32_t height = texture.height % 2 != 0 ? texture.height - 1 : texture.height;
     std::int32_t step;
 
     switch (texture.bitsPerPixel) {
@@ -27,7 +25,7 @@ MeshRoot BmpToMesh(const Texture& texture){
 
     // assume that texture is monochrome
     for(int y = 0; y < texture.height-1; y++){
-        for(int x = 0; x < (width-1)*step; x+=step){
+        for(int x = 0; x < (texture.width-1)*step; x+=step){
             Vec3 normal(0,0,0);
             std::int32_t x_elem = x / (step);
             std::int32_t line = texture.width * step +padding;
@@ -108,7 +106,7 @@ MeshRoot BmpToMesh(const Texture& texture){
     }
 
     Mtl mtl; // TODO fill
-    return MeshRoot(Vec3(width/2,texture.height/2, maxZ-minZ / 2), Vec3(width,texture.height,maxZ-minZ), {MeshNode::make(mtl, meshType::VN, verticies,normals)});
+    return MeshRoot(Vec3(texture.width/2,texture.height/2, maxZ-minZ / 2), Vec3(texture.width,texture.height,maxZ-minZ), {MeshNode::make(mtl, meshType::VN, verticies,normals)});
 }
 
 
